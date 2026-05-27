@@ -51,7 +51,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `e1cd937a-98e4-4c4a-a928-04d0f2da89be`
+- Current deployed version: `00583233-f044-4320-ab7e-4d89a8ad5275`
 - Verified rollback version: `ff550c9d-f24d-41fd-b85c-1d375be1759c`
 - Backup commit: `92a4a9b2a693c7d58aeff1c971014a2902c8e4ee`
 
@@ -67,6 +67,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Added `data/tools.json` as a separate tool data source.
 - Added `/admin` as a safe offline tool-data editor.
 - Added `npm run sync:data` to sync `data/tools.json` into `public/index.html`.
+- Deployed admin/data source update and verified `/admin`, `/data/tools.json`, `/ask`, `/hot`, and `/image`.
 
 ## Safety Rules
 
