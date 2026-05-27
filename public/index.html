@@ -228,9 +228,9 @@
     .dir-tool-pill { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:20px; padding:2px 7px; font-size:10px; line-height:1.6; white-space:nowrap; }
     .dir-tool-pill.free { color:#16a34a; border-color:rgba(22,163,74,0.28); background:rgba(22,163,74,0.08); }
     .dir-tool-pill.paid { color:#dc2626; border-color:rgba(220,38,38,0.28); background:rgba(220,38,38,0.08); }
-    .dir-tool-visit { position:absolute; bottom:8px; left:62px; border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:var(--r); padding:3px 8px; font-size:10px; cursor:pointer; text-decoration:none; transition:all 0.15s; }
+    .dir-tool-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; padding-right:22px; }
+    .dir-tool-visit,.dir-tool-detail { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:var(--r); padding:3px 8px; font-size:10px; line-height:1.4; cursor:pointer; text-decoration:none; transition:all 0.15s; white-space:nowrap; }
     .dir-tool-visit:hover { border-color:var(--accent); color:var(--accent); }
-    .dir-tool-detail { position:absolute; bottom:8px; left:104px; border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:var(--r); padding:3px 8px; font-size:10px; cursor:pointer; text-decoration:none; transition:all 0.15s; }
     .dir-tool-detail:hover { border-color:var(--accent); color:var(--accent); }
 
     /* ── Hot news section ── */
@@ -3015,6 +3015,7 @@
         const cmpBtn = '<button class="dir-tool-cmp" onclick="event.stopPropagation();toggleCmpSelect(\'' + nameEsc + '\',this)" title="加入对比">+</button>';
         const visitBtn = t.url ? '<a class="dir-tool-visit" href="' + urlEsc + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">官网</a>' : '';
         const detailBtn = '<a class="dir-tool-detail" href="' + detailUrl + '" onclick="event.stopPropagation()">详情</a>';
+        const actionsHtml = '<div class="dir-tool-actions">' + visitBtn + detailBtn + '</div>';
         return '<div class="dir-tool-card"' + dataAttrs + ' onclick="jumpToChat(\'' + qEsc + '\')">' +
           newBadge + cmpBtn +
           '<div class="dir-tool-icon"' + iconStyle + '>' + catIcon + '</div>' +
@@ -3023,8 +3024,9 @@
           '<div class="dir-tool-desc">' + t.desc + '</div>' +
           metaHtml +
           bestHtml +
+          actionsHtml +
           '<button class="dir-tool-info-btn" onclick="event.stopPropagation();openTdModal(\'' + nameEsc + '\',\'' + catIcon + '\',\'' + (catBg||'') + '\')">i</button></div>' +
-          visitBtn + detailBtn + favBtn + '</div>';
+          favBtn + '</div>';
       }
 
       const hotCards = HOT_TOOL_NAMES.map(function(name) {
