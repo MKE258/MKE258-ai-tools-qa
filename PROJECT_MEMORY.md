@@ -51,7 +51,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `6153ec29-ede4-4023-8ca5-fd3bd7c09395`
+- Current deployed version: `6da45154-2515-469b-aae4-4b3050a44194`
 - Verified rollback version: `ff550c9d-f24d-41fd-b85c-1d375be1759c`
 - Backup commit: `92a4a9b2a693c7d58aeff1c971014a2902c8e4ee`
 
@@ -73,6 +73,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Verified `/tools/chatgpt`, `/tools/kimi`, `/sitemap.xml`, `/ask`, `/hot`, and `/image`.
 - Fixed tool card action button overlap so `官网` and `详情` no longer cover the audience/best-for label.
 - Removed the duplicate orange audience/best-for line from tool cards; the audience now appears once as a compact pill.
+- Removed all metadata pills from tool cards; price, access, and audience data remain available in tool details/data.
 
 ## Safety Rules
 
