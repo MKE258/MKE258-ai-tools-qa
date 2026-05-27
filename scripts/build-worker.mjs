@@ -7,6 +7,7 @@ const toolsJson = await readFile(new URL("../data/tools.json", import.meta.url),
 const worker = `const HTML = ${JSON.stringify(html)};
 const ADMIN_HTML = ${JSON.stringify(adminHtml)};
 const TOOLS_JSON = ${JSON.stringify(toolsJson)};
+const TOOLS_DATA = JSON.parse(TOOLS_JSON);
 
 export default {
   async fetch(request, env) {
@@ -39,6 +40,28 @@ export default {
       });
     }
 
+    if (url.pathname === "/robots.txt") {
+      return new Response(renderRobots(url), {
+        headers: {
+          "content-type": "text/plain; charset=utf-8",
+          "cache-control": "public, max-age=3600"
+        }
+      });
+    }
+
+    if (url.pathname === "/sitemap.xml") {
+      return new Response(renderSitemap(url), {
+        headers: {
+          "content-type": "application/xml; charset=utf-8",
+          "cache-control": "public, max-age=3600"
+        }
+      });
+    }
+
+    if (url.pathname.startsWith("/tools/")) {
+      return handleToolDetail(url);
+    }
+
     if (url.pathname === "/ask") {
       return handleAsk(request, env);
     }
@@ -60,6 +83,119 @@ export default {
     });
   }
 };
+
+function handleToolDetail(url) {
+  const slug = decodeURIComponent(url.pathname.replace(/^\\/tools\\//, "").replace(/\\/$/, ""));
+  const found = findToolBySlug(slug);
+  if (!found) {
+    return new Response("Not found", { status: 404 });
+  }
+  return new Response(renderToolPage(found, url), {
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "public, max-age=600",
+      "x-ai-tools-version": "source-2026-05-27"
+    }
+  });
+}
+
+function allTools() {
+  return TOOLS_DATA.categories.flatMap((category) =>
+    category.tools.map((tool) => ({ category, tool }))
+  );
+}
+
+function findToolBySlug(slug) {
+  const normalized = String(slug || "").toLowerCase();
+  return allTools().find(({ tool }) =>
+    toolSlug(tool.name) === normalized ||
+    tool.name.toLowerCase() === normalized ||
+    encodeURIComponent(tool.name) === slug
+  );
+}
+
+function toolSlug(name) {
+  const ascii = String(name || "").toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return ascii || encodeURIComponent(name);
+}
+
+function renderToolPage(found, url) {
+  const { category, tool } = found;
+  const related = category.tools
+    .filter((item) => item.name !== tool.name)
+    .slice(0, 6);
+  const canonical = url.origin + "/tools/" + toolSlug(tool.name);
+  const title = tool.name + " 使用指南 - AI工具教程助手";
+  const description = tool.desc || (tool.name + " 工具介绍、适合人群、价格和替代工具。");
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: tool.name,
+    applicationCategory: category.name,
+    description,
+    url: tool.url || canonical,
+    offers: {
+      "@type": "Offer",
+      price: tool.price || "查看官网",
+      priceCurrency: "USD"
+    }
+  };
+
+  return '<!doctype html><html lang="zh-CN"><head>' +
+    '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<title>' + escapeHtml(title) + '</title>' +
+    '<meta name="description" content="' + escapeHtml(description) + '">' +
+    '<link rel="canonical" href="' + escapeHtml(canonical) + '">' +
+    '<script type="application/ld+json">' + JSON.stringify(jsonLd).replace(/</g, "\\\\u003c") + '</script>' +
+    '<style>' +
+    ':root{--bg:#f6f7f9;--panel:#fff;--text:#172033;--muted:#667085;--line:#d8dde7;--accent:#c96a2a}' +
+    '*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.7}' +
+    'main{width:min(980px,calc(100% - 28px));margin:0 auto;padding:28px 0 42px}' +
+    'a{color:inherit;text-decoration:none}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}' +
+    '.back,.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 12px}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}' +
+    '.hero,.section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:14px}' +
+    'h1{margin:0 0 8px;font-size:34px;line-height:1.2}.cat{color:var(--accent);font-weight:700}.desc{color:var(--muted);font-size:16px}' +
+    '.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.meta{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fafafa}.meta b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}' +
+    '.chips{display:flex;flex-wrap:wrap;gap:7px}.chip{background:#eef2f7;border-radius:999px;padding:5px 9px;color:#475467;font-size:13px}' +
+    '.related{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.card{border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px}.card p{margin:4px 0 0;color:var(--muted);font-size:13px}' +
+    '@media(max-width:720px){h1{font-size:28px}.grid,.related{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}' +
+    '</style></head><body><main>' +
+    '<div class="top"><a class="back" href="/">← 返回工具导航</a><a class="btn primary" href="' + escapeHtml(tool.url || "/") + '" target="_blank" rel="noopener noreferrer">去官网</a></div>' +
+    '<section class="hero"><div class="cat">' + escapeHtml(category.icon + " " + category.name) + '</div>' +
+    '<h1>' + escapeHtml(tool.name) + '</h1><div class="desc">' + escapeHtml(description) + '</div>' +
+    '<div class="grid">' +
+    '<div class="meta"><b>价格</b>' + escapeHtml(tool.price || "查看官网") + '</div>' +
+    '<div class="meta"><b>适合人群</b>' + escapeHtml(tool.audience || "通用用户") + '</div>' +
+    '<div class="meta"><b>访问状态</b>' + escapeHtml((tool.filters || []).includes("国内直连") ? "国内直连" : "视地区而定") + '</div>' +
+    '</div></section>' +
+    '<section class="section"><h2>适合用来做什么</h2><p>' + escapeHtml(tool.q || (tool.name + " 怎么用")) + '</p><div class="chips">' +
+    (tool.tags || []).concat(tool.filters || []).map((tag) => '<span class="chip">' + escapeHtml(tag) + '</span>').join('') +
+    '</div></section>' +
+    '<section class="section"><h2>使用建议</h2><p>点击首页工具卡片可以直接向 AI 提问。价格、额度和可访问性变化较快，正式使用前建议以官网信息为准。</p></section>' +
+    '<section class="section"><h2>同类工具</h2><div class="related">' +
+    related.map((item) => '<a class="card" href="/tools/' + toolSlug(item.name) + '"><strong>' + escapeHtml(item.name) + '</strong><p>' + escapeHtml(item.desc || "") + '</p></a>').join('') +
+    '</div></section>' +
+    '</main></body></html>';
+}
+
+function renderSitemap(url) {
+  const now = new Date().toISOString();
+  const urls = [
+    url.origin + "/",
+    url.origin + "/admin",
+    ...allTools().map(({ tool }) => url.origin + "/tools/" + toolSlug(tool.name))
+  ];
+  return '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+    urls.map((loc) => '<url><loc>' + escapeXml(loc) + '</loc><lastmod>' + now + '</lastmod></url>').join('') +
+    '</urlset>';
+}
+
+function renderRobots(url) {
+  return 'User-agent: *\\nAllow: /\\nSitemap: ' + url.origin + '/sitemap.xml\\n';
+}
 
 async function handleAsk(request, env) {
   if (request.method !== "POST") {
@@ -233,6 +369,19 @@ function decodeXml(value) {
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function escapeXml(value) {
+  return escapeHtml(value);
 }
 
 function base64ToBytes(base64) {
