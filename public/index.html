@@ -224,10 +224,6 @@
     .dir-tool-body { flex:1; min-width:0; padding-right:26px; }
     .dir-tool-name { font-size:14px; font-weight:600; color:var(--text); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .dir-tool-desc { font-size:12px; color:var(--text2); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .dir-tool-meta { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; padding-right:22px; }
-    .dir-tool-pill { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:20px; padding:2px 7px; font-size:10px; line-height:1.6; white-space:nowrap; }
-    .dir-tool-pill.free { color:#16a34a; border-color:rgba(22,163,74,0.28); background:rgba(22,163,74,0.08); }
-    .dir-tool-pill.paid { color:#dc2626; border-color:rgba(220,38,38,0.28); background:rgba(220,38,38,0.08); }
     .dir-tool-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; padding-right:22px; }
     .dir-tool-visit,.dir-tool-detail { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:var(--r); padding:3px 8px; font-size:10px; line-height:1.4; cursor:pointer; text-decoration:none; transition:all 0.15s; white-space:nowrap; }
     .dir-tool-visit:hover { border-color:var(--accent); color:var(--accent); }
@@ -2998,14 +2994,6 @@
         const detailUrl = '/tools/' + toolSlug(t.name);
         const iconStyle = catBg ? ' style="background:' + catBg + '"' : '';
         const newBadge = NEW_TOOL_NAMES.has(t.name) ? '<span class="new-badge">NEW</span>' : '';
-        const bestShort = t.audience ? t.audience.split('和')[0].split('、')[0] : '';
-        const accessLabel = (t.filters || []).includes('国内直连') ? '国内直连' : '访问视地区';
-        const priceClass = t.price === '免费' ? ' free' : (t.price === '付费' ? ' paid' : '');
-        const metaHtml = '<div class="dir-tool-meta">' +
-          (t.price ? '<span class="dir-tool-pill' + priceClass + '">' + escapeHtml(t.price) + '</span>' : '') +
-          '<span class="dir-tool-pill">' + accessLabel + '</span>' +
-          (t.audience ? '<span class="dir-tool-pill">' + escapeHtml(bestShort || t.audience) + '</span>' : '') +
-          '</div>';
         const dataAttrs = ' data-filters="' + (t.filters||[]).join(',') + '" data-tags="' + (t.tags||[]).join(',') + '" data-category="' + (findTool(t.name)?.cat?.name || '') + '" data-name="' + t.name.replace(/"/g,'&quot;') + '"';
         const isFav = getFavTools().has(t.name);
         const favBtn = '<button class="dir-tool-fav' + (isFav ? ' faved' : '') + '" onclick="event.stopPropagation();toggleFavTool(\'' + nameEsc + '\',this)" title="' + (isFav ? '已收藏' : '收藏') + '">' + (isFav ? '❤' : '♡') + '</button>';
@@ -3019,7 +3007,6 @@
           '<div class="dir-tool-body">' +
           '<div class="dir-tool-name">' + t.name + '</div>' +
           '<div class="dir-tool-desc">' + t.desc + '</div>' +
-          metaHtml +
           actionsHtml +
           '<button class="dir-tool-info-btn" onclick="event.stopPropagation();openTdModal(\'' + nameEsc + '\',\'' + catIcon + '\',\'' + (catBg||'') + '\')">i</button></div>' +
           favBtn + '</div>';
