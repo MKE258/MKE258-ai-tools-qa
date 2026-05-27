@@ -9,7 +9,7 @@
 - Added tool card metadata for price, access status, audience, and official site.
 - Moved hot news lower in the tool directory so tool selection is the primary first-screen workflow.
 - Verified production deployment:
-  - Current version: `6da45154-2515-469b-aae4-4b3050a44194`
+  - Current version: `36c7b2a7-c1b8-486f-b28a-8f85741905b7`
   - Rollback version: `ff550c9d-f24d-41fd-b85c-1d375be1759c`
 - Fixed tool card layout follow-ups and removed duplicate card metadata pills.
 - Improved `/admin` offline maintenance with tool search, validation summary, safer import errors, and escaped list output.
