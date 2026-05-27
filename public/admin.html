@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI工具后台</title>
   <style>
-    :root { --bg:#f6f7f9; --panel:#fff; --text:#172033; --muted:#667085; --line:#d8dde7; --accent:#1f6feb; --danger:#c2410c; }
+    :root { --bg:#f6f7f9; --panel:#fff; --text:#172033; --muted:#667085; --line:#d8dde7; --accent:#1f6feb; --danger:#c2410c; --ok:#15803d; --warn:#b45309; }
     * { box-sizing:border-box; }
     body { margin:0; background:var(--bg); color:var(--text); font-family:"Microsoft YaHei",system-ui,sans-serif; }
     header { position:sticky; top:0; z-index:5; background:rgba(255,255,255,.92); border-bottom:1px solid var(--line); backdrop-filter:blur(12px); }
@@ -16,18 +16,27 @@
     button { border:1px solid var(--line); background:#fff; border-radius:8px; padding:9px 12px; cursor:pointer; color:var(--text); }
     button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
     button.danger { color:var(--danger); }
+    .top-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     main { width:min(1280px,calc(100% - 28px)); margin:18px auto 40px; display:grid; grid-template-columns:260px 1fr; gap:16px; }
     aside, section { background:var(--panel); border:1px solid var(--line); border-radius:10px; }
     aside { align-self:start; position:sticky; top:82px; padding:12px; }
     .cat { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; text-align:left; }
     .cat.active { border-color:var(--accent); color:var(--accent); }
     .panel-head { padding:14px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .panel-tools { display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .tool-search { min-width:220px; }
     .tools { padding:14px; display:grid; gap:10px; }
     .tool { border:1px solid var(--line); border-radius:10px; padding:12px; display:grid; grid-template-columns:1fr auto; gap:12px; background:#fff; }
     .tool h3 { margin:0 0 6px; font-size:16px; }
     .tool p { margin:0; color:var(--muted); line-height:1.5; font-size:13px; }
     .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
     .tag { border-radius:999px; background:#eef2f7; color:#475467; padding:3px 7px; font-size:12px; }
+    .empty { color:var(--muted); text-align:center; padding:28px 10px; border:1px dashed var(--line); border-radius:10px; background:#fafafa; }
+    .validation { margin:12px 0 0; border:1px solid var(--line); border-radius:10px; padding:10px; background:#fff; font-size:12px; line-height:1.55; color:var(--muted); }
+    .validation.ok { border-color:rgba(21,128,61,.28); background:rgba(21,128,61,.06); color:var(--ok); }
+    .validation.warn { border-color:rgba(180,83,9,.28); background:rgba(180,83,9,.06); color:#7c2d12; }
+    .validation strong { color:var(--text); }
+    .validation ul { margin:6px 0 0 18px; padding:0; }
     dialog { border:1px solid var(--line); border-radius:12px; width:min(760px,calc(100% - 24px)); padding:0; box-shadow:0 20px 60px rgba(15,23,42,.18); }
     dialog::backdrop { background:rgba(15,23,42,.4); }
     .modal-body { padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -37,7 +46,7 @@
     .full { grid-column:1 / -1; }
     .modal-actions { padding:14px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:8px; }
     .notice { margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6; }
-    @media (max-width:800px) { main { grid-template-columns:1fr; } aside { position:static; } .modal-body { grid-template-columns:1fr; } }
+    @media (max-width:800px) { .bar { align-items:flex-start; flex-direction:column; padding:12px 0; } .top-actions { justify-content:flex-start; } main { grid-template-columns:1fr; } aside { position:static; } .panel-head { align-items:flex-start; flex-direction:column; } .panel-tools,.tool-search { width:100%; } .modal-body { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -47,7 +56,8 @@
         <h1>AI工具后台</h1>
         <div class="sub">编辑工具数据，导出 JSON 后用同步脚本写回首页。</div>
       </div>
-      <div>
+      <div class="top-actions">
+        <button id="validateBtn">校验数据</button>
         <button id="importBtn">导入 JSON</button>
         <button class="primary" id="exportBtn">导出 JSON</button>
       </div>
@@ -59,6 +69,7 @@
       <p class="notice">安全策略：后台不直接写线上数据，避免未授权修改。修改后导出 `tools.json`，覆盖仓库里的 `data/tools.json`，再运行同步和发布。</p>
       <button class="primary" id="addCategoryBtn" style="width:100%;margin-bottom:10px">新增分类</button>
       <div id="categoryList"></div>
+      <div id="validationBox" class="validation"></div>
     </aside>
     <section>
       <div class="panel-head">
@@ -66,7 +77,10 @@
           <strong id="categoryTitle">工具列表</strong>
           <div class="sub" id="categoryMeta"></div>
         </div>
-        <button class="primary" id="addToolBtn">新增工具</button>
+        <div class="panel-tools">
+          <input class="tool-search" id="toolSearch" placeholder="搜索当前分类工具">
+          <button class="primary" id="addToolBtn">新增工具</button>
+        </div>
       </div>
       <div class="tools" id="toolList"></div>
     </section>
@@ -115,13 +129,31 @@
     let activeCategory = 0;
     let editingTool = null;
     let editingCategory = null;
+    let toolSearch = "";
 
     const $ = (id) => document.getElementById(id);
     const splitList = (value) => value.split(",").map(x => x.trim()).filter(Boolean);
+    const escapeHtml = (value) => String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+    function assertDataShape(nextData) {
+      if (!nextData || !Array.isArray(nextData.categories)) {
+        throw new Error("JSON 必须包含 categories 数组");
+      }
+      nextData.categories.forEach((cat, ci) => {
+        if (!cat || typeof cat !== "object") throw new Error(`第 ${ci + 1} 个分类格式不正确`);
+        if (!Array.isArray(cat.tools)) throw new Error(`分类 ${cat.name || ci + 1} 缺少 tools 数组`);
+      });
+    }
 
     async function loadData() {
       const res = await fetch("/data/tools.json", { cache: "no-store" });
       data = await res.json();
+      assertDataShape(data);
       render();
     }
 
@@ -130,25 +162,69 @@
       if (activeCategory >= data.categories.length) activeCategory = Math.max(0, data.categories.length - 1);
       $("categoryList").innerHTML = data.categories.map((cat, i) => `
         <button class="cat ${i === activeCategory ? "active" : ""}" onclick="activeCategory=${i};render()">
-          <span>${cat.icon || ""} ${cat.name}</span><span>${cat.tools?.length || 0}</span>
+          <span>${escapeHtml(cat.icon || "")} ${escapeHtml(cat.name || "")}</span><span>${cat.tools?.length || 0}</span>
         </button>
       `).join("");
       const cat = data.categories[activeCategory];
       $("categoryTitle").textContent = cat ? `${cat.icon || ""} ${cat.name}` : "无分类";
-      $("categoryMeta").textContent = cat ? `${cat.tools.length} 个工具` : "";
-      $("toolCategory").innerHTML = data.categories.map((cat, i) => `<option value="${i}">${cat.icon || ""} ${cat.name}</option>`).join("");
-      $("toolList").innerHTML = cat ? cat.tools.map((tool, i) => `
+      const query = toolSearch.toLowerCase().trim();
+      const tools = cat ? cat.tools.map((tool, i) => ({ tool, i })).filter(({ tool }) => {
+        if (!query) return true;
+        return [tool.name, tool.desc, tool.q, tool.url, tool.price, tool.audience, ...(tool.tags || []), ...(tool.filters || [])]
+          .join(" ")
+          .toLowerCase()
+          .includes(query);
+      }) : [];
+      $("categoryMeta").textContent = cat ? `${cat.tools.length} 个工具${query ? `，匹配 ${tools.length} 个` : ""}` : "";
+      $("toolCategory").innerHTML = data.categories.map((cat, i) => `<option value="${i}">${escapeHtml(cat.icon || "")} ${escapeHtml(cat.name || "")}</option>`).join("");
+      $("toolList").innerHTML = cat && tools.length ? tools.map(({ tool, i }) => `
         <article class="tool">
           <div>
-            <h3>${tool.name}</h3>
-            <p>${tool.desc || ""}</p>
+            <h3>${escapeHtml(tool.name)}</h3>
+            <p>${escapeHtml(tool.desc || "")}</p>
             <div class="tags">
-              ${(tool.price ? [tool.price] : []).concat(tool.audience ? [tool.audience] : [], tool.filters || [], tool.tags || []).slice(0, 8).map(tag => `<span class="tag">${tag}</span>`).join("")}
+              ${(tool.price ? [tool.price] : []).concat(tool.audience ? [tool.audience] : [], tool.filters || [], tool.tags || []).slice(0, 8).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}
             </div>
           </div>
           <div><button onclick="openTool(${i})">编辑</button></div>
         </article>
-      `).join("") : "";
+      `).join("") : `<div class="empty">${cat ? "没有匹配的工具" : "还没有分类"}</div>`;
+      renderValidation();
+    }
+
+    function validateData() {
+      const issues = [];
+      const names = new Map();
+      const total = data.categories.reduce((sum, cat) => sum + (cat.tools?.length || 0), 0);
+      data.categories.forEach((cat, ci) => {
+        if (!cat.name?.trim()) issues.push(`第 ${ci + 1} 个分类缺少名称`);
+        (cat.tools || []).forEach((tool, ti) => {
+          const label = tool.name || `${cat.name || "未命名分类"} 第 ${ti + 1} 个工具`;
+          if (!tool.name?.trim()) issues.push(`${label} 缺少名称`);
+          if (!tool.desc?.trim()) issues.push(`${label} 缺少描述`);
+          if (!tool.url?.trim()) issues.push(`${label} 缺少官网链接`);
+          if (!tool.q?.trim()) issues.push(`${label} 缺少提问语句`);
+          const key = String(tool.name || "").trim().toLowerCase();
+          if (key) {
+            if (names.has(key)) issues.push(`${tool.name} 与 ${names.get(key)} 重名`);
+            else names.set(key, tool.name);
+          }
+        });
+      });
+      return { issues, total };
+    }
+
+    function renderValidation(forceOpen) {
+      const box = $("validationBox");
+      const result = validateData();
+      box.className = "validation " + (result.issues.length ? "warn" : "ok");
+      if (!result.issues.length) {
+        box.innerHTML = `<strong>数据正常</strong><br>${data.categories.length} 个分类，${result.total} 个工具。`;
+        return;
+      }
+      const shown = result.issues.slice(0, forceOpen ? result.issues.length : 5);
+      const more = result.issues.length > shown.length ? `<div>还有 ${result.issues.length - shown.length} 项，点击“校验数据”查看。</div>` : "";
+      box.innerHTML = `<strong>发现 ${result.issues.length} 个维护项</strong><ul>${shown.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>${more}`;
     }
 
     function openTool(index) {
@@ -171,6 +247,7 @@
 
     function saveTool() {
       const targetCategory = Number($("toolCategory").value);
+      if (!data.categories[targetCategory]) return alert("请先新增分类");
       const tool = {
         name: $("toolName").value.trim(),
         q: $("toolQuestion").value.trim(),
@@ -191,6 +268,8 @@
         activeCategory = targetCategory;
       }
       $("toolDialog").close();
+      toolSearch = "";
+      $("toolSearch").value = "";
       render();
     }
 
@@ -251,6 +330,8 @@
     }
 
     $("addToolBtn").onclick = () => openTool(null);
+    $("toolSearch").oninput = (event) => { toolSearch = event.target.value; render(); };
+    $("validateBtn").onclick = () => renderValidation(true);
     $("saveToolBtn").onclick = saveTool;
     $("deleteToolBtn").onclick = deleteTool;
     $("addCategoryBtn").onclick = () => openCategory(null);
@@ -261,9 +342,19 @@
     $("fileInput").onchange = async (event) => {
       const file = event.target.files[0];
       if (!file) return;
-      data = JSON.parse(await file.text());
-      activeCategory = 0;
-      render();
+      try {
+        const nextData = JSON.parse(await file.text());
+        assertDataShape(nextData);
+        data = nextData;
+        activeCategory = 0;
+        toolSearch = "";
+        $("toolSearch").value = "";
+        render();
+      } catch (error) {
+        alert("导入失败：" + error.message);
+      } finally {
+        event.target.value = "";
+      }
     };
 
     loadData().catch(error => {

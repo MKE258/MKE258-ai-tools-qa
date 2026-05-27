@@ -4,9 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "validate:data": "node scripts/validate-tools.mjs",
+    "validate:html": "node scripts/validate-html.mjs",
+    "smoke:worker": "node scripts/smoke-worker.mjs",
     "sync:data": "node scripts/sync-index-from-tools.mjs",
     "build": "node scripts/build-worker.mjs",
-    "check": "npm run build && node --check dist/worker.js",
+    "check": "npm run validate:data && npm run validate:html && npm run build && node --check dist/worker.js && npm run smoke:worker",
+    "deploy:dry": "npm run check && npx wrangler deploy dist/worker.js --dry-run",
     "deploy": "npm run build && npx wrangler deploy dist/worker.js"
   },
   "devDependencies": {

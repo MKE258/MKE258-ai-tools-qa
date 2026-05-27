@@ -12,8 +12,11 @@
 
 ```powershell
 npm install
+npm run validate:data
+npm run validate:html
 npm run sync:data
 npm run check
+npm run deploy:dry
 npm run deploy
 ```
 
@@ -23,20 +26,20 @@ npm run deploy
 - `SERPER_API_KEY`：当前源码保留配置位，后续可用于搜索增强
 - `AI` Workers AI binding：用于 `/image`
 
-当前线上已回滚到旧版本。发布本源码前，需要先本地预览和接口验证。
+当前源码已作为后续维护的 source of truth。发布前必须先本地预览并验证动态接口。
 
 线上信息：
 
 - 域名：https://tools.aitoolsguide.top/
 - Worker：`ai-tools-qa`
-- 当前已验证版本：`e1cd937a-98e4-4c4a-a928-04d0f2da89be`
+- 当前已部署版本：`6da45154-2515-469b-aae4-4b3050a44194`
 - 回滚版本：`ff550c9d-f24d-41fd-b85c-1d375be1759c`
 
 发布前检查：
 
 ```powershell
 npm run check
-npx wrangler deploy --dry-run
+npm run deploy:dry
 ```
 
 发布后验证：
@@ -59,8 +62,11 @@ Invoke-WebRequest https://tools.aitoolsguide.top/hot?tab=kr36
 # 2. 同步数据到首页
 npm run sync:data
 
-# 3. 检查并部署
+# 3. 校验、检查并部署
+npm run validate:data
+npm run validate:html
 npm run check
+npm run deploy:dry
 npm run deploy
 ```
 

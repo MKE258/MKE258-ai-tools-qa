@@ -25,8 +25,10 @@ Do not directly overwrite the live Worker without updating this repository.
 
 ```powershell
 npm run sync:data
+npm run validate:data
+npm run validate:html
 npm run check
-npx wrangler deploy --dry-run
+npm run deploy:dry
 npx wrangler deploy
 ```
 
@@ -67,6 +69,10 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Added `data/tools.json` as a separate tool data source.
 - Added `/admin` as a safe offline tool-data editor.
 - Added `npm run sync:data` to sync `data/tools.json` into `public/index.html`.
+- Added `npm run validate:data` to validate tool metadata and catch unsynced homepage data before build/deploy.
+- Added `npm run validate:html` to catch invalid inline scripts, old Worker domains, and injected Cloudflare beacon remnants before build/deploy.
+- Added `npm run smoke:worker` to exercise built Worker routes and content types without deploying.
+- Added `npm run deploy:dry` to run all local gates plus Wrangler dry-run without deploying.
 - Deployed admin/data source update and verified `/admin`, `/data/tools.json`, `/ask`, `/hot`, and `/image`.
 - Added SEO tool detail pages under `/tools/:slug`.
 - Added `/sitemap.xml` and `/robots.txt`.
@@ -74,6 +80,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Fixed tool card action button overlap so `官网` and `详情` no longer cover the audience/best-for label.
 - Removed the duplicate orange audience/best-for line from tool cards; the audience now appears once as a compact pill.
 - Removed all metadata pills from tool cards; price, access, and audience data remain available in tool details/data.
+- Improved `/admin` offline maintenance with current-category search, data validation summary, safer JSON import errors, and escaped list rendering.
 
 ## Safety Rules
 

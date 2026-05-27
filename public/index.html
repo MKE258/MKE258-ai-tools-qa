@@ -203,7 +203,7 @@
     .task-panel-title { font-size:16px; color:var(--text); font-weight:800; }
     .task-panel-sub { margin-top:3px; font-size:12px; color:var(--text3); }
     .task-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-    .task-card { background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:var(--rl); padding:10px 12px; cursor:pointer; text-align:left; min-height:64px; transition:all 0.15s; font-family:inherit; }
+    .task-card { background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:var(--rl); padding:10px 12px; cursor:pointer; text-align:left; min-height:64px; transition:all 0.15s; font-family:inherit; min-width:0; }
     .task-card:hover { border-color:var(--accent); background:var(--accent-bg); transform:translateY(-1px); }
     .task-card strong { display:block; font-size:13px; margin-bottom:4px; }
     .task-card span { display:block; color:var(--text2); font-size:11px; line-height:1.45; }
@@ -217,14 +217,14 @@
     @media (max-width:1100px) { .dir-tool-grid { grid-template-columns:repeat(3,1fr); } }
     @media (max-width:800px) { .dir-tool-grid { grid-template-columns:repeat(2,1fr); } }
     @media (max-width:600px) { .dir-tool-grid { grid-template-columns:1fr; } }
-    .dir-tool-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--rl); padding:14px 16px; display:flex; align-items:flex-start; gap:12px; cursor:pointer; transition:all 0.15s; box-shadow:0 1px 3px rgba(0,0,0,0.04); outline:none; position:relative; min-height:142px; }
+    .dir-tool-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--rl); padding:14px 16px; display:flex; align-items:flex-start; gap:12px; cursor:pointer; transition:all 0.15s; box-shadow:0 1px 3px rgba(0,0,0,0.04); outline:none; position:relative; min-height:142px; min-width:0; }
     .dir-tool-card:hover { border-color:var(--accent); box-shadow:0 3px 12px rgba(0,0,0,0.09); transform:translateY(-1px); }
     .dir-tool-icon { width:42px; height:42px; border-radius:10px; background:var(--surface); border:1px solid transparent; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
     .dir-tool-grid.sparse { grid-template-columns:repeat(2,1fr); }
     .dir-tool-body { flex:1; min-width:0; padding-right:26px; }
     .dir-tool-name { font-size:14px; font-weight:600; color:var(--text); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .dir-tool-desc { font-size:12px; color:var(--text2); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .dir-tool-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; padding-right:22px; }
+    .dir-tool-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; padding-right:22px; max-width:100%; }
     .dir-tool-visit,.dir-tool-detail { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:var(--r); padding:3px 8px; font-size:10px; line-height:1.4; cursor:pointer; text-decoration:none; transition:all 0.15s; white-space:nowrap; }
     .dir-tool-visit:hover { border-color:var(--accent); color:var(--accent); }
     .dir-tool-detail:hover { border-color:var(--accent); color:var(--accent); }
@@ -240,11 +240,11 @@
     .hot-update-time { font-size:11px; color:var(--text3); margin-left:auto; font-family:'DM Mono',monospace; }
     .hot-news-list { display:grid; grid-template-columns:repeat(2,1fr); gap:5px; }
     @media (max-width:700px) { .hot-news-list { grid-template-columns:1fr; } }
-    .hot-news-item { display:flex; align-items:center; gap:9px; padding:7px 12px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); cursor:pointer; transition:all 0.15s; }
+    .hot-news-item { display:flex; align-items:center; gap:9px; padding:7px 12px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); cursor:pointer; transition:all 0.15s; min-width:0; }
     .hot-news-item:hover { border-color:var(--accent); background:var(--accent-bg); }
     .hot-news-rank { font-size:11px; font-weight:700; color:var(--text3); width:16px; text-align:center; flex-shrink:0; font-family:'DM Mono',monospace; }
     .hot-news-rank.top3 { color:var(--accent); font-size:12px; }
-    .hot-news-title { font-size:13px; color:var(--text); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .hot-news-title { font-size:13px; color:var(--text); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .hot-news-heat { font-size:11px; color:var(--text3); flex-shrink:0; max-width:68px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .hot-news-loading { grid-column:1/-1; text-align:center; color:var(--text3); font-size:13px; padding:18px; }
 
@@ -519,7 +519,19 @@
       .hero-search-btn { border-radius:var(--rl); padding:12px; }
       .content-area { padding:16px; }
       .topbar-search { display:none; }
+      .topbar-logo-area { width:auto; margin-left:44px; }
+      .topbar { padding:0 12px; gap:8px; }
+      .topbar-btn { padding:6px 10px; }
       .topbar-cta { display:none; }
+      .dir-banner { align-items:flex-start; flex-wrap:wrap; padding:12px 14px; }
+      .dir-banner-sub { flex-basis:100%; line-height:1.5; }
+      .task-panel-head { align-items:flex-start; }
+      .task-card { min-height:58px; }
+      .dir-tool-card { min-height:128px; padding:13px 14px; }
+      .dir-tool-body { padding-right:22px; }
+      .dir-tool-actions { padding-right:20px; }
+      .hot-update-time { margin-left:0; width:100%; }
+      .cmp-float { width:calc(100% - 24px); justify-content:center; flex-wrap:wrap; white-space:normal; bottom:16px; }
       .bubble { font-size:14px; padding:12px 14px; }
       .msg-wrap { max-width:92%; }
       .toc { padding:16px; }
@@ -572,6 +584,11 @@
     .scene-chip { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:5px 14px; border-radius:20px; font-size:12px; cursor:pointer; transition:all 0.15s; font-family:inherit; }
     .scene-chip:hover { border-color:var(--border-s); color:var(--text); }
     .scene-chip.active { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); font-weight:600; }
+    .dir-search-status { display:none; align-items:center; justify-content:space-between; gap:10px; margin:0 0 14px; padding:10px 12px; border:1px solid var(--border); border-radius:var(--rl); background:var(--bg2); color:var(--text2); font-size:12px; }
+    .dir-search-status.show { display:flex; }
+    .dir-search-status strong { color:var(--text); font-size:13px; }
+    .dir-search-status button { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:20px; padding:4px 10px; cursor:pointer; font:inherit; white-space:nowrap; }
+    .dir-search-status button:hover { border-color:var(--accent); color:var(--accent); }
   </style>
 </head>
 <body>
@@ -734,7 +751,7 @@
         <div class="sc-brand">✦ AI工具教程助手</div>
         <div class="sc-q" id="scQ"></div>
         <div class="sc-a" id="scA"></div>
-        <div class="sc-footer">ai-tools-qa.miao957897121.workers.dev · @RealYDT</div>
+        <div class="sc-footer">tools.aitoolsguide.top · @RealYDT</div>
       </div>
       <div class="sc-hint">
         <button class="sc-dl-btn" onclick="downloadShareCard()">⬇ 下载图片</button>
@@ -1760,13 +1777,13 @@
     const LATEST_TOOL_NAMES = ['Kimi', '秘塔AI搜索', 'WPS AI', 'PixVerse', 'Pika', 'NotebookLM', 'Claude Code', 'Windsurf'];
     const NEW_TOOL_NAMES = new Set(['Sora', 'Vidu', '海螺AI', 'Udio', 'FishAudio', 'Bolt.new', 'v0.dev', 'Felo', 'Manus']);
     const TASK_GUIDES = [
-      { title: '写文章/文案', hint: 'Claude、ChatGPT、Jasper', query: '写作' },
+      { title: '写文章/文案', hint: 'Claude、ChatGPT、Jasper', query: 'AI 写作' },
       { title: '做 PPT', hint: 'Gamma、WPS AI、Beautiful.ai', query: 'PPT' },
-      { title: '生成图片', hint: 'Midjourney、Flux、Firefly', query: '画图' },
-      { title: '生成视频', hint: 'Runway、Kling、Pika', query: '视频' },
-      { title: '写代码', hint: 'Cursor、Claude Code、v0.dev', query: '编程' },
-      { title: '查资料', hint: 'Perplexity、秘塔、Felo', query: '搜索' },
-      { title: '做自动化', hint: 'Zapier、Make、n8n', query: '自动化' },
+      { title: '生成图片', hint: 'Midjourney、Flux、Firefly', query: 'AI 画图' },
+      { title: '生成视频', hint: 'Runway、Kling、Pika', query: 'AI 视频' },
+      { title: '写代码', hint: 'Cursor、Claude Code、v0.dev', query: 'AI 编程' },
+      { title: '查资料', hint: 'Perplexity、秘塔、Felo', query: 'AI 搜索' },
+      { title: '做自动化', hint: 'Zapier、Make、n8n', query: 'AI 自动化' },
       { title: '国内直连', hint: 'Kimi、豆包、通义、即梦', query: '国内直连' }
     ];
 
@@ -2334,16 +2351,54 @@
 
     async function ask(text) { document.getElementById("input").value = text; sendMessage(); }
 
+    function setDirectoryStatus(kind, label, count) {
+      const el = document.getElementById('dirSearchStatus');
+      if (!el) return;
+      if (!kind) {
+        el.classList.remove('show');
+        el.innerHTML = '';
+        return;
+      }
+      const safeLabel = escapeHtml(label || '');
+      if (kind === 'empty') {
+        el.classList.add('show');
+        el.innerHTML = '<span><strong>没有找到匹配工具</strong>：' + safeLabel + '</span><button onclick="clearDirectoryFilters()">清除</button>';
+        return;
+      }
+      el.classList.add('show');
+      el.innerHTML = '<span><strong>已筛选</strong>：' + safeLabel + '，共 ' + count + ' 个工具</span><button onclick="clearDirectoryFilters()">清除</button>';
+    }
+
+    function clearDirectoryFilters() {
+      document.querySelectorAll('.scene-chip').forEach(function(c) { c.classList.remove('active'); });
+      var ti = document.getElementById('topbarSearch'); if (ti) ti.value = '';
+      var hi = document.getElementById('heroSearch'); if (hi) hi.value = '';
+      document.querySelectorAll('.dir-section').forEach(function(section) {
+        section.style.display = '';
+        section.querySelectorAll('.dir-tool-card').forEach(function(card) { card.style.display = ''; });
+      });
+      setDirectoryStatus(null);
+    }
+
+    function syncSearchInputs(keyword) {
+      var ti = document.getElementById('topbarSearch'); if (ti && ti.value !== keyword) ti.value = keyword;
+      var hi = document.getElementById('heroSearch'); if (hi && hi.value !== keyword) hi.value = keyword;
+    }
+
     // Directory search
     function searchTools(keyword) {
-      keyword = (keyword || '').toLowerCase().trim();
-      if (keyword.length >= 2) trackSearch(keyword);
+      keyword = (keyword || '').trim();
+      const normalized = keyword.toLowerCase();
+      const terms = normalized.split(/\s+/).filter(Boolean);
+      syncSearchInputs(keyword);
+      if (normalized.length >= 2) trackSearch(normalized);
       // clear scene filter when doing a text search
       document.querySelectorAll('.scene-chip').forEach(function(c) { c.classList.remove('active'); });
       const sections = document.querySelectorAll('.dir-section');
       if (!sections.length) return;
+      let totalVisible = 0;
       sections.forEach(function(section) {
-        if (!keyword) {
+        if (!normalized) {
           section.style.display = '';
           section.querySelectorAll('.dir-tool-card').forEach(function(c) { c.style.display = ''; });
           return;
@@ -2351,12 +2406,15 @@
         let visible = 0;
         section.querySelectorAll('.dir-tool-card').forEach(function(card) {
           const text = (card.textContent + ' ' + (card.dataset.tags||'') + ' ' + (card.dataset.filters||'') + ' ' + (card.dataset.category||'')).toLowerCase();
-          const show = text.includes(keyword);
+          const show = terms.every(function(term) { return text.includes(term); });
           card.style.display = show ? '' : 'none';
           if (show) visible++;
         });
+        totalVisible += visible;
         section.style.display = visible > 0 ? '' : 'none';
       });
+      if (!normalized) setDirectoryStatus(null);
+      else setDirectoryStatus(totalVisible ? 'filtered' : 'empty', keyword, totalVisible);
     }
 
     function filterByScene(btn, useTag) {
@@ -2370,8 +2428,9 @@
         s.style.display = '';
         s.querySelectorAll('.dir-tool-card').forEach(function(c) { c.style.display = ''; });
       });
-      if (isActive) return; // toggle off
+      if (isActive) { setDirectoryStatus(null); return; } // toggle off
       btn.classList.add('active');
+      let totalVisible = 0;
       document.querySelectorAll('.dir-section').forEach(function(section) {
         var visible = 0;
         section.querySelectorAll('.dir-tool-card').forEach(function(card) {
@@ -2380,8 +2439,10 @@
           card.style.display = match ? '' : 'none';
           if (match) visible++;
         });
+        totalVisible += visible;
         section.style.display = visible > 0 ? '' : 'none';
       });
+      setDirectoryStatus(totalVisible ? 'filtered' : 'empty', scene, totalVisible);
     }
 
     // Login toggle (mock)
@@ -2905,7 +2966,7 @@
       drawWrapText(ctx, a, 72, y, 936, ansLH, maxLines);
       ctx.fillStyle = '#3e3e4a';
       ctx.font = '26px system-ui, sans-serif';
-      ctx.fillText('ai-tools-qa.miao957897121.workers.dev · @RealYDT', 72, footerY);
+      ctx.fillText('tools.aitoolsguide.top · @RealYDT', 72, footerY);
       const link = document.createElement('a');
       link.download = 'AI工具知识卡片.png';
       link.href = cv.toDataURL('image/png');
@@ -3064,6 +3125,7 @@
         '</div>';
 
       const hotSearchBar = '<div class="hot-searches" id="hotSearchBar" style="display:none"></div>';
+      const searchStatus = '<div class="dir-search-status" id="dirSearchStatus"></div>';
 
       const sceneBar =
         '<div class="scene-bar" id="sceneBar">' +
@@ -3080,6 +3142,7 @@
         taskPanel +
         hotSearchBar +
         sceneBar +
+        searchStatus +
         '<div class="dir-section" id="dir-hot">' +
         '<div class="dir-section-title">🔥 热门工具<span class="dir-section-count">' + HOT_TOOL_NAMES.length + '</span></div>' +
         '<div class="dir-tool-grid">' + hotCards + '</div>' +
@@ -3355,5 +3418,4 @@
     }
   </script>
 
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4f1bfaed3a164c7c830aac80dff7b529","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body></html>
