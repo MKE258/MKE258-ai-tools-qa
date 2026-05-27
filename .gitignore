@@ -1,0 +1,7 @@
+.wrangler/
+dist/
+node_modules/
+*.log
+image-test.png
+preview-*.png
+pre-deploy-deployments.json

@@ -1,0 +1,14 @@
+{
+  "name": "ai-tools-qa-source",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-worker.mjs",
+    "check": "npm run build && node --check dist/worker.js",
+    "deploy": "npm run build && wrangler deploy dist/worker.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.95.0"
+  }
+}
