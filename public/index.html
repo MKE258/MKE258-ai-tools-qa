@@ -576,8 +576,6 @@
     .scene-chip { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:5px 14px; border-radius:20px; font-size:12px; cursor:pointer; transition:all 0.15s; font-family:inherit; }
     .scene-chip:hover { border-color:var(--border-s); color:var(--text); }
     .scene-chip.active { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); font-weight:600; }
-    /* ── Best-for label on card ── */
-    .dir-tool-best { font-size:10px; color:var(--accent); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'DM Mono',monospace; opacity:0.85; }
   </style>
 </head>
 <body>
@@ -3001,7 +2999,6 @@
         const iconStyle = catBg ? ' style="background:' + catBg + '"' : '';
         const newBadge = NEW_TOOL_NAMES.has(t.name) ? '<span class="new-badge">NEW</span>' : '';
         const bestShort = t.audience ? t.audience.split('和')[0].split('、')[0] : '';
-        const bestHtml = bestShort ? '<div class="dir-tool-best">✦ ' + bestShort + '</div>' : '';
         const accessLabel = (t.filters || []).includes('国内直连') ? '国内直连' : '访问视地区';
         const priceClass = t.price === '免费' ? ' free' : (t.price === '付费' ? ' paid' : '');
         const metaHtml = '<div class="dir-tool-meta">' +
@@ -3023,7 +3020,6 @@
           '<div class="dir-tool-name">' + t.name + '</div>' +
           '<div class="dir-tool-desc">' + t.desc + '</div>' +
           metaHtml +
-          bestHtml +
           actionsHtml +
           '<button class="dir-tool-info-btn" onclick="event.stopPropagation();openTdModal(\'' + nameEsc + '\',\'' + catIcon + '\',\'' + (catBg||'') + '\')">i</button></div>' +
           favBtn + '</div>';
