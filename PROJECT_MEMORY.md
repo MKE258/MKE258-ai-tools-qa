@@ -51,7 +51,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `00583233-f044-4320-ab7e-4d89a8ad5275`
+- Current deployed version: `3f59c851-7e36-4911-9a5e-59f1bbda59e0`
 - Verified rollback version: `ff550c9d-f24d-41fd-b85c-1d375be1759c`
 - Backup commit: `92a4a9b2a693c7d58aeff1c971014a2902c8e4ee`
 
@@ -68,6 +68,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Added `/admin` as a safe offline tool-data editor.
 - Added `npm run sync:data` to sync `data/tools.json` into `public/index.html`.
 - Deployed admin/data source update and verified `/admin`, `/data/tools.json`, `/ask`, `/hot`, and `/image`.
+- Added SEO tool detail pages under `/tools/:slug`.
+- Added `/sitemap.xml` and `/robots.txt`.
+- Verified `/tools/chatgpt`, `/tools/kimi`, `/sitemap.xml`, `/ask`, `/hot`, and `/image`.
 
 ## Safety Rules
 
