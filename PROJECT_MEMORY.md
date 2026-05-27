@@ -51,7 +51,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `3f59c851-7e36-4911-9a5e-59f1bbda59e0`
+- Current deployed version: `34e75ccc-91b4-40f9-95cc-93d82b5cb9a5`
 - Verified rollback version: `ff550c9d-f24d-41fd-b85c-1d375be1759c`
 - Backup commit: `92a4a9b2a693c7d58aeff1c971014a2902c8e4ee`
 
@@ -71,6 +71,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Added SEO tool detail pages under `/tools/:slug`.
 - Added `/sitemap.xml` and `/robots.txt`.
 - Verified `/tools/chatgpt`, `/tools/kimi`, `/sitemap.xml`, `/ask`, `/hot`, and `/image`.
+- Fixed tool card action button overlap so `官网` and `详情` no longer cover the audience/best-for label.
 
 ## Safety Rules
 
