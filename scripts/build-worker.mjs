@@ -1,8 +1,12 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
+const adminHtml = await readFile(new URL("../public/admin.html", import.meta.url), "utf8");
+const toolsJson = await readFile(new URL("../data/tools.json", import.meta.url), "utf8");
 
 const worker = `const HTML = ${JSON.stringify(html)};
+const ADMIN_HTML = ${JSON.stringify(adminHtml)};
+const TOOLS_JSON = ${JSON.stringify(toolsJson)};
 
 export default {
   async fetch(request, env) {
@@ -14,6 +18,25 @@ export default {
 
     if (url.pathname === "/health") {
       return Response.json({ ok: true, version: "source-2026-05-27" }, { headers: corsHeaders() });
+    }
+
+    if (url.pathname === "/admin") {
+      return new Response(ADMIN_HTML, {
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-store"
+        }
+      });
+    }
+
+    if (url.pathname === "/data/tools.json") {
+      return new Response(TOOLS_JSON, {
+        headers: {
+          ...corsHeaders(),
+          "content-type": "application/json; charset=utf-8",
+          "cache-control": "no-store"
+        }
+      });
     }
 
     if (url.pathname === "/ask") {

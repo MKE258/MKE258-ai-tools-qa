@@ -12,6 +12,7 @@
 
 ```powershell
 npm install
+npm run sync:data
 npm run check
 npm run deploy
 ```
@@ -44,3 +45,23 @@ npx wrangler deploy --dry-run
 Invoke-WebRequest https://tools.aitoolsguide.top/
 Invoke-WebRequest https://tools.aitoolsguide.top/hot?tab=kr36
 ```
+
+## 工具数据维护
+
+- 数据文件：`data/tools.json`
+- 后台页面：`/admin`
+- 后台目前是安全的离线编辑模式：可导入、编辑、导出 JSON，不直接写线上数据。
+
+维护流程：
+
+```powershell
+# 1. 用 /admin 导出新的 tools.json，覆盖 data/tools.json
+# 2. 同步数据到首页
+npm run sync:data
+
+# 3. 检查并部署
+npm run check
+npm run deploy
+```
+
+当前不做线上直接写入，是为了避免未授权人员修改工具库。后续如果需要真正的在线后台，需要增加鉴权和 KV/D1 存储。

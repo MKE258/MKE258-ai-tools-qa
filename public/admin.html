@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI工具后台</title>
+  <style>
+    :root { --bg:#f6f7f9; --panel:#fff; --text:#172033; --muted:#667085; --line:#d8dde7; --accent:#1f6feb; --danger:#c2410c; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:"Microsoft YaHei",system-ui,sans-serif; }
+    header { position:sticky; top:0; z-index:5; background:rgba(255,255,255,.92); border-bottom:1px solid var(--line); backdrop-filter:blur(12px); }
+    .bar { width:min(1280px,calc(100% - 28px)); margin:0 auto; min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin:0; font-size:20px; }
+    .sub { color:var(--muted); font-size:12px; margin-top:3px; }
+    button, input, select, textarea { font:inherit; }
+    button { border:1px solid var(--line); background:#fff; border-radius:8px; padding:9px 12px; cursor:pointer; color:var(--text); }
+    button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+    button.danger { color:var(--danger); }
+    main { width:min(1280px,calc(100% - 28px)); margin:18px auto 40px; display:grid; grid-template-columns:260px 1fr; gap:16px; }
+    aside, section { background:var(--panel); border:1px solid var(--line); border-radius:10px; }
+    aside { align-self:start; position:sticky; top:82px; padding:12px; }
+    .cat { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; text-align:left; }
+    .cat.active { border-color:var(--accent); color:var(--accent); }
+    .panel-head { padding:14px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .tools { padding:14px; display:grid; gap:10px; }
+    .tool { border:1px solid var(--line); border-radius:10px; padding:12px; display:grid; grid-template-columns:1fr auto; gap:12px; background:#fff; }
+    .tool h3 { margin:0 0 6px; font-size:16px; }
+    .tool p { margin:0; color:var(--muted); line-height:1.5; font-size:13px; }
+    .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .tag { border-radius:999px; background:#eef2f7; color:#475467; padding:3px 7px; font-size:12px; }
+    dialog { border:1px solid var(--line); border-radius:12px; width:min(760px,calc(100% - 24px)); padding:0; box-shadow:0 20px 60px rgba(15,23,42,.18); }
+    dialog::backdrop { background:rgba(15,23,42,.4); }
+    .modal-body { padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    label { display:grid; gap:5px; color:var(--muted); font-size:12px; }
+    input, select, textarea { border:1px solid var(--line); border-radius:8px; padding:9px 10px; color:var(--text); background:#fff; }
+    textarea { min-height:92px; resize:vertical; }
+    .full { grid-column:1 / -1; }
+    .modal-actions { padding:14px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:8px; }
+    .notice { margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6; }
+    @media (max-width:800px) { main { grid-template-columns:1fr; } aside { position:static; } .modal-body { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div>
+        <h1>AI工具后台</h1>
+        <div class="sub">编辑工具数据，导出 JSON 后用同步脚本写回首页。</div>
+      </div>
+      <div>
+        <button id="importBtn">导入 JSON</button>
+        <button class="primary" id="exportBtn">导出 JSON</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <p class="notice">安全策略：后台不直接写线上数据，避免未授权修改。修改后导出 `tools.json`，覆盖仓库里的 `data/tools.json`，再运行同步和发布。</p>
+      <button class="primary" id="addCategoryBtn" style="width:100%;margin-bottom:10px">新增分类</button>
+      <div id="categoryList"></div>
+    </aside>
+    <section>
+      <div class="panel-head">
+        <div>
+          <strong id="categoryTitle">工具列表</strong>
+          <div class="sub" id="categoryMeta"></div>
+        </div>
+        <button class="primary" id="addToolBtn">新增工具</button>
+      </div>
+      <div class="tools" id="toolList"></div>
+    </section>
+  </main>
+
+  <input type="file" id="fileInput" accept="application/json" hidden>
+
+  <dialog id="toolDialog">
+    <form method="dialog">
+      <div class="panel-head"><strong id="toolDialogTitle">工具</strong><button value="cancel">关闭</button></div>
+      <div class="modal-body">
+        <label>名称<input id="toolName"></label>
+        <label>分类<select id="toolCategory"></select></label>
+        <label class="full">提问语句<input id="toolQuestion"></label>
+        <label class="full">描述<textarea id="toolDesc"></textarea></label>
+        <label>官网<input id="toolUrl"></label>
+        <label>价格<input id="toolPrice" placeholder="免费 / 免费+付费 / 付费"></label>
+        <label>适合人群<input id="toolAudience"></label>
+        <label>标签，逗号分隔<input id="toolTags"></label>
+        <label class="full">筛选项，逗号分隔<input id="toolFilters" placeholder="免费,国内直连,适合学生"></label>
+      </div>
+      <div class="modal-actions">
+        <button class="danger" id="deleteToolBtn" type="button">删除</button>
+        <button class="primary" id="saveToolBtn" type="button">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="categoryDialog">
+    <form method="dialog">
+      <div class="panel-head"><strong>分类</strong><button value="cancel">关闭</button></div>
+      <div class="modal-body">
+        <label>图标<input id="catIcon"></label>
+        <label>名称<input id="catName"></label>
+        <label class="full">背景色<input id="catBg"></label>
+      </div>
+      <div class="modal-actions">
+        <button class="danger" id="deleteCategoryBtn" type="button">删除</button>
+        <button class="primary" id="saveCategoryBtn" type="button">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    let data = { version: "", categories: [] };
+    let activeCategory = 0;
+    let editingTool = null;
+    let editingCategory = null;
+
+    const $ = (id) => document.getElementById(id);
+    const splitList = (value) => value.split(",").map(x => x.trim()).filter(Boolean);
+
+    async function loadData() {
+      const res = await fetch("/data/tools.json", { cache: "no-store" });
+      data = await res.json();
+      render();
+    }
+
+    function render() {
+      if (!data.categories.length) activeCategory = 0;
+      if (activeCategory >= data.categories.length) activeCategory = Math.max(0, data.categories.length - 1);
+      $("categoryList").innerHTML = data.categories.map((cat, i) => `
+        <button class="cat ${i === activeCategory ? "active" : ""}" onclick="activeCategory=${i};render()">
+          <span>${cat.icon || ""} ${cat.name}</span><span>${cat.tools?.length || 0}</span>
+        </button>
+      `).join("");
+      const cat = data.categories[activeCategory];
+      $("categoryTitle").textContent = cat ? `${cat.icon || ""} ${cat.name}` : "无分类";
+      $("categoryMeta").textContent = cat ? `${cat.tools.length} 个工具` : "";
+      $("toolCategory").innerHTML = data.categories.map((cat, i) => `<option value="${i}">${cat.icon || ""} ${cat.name}</option>`).join("");
+      $("toolList").innerHTML = cat ? cat.tools.map((tool, i) => `
+        <article class="tool">
+          <div>
+            <h3>${tool.name}</h3>
+            <p>${tool.desc || ""}</p>
+            <div class="tags">
+              ${(tool.price ? [tool.price] : []).concat(tool.audience ? [tool.audience] : [], tool.filters || [], tool.tags || []).slice(0, 8).map(tag => `<span class="tag">${tag}</span>`).join("")}
+            </div>
+          </div>
+          <div><button onclick="openTool(${i})">编辑</button></div>
+        </article>
+      `).join("") : "";
+    }
+
+    function openTool(index) {
+      editingTool = index;
+      const cat = data.categories[activeCategory];
+      const tool = index == null ? { name:"", q:"", desc:"", tags:[], filters:[], url:"", price:"", audience:"" } : cat.tools[index];
+      $("toolDialogTitle").textContent = index == null ? "新增工具" : "编辑工具";
+      $("toolName").value = tool.name || "";
+      $("toolCategory").value = activeCategory;
+      $("toolQuestion").value = tool.q || "";
+      $("toolDesc").value = tool.desc || "";
+      $("toolUrl").value = tool.url || "";
+      $("toolPrice").value = tool.price || "";
+      $("toolAudience").value = tool.audience || "";
+      $("toolTags").value = (tool.tags || []).join(",");
+      $("toolFilters").value = (tool.filters || []).join(",");
+      $("deleteToolBtn").style.display = index == null ? "none" : "";
+      $("toolDialog").showModal();
+    }
+
+    function saveTool() {
+      const targetCategory = Number($("toolCategory").value);
+      const tool = {
+        name: $("toolName").value.trim(),
+        q: $("toolQuestion").value.trim(),
+        desc: $("toolDesc").value.trim(),
+        tags: splitList($("toolTags").value),
+        filters: splitList($("toolFilters").value),
+        url: $("toolUrl").value.trim(),
+        price: $("toolPrice").value.trim(),
+        audience: $("toolAudience").value.trim()
+      };
+      if (!tool.name) return alert("名称不能为空");
+      if (!tool.q) tool.q = tool.name + "怎么用";
+      if (editingTool == null) {
+        data.categories[targetCategory].tools.push(tool);
+      } else {
+        const old = data.categories[activeCategory].tools.splice(editingTool, 1)[0];
+        data.categories[targetCategory].tools.push({ ...old, ...tool });
+        activeCategory = targetCategory;
+      }
+      $("toolDialog").close();
+      render();
+    }
+
+    function deleteTool() {
+      if (editingTool == null) return;
+      if (!confirm("确认删除这个工具？")) return;
+      data.categories[activeCategory].tools.splice(editingTool, 1);
+      $("toolDialog").close();
+      render();
+    }
+
+    function openCategory(index) {
+      editingCategory = index;
+      const cat = index == null ? { icon:"", name:"", bg:"rgba(59,130,246,0.13)", tools:[] } : data.categories[index];
+      $("catIcon").value = cat.icon || "";
+      $("catName").value = cat.name || "";
+      $("catBg").value = cat.bg || "";
+      $("deleteCategoryBtn").style.display = index == null ? "none" : "";
+      $("categoryDialog").showModal();
+    }
+
+    function saveCategory() {
+      const cat = {
+        icon: $("catIcon").value.trim(),
+        name: $("catName").value.trim(),
+        bg: $("catBg").value.trim(),
+        tools: editingCategory == null ? [] : data.categories[editingCategory].tools
+      };
+      if (!cat.name) return alert("分类名称不能为空");
+      if (editingCategory == null) {
+        data.categories.push(cat);
+        activeCategory = data.categories.length - 1;
+      } else {
+        data.categories[editingCategory] = cat;
+        activeCategory = editingCategory;
+      }
+      $("categoryDialog").close();
+      render();
+    }
+
+    function deleteCategory() {
+      if (editingCategory == null) return;
+      if (!confirm("确认删除分类及其中所有工具？")) return;
+      data.categories.splice(editingCategory, 1);
+      activeCategory = 0;
+      $("categoryDialog").close();
+      render();
+    }
+
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tools.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    $("addToolBtn").onclick = () => openTool(null);
+    $("saveToolBtn").onclick = saveTool;
+    $("deleteToolBtn").onclick = deleteTool;
+    $("addCategoryBtn").onclick = () => openCategory(null);
+    $("saveCategoryBtn").onclick = saveCategory;
+    $("deleteCategoryBtn").onclick = deleteCategory;
+    $("exportBtn").onclick = exportJson;
+    $("importBtn").onclick = () => $("fileInput").click();
+    $("fileInput").onchange = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      data = JSON.parse(await file.text());
+      activeCategory = 0;
+      render();
+    };
+
+    loadData().catch(error => {
+      document.body.innerHTML = "<pre>加载工具数据失败：" + error.message + "</pre>";
+    });
+  </script>
+</body>
+</html>

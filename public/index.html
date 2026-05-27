@@ -830,80 +830,935 @@
   </div>
   <script>
     const CATS = [
-      { icon: "💬", name: "对话 AI", bg: "rgba(59,130,246,0.13)", tools: [
-        { name: "Claude", q: "Claude怎么写出高质量提示词", desc: "长文档处理和提示词响应能力极强，适合复杂写作和分析任务", tags: ["写作者", "研究员"], filters: ["适合职场", "适合学生"], url: "https://claude.ai", price: "免费+付费", audience: "写作者和研究员" },
-        { name: "ChatGPT", q: "ChatGPT怎么用来做市场调研", desc: "市场调研和写作辅助场景表现优秀，联网版可获取最新信息", tags: ["运营", "创业者"], filters: ["适合职场", "适合学生"], url: "https://chatgpt.com", price: "免费+付费", audience: "职场人和学生" },
-        { name: "DeepSeek", q: "DeepSeek怎么免费用", desc: "推理能力强，API价格极低，中文理解出色，官网完全免费", tags: ["开发者", "学生"], filters: ["免费", "适合学生"], url: "https://chat.deepseek.com", price: "免费", audience: "学生和开发者" },
-        { name: "Gemini", q: "如何用Google Gemini做日常AI助手", desc: "Google出品，实时联网，深度整合Google全家桶，超长上下文", tags: ["Google用户", "研究员"], filters: ["免费", "适合职场"], url: "https://gemini.google.com", price: "免费+付费", audience: "Google用户" },
-        { name: "Grok", q: "Grok和ChatGPT有什么区别", desc: "X平台出品，实时联网，风格直接，适合追踪时事话题", tags: ["媒体人", "内容创作者"], filters: ["免费"], url: "https://grok.com", price: "免费+付费", audience: "媒体人" },
-        { name: "Kimi", q: "Kimi有什么特别的地方，适合做什么", desc: "月之暗面出品，200万字超长上下文，处理长文档最强，国内免费直连", tags: ["学生", "研究人员", "职场人"], filters: ["免费", "国内直连", "适合学生"], url: "https://kimi.moonshot.cn", price: "免费", audience: "学生和研究员" },
-        { name: "豆包", q: "豆包有哪些特色功能", desc: "字节出品，联网搜索好，语音体验佳，国内免费直接用", tags: ["学生", "职场人"], filters: ["免费", "国内直连", "适合学生"], url: "https://www.doubao.com", price: "免费", audience: "学生和职场人" },
-        { name: "文心一言", q: "文心一言适合做什么", desc: "百度出品，中文写作和本土内容生成场景表现稳定", tags: ["职场人", "学生"], filters: ["免费", "国内直连", "适合职场"], url: "https://yiyan.baidu.com", price: "免费", audience: "职场人" },
-        { name: "通义千问", q: "通义千问有哪些实用功能", desc: "阿里出品，支持长文档和图片理解，办公场景实用", tags: ["职场人", "运营"], filters: ["免费", "国内直连", "适合职场"], url: "https://tongyi.aliyun.com", price: "免费", audience: "职场人" },
-        { name: "讯飞星火", q: "讯飞星火适合哪些场景", desc: "科大讯飞出品，语音交互强，教育和办公场景适用", tags: ["教育从业者", "职场人"], filters: ["免费", "国内直连"], url: "https://xinghuo.xfyun.cn", price: "免费", audience: "教育从业者" },
-        { name: "秘塔AI搜索", q: "秘塔AI搜索和普通搜索引擎有什么区别", desc: "国内最好用的AI搜索，无广告，来源可溯，深度模式综合分析", tags: ["研究人员", "职场人"], filters: ["免费", "国内直连", "适合职场"], url: "https://metaso.cn", price: "免费", audience: "研究人员" },
-        { name: "WPS AI", q: "WPS AI有哪些功能，值得付费吗", desc: "深度整合Word/Excel/PPT，AI公式生成、文档问答，职场人必备", tags: ["职场人", "学生"], filters: ["国内直连", "适合职场", "适合学生"], url: "https://ai.wps.cn", price: "免费+付费", audience: "职场人" },
-      ]},
-      { icon: "🎨", name: "AI 画图", bg: "rgba(147,51,234,0.13)", tools: [
-        { name: "Midjourney", q: "Midjourney提示词怎么写", desc: "商业级AI画图工具，风格多样，图片质量业界顶尖", tags: ["设计师", "内容创作者"], filters: ["适合职场"], url: "https://midjourney.com", price: "付费", audience: "设计师" },
-        { name: "Flux", q: "Flux和Midjourney有什么区别", desc: "开源免费，真实感人像出色，支持本地部署", tags: ["开发者", "摄影师"], filters: ["免费"], url: "https://blackforestlabs.ai", price: "免费", audience: "开发者" },
-        { name: "Stable Diffusion", q: "如何在本地运行Stable Diffusion", desc: "最流行的开源AI画图，本地运行完全免费，完全可控", tags: ["开发者", "AI爱好者"], filters: ["免费"], url: "https://stability.ai", price: "免费", audience: "AI爱好者" },
-        { name: "Adobe Firefly", q: "Adobe Firefly有哪些AI功能", desc: "商用安全的AI创意工具，深度整合Photoshop，设计师首选", tags: ["设计师", "摄影师"], filters: ["适合职场"], url: "https://firefly.adobe.com", price: "免费+付费", audience: "设计师" },
-        { name: "Canva AI", q: "Canva有哪些AI功能值得用", desc: "AI融入设计流程，抠图、扩图、生成素材，非设计师首选", tags: ["运营", "学生"], filters: ["免费", "适合学生"], url: "https://canva.com", price: "免费+付费", audience: "运营和学生" },
-      ]},
-      { icon: "🎬", name: "AI 视频", bg: "rgba(239,68,68,0.13)", tools: [
-        { name: "Runway", q: "Runway怎么生成高质量AI视频", desc: "AI视频生成标杆，支持图生视频和精细动作控制", tags: ["视频创作者", "广告人"], filters: ["适合职场"], url: "https://runwayml.com", price: "免费+付费", audience: "视频创作者" },
-        { name: "Kling", q: "Kling和Runway哪个更适合中国用户", desc: "快手出品，国内直接访问，免费额度多，中文支持好", tags: ["短视频创作者", "国内用户"], filters: ["免费", "国内直连"], url: "https://klingai.com", price: "免费+付费", audience: "短视频创作者" },
-        { name: "Pika", q: "如何用Pika生成AI视频", desc: "操作最简单的AI视频工具，Pikaffects特效抖音传播率高", tags: ["内容创作者", "短视频创作者"], filters: ["免费"], url: "https://pika.art", price: "免费+付费", audience: "内容创作者" },
-        { name: "PixVerse", q: "PixVerse和Kling、Runway怎么选", desc: "字节旗下，免费额度最多，入门AI视频创作首选", tags: ["短视频创作者", "国内用户"], filters: ["免费", "国内直连"], url: "https://pixverse.ai", price: "免费", audience: "短视频创作者" },
-        { name: "Luma AI", q: "如何用Luma AI Dream Machine生成AI视频", desc: "物理感最真实的AI视频，液体烟雾布料运动自然", tags: ["视频创作者", "广告人"], filters: ["免费"], url: "https://lumalabs.ai", price: "免费+付费", audience: "视频创作者" },
-        { name: "即梦AI", q: "如何用即梦AI生成视频", desc: "字节出品，国内免费，中文提示词好，与剪映无缝衔接", tags: ["短视频创作者", "国内用户"], filters: ["免费", "国内直连"], url: "https://jimeng.jianying.com", price: "免费", audience: "短视频创作者" },
-        { name: "HeyGen", q: "如何用HeyGen制作AI数字人视频", desc: "AI数字人视频，无需出镜，适合产品介绍和教程制作", tags: ["运营", "企业用户"], filters: ["适合职场"], url: "https://heygen.com", price: "付费", audience: "企业用户" },
-        { name: "CapCut AI", q: "CapCut有哪些AI功能", desc: "AI字幕、抠图、增强、配音，短视频创作者必备", tags: ["短视频创作者", "内容创作者"], filters: ["免费", "国内直连"], url: "https://capcut.com", price: "免费+付费", audience: "短视频创作者" },
-        { name: "Sora", q: "Sora怎么生成AI视频，有什么限制", desc: "OpenAI出品，文生视频质量顶级，叙事感强，需要ChatGPT Plus订阅", tags: ["视频创作者", "广告人"], filters: ["付费"], url: "https://sora.com", price: "付费", audience: "视频创作者" },
-        { name: "Vidu", q: "Vidu和Kling哪个更适合中国用户", desc: "生数科技出品，国内视频生成新星，运镜自然，免费额度充足", tags: ["短视频创作者", "国内用户"], filters: ["免费", "国内直连"], url: "https://www.vidu.cn", price: "免费+付费", audience: "短视频创作者" },
-        { name: "海螺AI", q: "海螺AI视频生成怎么用", desc: "MiniMax出品，国内直连，动作流畅，免费可用", tags: ["短视频创作者", "国内用户"], filters: ["免费", "国内直连"], url: "https://hailuoai.com", price: "免费+付费", audience: "短视频创作者" },
-      ]},
-      { icon: "🎵", name: "AI 音乐 & 语音", bg: "rgba(16,185,129,0.13)", tools: [
-        { name: "Suno", q: "Suno怎么生成专业级音乐", desc: "输入风格描述和歌词，直接生成完整歌曲，免费每天50积分", tags: ["音乐爱好者", "内容创作者"], filters: ["免费", "适合学生"], url: "https://suno.com", price: "免费+付费", audience: "音乐爱好者" },
-        { name: "ElevenLabs", q: "如何用ElevenLabs生成高质量AI语音", desc: "声音最自然的AI语音工具，支持克隆声音，可商用", tags: ["内容创作者", "播客主"], filters: ["适合职场"], url: "https://elevenlabs.io", price: "免费+付费", audience: "内容创作者" },
-        { name: "Udio", q: "Udio和Suno有什么区别，怎么选", desc: "音乐细节和混音质量优于Suno，适合追求音质的创作者", tags: ["音乐爱好者", "内容创作者"], filters: ["免费"], url: "https://udio.com", price: "免费+付费", audience: "音乐爱好者" },
-        { name: "FishAudio", q: "FishAudio怎么做声音克隆", desc: "开源语音克隆工具，几秒音频即可克隆声音，支持本地部署", tags: ["开发者", "内容创作者"], filters: ["免费"], url: "https://fish.audio", price: "免费+付费", audience: "开发者和创作者" },
-      ]},
-      { icon: "💻", name: "AI 编程", bg: "rgba(249,115,22,0.13)", tools: [
-        { name: "Cursor", q: "Cursor怎么提升编程效率", desc: "AI加持的代码编辑器，Tab补全和对话改代码，免费版够用", tags: ["开发者", "独立开发者"], filters: ["免费", "适合学生"], url: "https://cursor.com", price: "免费+付费", audience: "开发者" },
-        { name: "Claude Code", q: "Claude Code和Cursor有什么区别", desc: "命令行AI编程工具，擅长整个项目级别的重构和自动化", tags: ["高级开发者"], filters: ["适合职场"], url: "https://claude.ai/code", price: "付费", audience: "高级开发者" },
-        { name: "GitHub Copilot", q: "GitHub Copilot怎么用，和Cursor有什么区别", desc: "GitHub官方AI助手，与VS Code深度集成，企业用户首选", tags: ["企业开发者", "团队"], filters: ["免费", "适合学生"], url: "https://github.com/features/copilot", price: "免费+付费", audience: "企业开发者" },
-        { name: "Windsurf", q: "Windsurf是什么，和Cursor怎么选", desc: "Codeium出品，免费额度比Cursor多，AI对话能力接近", tags: ["开发者", "学生"], filters: ["免费", "适合学生"], url: "https://codeium.com/windsurf", price: "免费+付费", audience: "开发者" },
-        { name: "Microsoft Copilot", q: "Microsoft Copilot怎么在Office里用", desc: "深度集成Word/Excel/PPT/Teams，职场Office用户首选", tags: ["职场人", "企业用户"], filters: ["适合职场"], url: "https://copilot.microsoft.com", price: "付费", audience: "职场人" },
-        { name: "Bolt.new", q: "Bolt.new怎么用AI生成完整Web应用", desc: "浏览器里直接生成并运行完整全栈应用，无需本地环境", tags: ["独立开发者", "非技术用户"], filters: ["免费"], url: "https://bolt.new", price: "免费+付费", audience: "独立开发者" },
-        { name: "v0.dev", q: "v0.dev怎么生成React组件", desc: "Vercel出品，输入描述生成高质量React UI组件，前端开发提速", tags: ["前端开发者", "设计师"], filters: ["免费"], url: "https://v0.dev", price: "免费+付费", audience: "前端开发者" },
-      ]},
-      { icon: "⚡", name: "AI 自动化", bg: "rgba(234,179,8,0.15)", tools: [
-        { name: "Zapier AI", q: "Zapier AI怎么自动化日常工作流", desc: "用自然语言描述需求即可创建自动化流程，无需写代码", tags: ["运营", "非技术用户"], filters: ["适合职场"], url: "https://zapier.com", price: "免费+付费", audience: "运营" },
-        { name: "Make.com", q: "Make.com和Zapier有什么区别", desc: "可视化流程设计，灵活度更高，免费版额度比Zapier多", tags: ["运营", "创业者"], filters: ["免费", "适合职场"], url: "https://make.com", price: "免费+付费", audience: "运营" },
-      ]},
-      { icon: "🔍", name: "AI 搜索 & 办公", bg: "rgba(6,182,212,0.13)", tools: [
-        { name: "Perplexity", q: "Perplexity怎么做高效信息检索", desc: "带引用来源的AI搜索，每个结论可溯源，不用担心AI瞎编", tags: ["研究员", "学生"], filters: ["免费", "适合学生", "适合职场"], url: "https://perplexity.ai", price: "免费+付费", audience: "研究员" },
-        { name: "NotebookLM", q: "NotebookLM是什么，最适合用来做什么", desc: "谷歌出品，上传资料后AI问答+生成播客音频，学习神器", tags: ["学生", "研究人员"], filters: ["免费", "适合学生"], url: "https://notebooklm.google.com", price: "免费", audience: "学生" },
-        { name: "Notion AI", q: "Notion AI怎么管理工作知识库", desc: "集成在Notion里，可以问你的知识库问题，整理会议记录", tags: ["知识工作者", "团队"], filters: ["适合职场", "适合学生"], url: "https://notion.so", price: "免费+付费", audience: "知识工作者" },
-        { name: "飞书 AI", q: "飞书AI有哪些实用功能", desc: "会议录音转文字、多维表格数据分析，企业协作场景实用", tags: ["企业用户", "团队"], filters: ["国内直连", "适合职场"], url: "https://www.feishu.cn", price: "免费+付费", audience: "企业用户" },
-        { name: "Felo", q: "Felo和Perplexity有什么区别", desc: "多语言AI搜索，中文优化好，支持思维导图输出，国内可直连", tags: ["研究员", "学生"], filters: ["免费", "国内直连", "适合学生"], url: "https://felo.ai", price: "免费+付费", audience: "研究员和学生" },
-      ]},
-      { icon: "✍️", name: "AI 写作 & PPT", bg: "rgba(236,72,153,0.13)", tools: [
-        { name: "Jasper", q: "Jasper怎么写营销文案", desc: "专注营销文案生成，支持多种内容模板，适合品牌内容团队", tags: ["市场营销", "广告人"], filters: ["适合职场"], url: "https://jasper.ai", price: "付费", audience: "市场营销" },
-        { name: "Copy.ai", q: "Copy.ai怎么快速生成社媒内容", desc: "社媒内容批量生成，支持多平台格式，操作简单", tags: ["社媒运营", "内容创作者"], filters: ["适合职场"], url: "https://copy.ai", price: "免费+付费", audience: "社媒运营" },
-        { name: "Gamma", q: "Gamma怎么快速做PPT", desc: "输入主题自动生成完整PPT，设计感强，不需要手动排版", tags: ["职场人", "学生"], filters: ["免费", "适合学生"], url: "https://gamma.app", price: "免费+付费", audience: "职场人和学生" },
-        { name: "Beautiful.ai", q: "Beautiful.ai怎么做品牌演示文稿", desc: "智能对齐排版，品牌一致性强，适合商务演示", tags: ["设计师", "销售"], filters: ["适合职场"], url: "https://beautiful.ai", price: "付费", audience: "设计师" },
-      ]},
-      { icon: "🤖", name: "AI Agent", bg: "rgba(168,85,247,0.13)", tools: [
-        { name: "Coze", q: "Coze怎么搭建AI Agent", desc: "字节出品，可视化搭建 AI Agent，国内直连免费，无需代码", tags: ["内容创作者", "运营"], filters: ["免费", "国内直连"], url: "https://coze.cn", price: "免费", audience: "无代码用户" },
-        { name: "Dify", q: "Dify怎么开发LLM应用", desc: "开源 LLM 应用开发平台，支持本地部署，可视化编排工作流", tags: ["开发者", "企业用户"], filters: ["免费", "适合职场"], url: "https://dify.ai", price: "免费+付费", audience: "开发者" },
-        { name: "n8n", q: "n8n怎么搭建AI自动化工作流", desc: "开源工作流自动化，AI 节点丰富，可自托管完全免费", tags: ["开发者", "运营"], filters: ["免费", "适合职场"], url: "https://n8n.io", price: "免费+付费", audience: "开发者" },
-        { name: "AutoGPT", q: "AutoGPT是什么，怎么用", desc: "最早的开源 AI Agent 框架，自主规划任务，社区生态丰富", tags: ["开发者", "AI爱好者"], filters: ["免费"], url: "https://agpt.co", price: "免费", audience: "开发者" },
-        { name: "Manus", q: "Manus AI Agent能做什么，怎么用", desc: "通用AI Agent，能自主浏览网页、写代码、处理文件，任务完成度高", tags: ["职场人", "研究员"], filters: ["付费"], url: "https://manus.im", price: "付费", audience: "职场人和研究员" },
-      ]},
-    ];
+      {
+            "icon": "💬",
+            "name": "对话 AI",
+            "bg": "rgba(59,130,246,0.13)",
+            "tools": [
+                  {
+                        "name": "Claude",
+                        "q": "Claude怎么写出高质量提示词",
+                        "desc": "长文档处理和提示词响应能力极强，适合复杂写作和分析任务",
+                        "tags": [
+                              "写作者",
+                              "研究员"
+                        ],
+                        "filters": [
+                              "适合职场",
+                              "适合学生"
+                        ],
+                        "url": "https://claude.ai",
+                        "price": "免费+付费",
+                        "audience": "写作者和研究员"
+                  },
+                  {
+                        "name": "ChatGPT",
+                        "q": "ChatGPT怎么用来做市场调研",
+                        "desc": "市场调研和写作辅助场景表现优秀，联网版可获取最新信息",
+                        "tags": [
+                              "运营",
+                              "创业者"
+                        ],
+                        "filters": [
+                              "适合职场",
+                              "适合学生"
+                        ],
+                        "url": "https://chatgpt.com",
+                        "price": "免费+付费",
+                        "audience": "职场人和学生"
+                  },
+                  {
+                        "name": "DeepSeek",
+                        "q": "DeepSeek怎么免费用",
+                        "desc": "推理能力强，API价格极低，中文理解出色，官网完全免费",
+                        "tags": [
+                              "开发者",
+                              "学生"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生"
+                        ],
+                        "url": "https://chat.deepseek.com",
+                        "price": "免费",
+                        "audience": "学生和开发者"
+                  },
+                  {
+                        "name": "Gemini",
+                        "q": "如何用Google Gemini做日常AI助手",
+                        "desc": "Google出品，实时联网，深度整合Google全家桶，超长上下文",
+                        "tags": [
+                              "Google用户",
+                              "研究员"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合职场"
+                        ],
+                        "url": "https://gemini.google.com",
+                        "price": "免费+付费",
+                        "audience": "Google用户"
+                  },
+                  {
+                        "name": "Grok",
+                        "q": "Grok和ChatGPT有什么区别",
+                        "desc": "X平台出品，实时联网，风格直接，适合追踪时事话题",
+                        "tags": [
+                              "媒体人",
+                              "内容创作者"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://grok.com",
+                        "price": "免费+付费",
+                        "audience": "媒体人"
+                  },
+                  {
+                        "name": "Kimi",
+                        "q": "Kimi有什么特别的地方，适合做什么",
+                        "desc": "月之暗面出品，200万字超长上下文，处理长文档最强，国内免费直连",
+                        "tags": [
+                              "学生",
+                              "研究人员",
+                              "职场人"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连",
+                              "适合学生"
+                        ],
+                        "url": "https://kimi.moonshot.cn",
+                        "price": "免费",
+                        "audience": "学生和研究员"
+                  },
+                  {
+                        "name": "豆包",
+                        "q": "豆包有哪些特色功能",
+                        "desc": "字节出品，联网搜索好，语音体验佳，国内免费直接用",
+                        "tags": [
+                              "学生",
+                              "职场人"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连",
+                              "适合学生"
+                        ],
+                        "url": "https://www.doubao.com",
+                        "price": "免费",
+                        "audience": "学生和职场人"
+                  },
+                  {
+                        "name": "文心一言",
+                        "q": "文心一言适合做什么",
+                        "desc": "百度出品，中文写作和本土内容生成场景表现稳定",
+                        "tags": [
+                              "职场人",
+                              "学生"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连",
+                              "适合职场"
+                        ],
+                        "url": "https://yiyan.baidu.com",
+                        "price": "免费",
+                        "audience": "职场人"
+                  },
+                  {
+                        "name": "通义千问",
+                        "q": "通义千问有哪些实用功能",
+                        "desc": "阿里出品，支持长文档和图片理解，办公场景实用",
+                        "tags": [
+                              "职场人",
+                              "运营"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连",
+                              "适合职场"
+                        ],
+                        "url": "https://tongyi.aliyun.com",
+                        "price": "免费",
+                        "audience": "职场人"
+                  },
+                  {
+                        "name": "讯飞星火",
+                        "q": "讯飞星火适合哪些场景",
+                        "desc": "科大讯飞出品，语音交互强，教育和办公场景适用",
+                        "tags": [
+                              "教育从业者",
+                              "职场人"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连"
+                        ],
+                        "url": "https://xinghuo.xfyun.cn",
+                        "price": "免费",
+                        "audience": "教育从业者"
+                  },
+                  {
+                        "name": "秘塔AI搜索",
+                        "q": "秘塔AI搜索和普通搜索引擎有什么区别",
+                        "desc": "国内最好用的AI搜索，无广告，来源可溯，深度模式综合分析",
+                        "tags": [
+                              "研究人员",
+                              "职场人"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连",
+                              "适合职场"
+                        ],
+                        "url": "https://metaso.cn",
+                        "price": "免费",
+                        "audience": "研究人员"
+                  },
+                  {
+                        "name": "WPS AI",
+                        "q": "WPS AI有哪些功能，值得付费吗",
+                        "desc": "深度整合Word/Excel/PPT，AI公式生成、文档问答，职场人必备",
+                        "tags": [
+                              "职场人",
+                              "学生"
+                        ],
+                        "filters": [
+                              "国内直连",
+                              "适合职场",
+                              "适合学生"
+                        ],
+                        "url": "https://ai.wps.cn",
+                        "price": "免费+付费",
+                        "audience": "职场人"
+                  }
+            ]
+      },
+      {
+            "icon": "🎨",
+            "name": "AI 画图",
+            "bg": "rgba(147,51,234,0.13)",
+            "tools": [
+                  {
+                        "name": "Midjourney",
+                        "q": "Midjourney提示词怎么写",
+                        "desc": "商业级AI画图工具，风格多样，图片质量业界顶尖",
+                        "tags": [
+                              "设计师",
+                              "内容创作者"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://midjourney.com",
+                        "price": "付费",
+                        "audience": "设计师"
+                  },
+                  {
+                        "name": "Flux",
+                        "q": "Flux和Midjourney有什么区别",
+                        "desc": "开源免费，真实感人像出色，支持本地部署",
+                        "tags": [
+                              "开发者",
+                              "摄影师"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://blackforestlabs.ai",
+                        "price": "免费",
+                        "audience": "开发者"
+                  },
+                  {
+                        "name": "Stable Diffusion",
+                        "q": "如何在本地运行Stable Diffusion",
+                        "desc": "最流行的开源AI画图，本地运行完全免费，完全可控",
+                        "tags": [
+                              "开发者",
+                              "AI爱好者"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://stability.ai",
+                        "price": "免费",
+                        "audience": "AI爱好者"
+                  },
+                  {
+                        "name": "Adobe Firefly",
+                        "q": "Adobe Firefly有哪些AI功能",
+                        "desc": "商用安全的AI创意工具，深度整合Photoshop，设计师首选",
+                        "tags": [
+                              "设计师",
+                              "摄影师"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://firefly.adobe.com",
+                        "price": "免费+付费",
+                        "audience": "设计师"
+                  },
+                  {
+                        "name": "Canva AI",
+                        "q": "Canva有哪些AI功能值得用",
+                        "desc": "AI融入设计流程，抠图、扩图、生成素材，非设计师首选",
+                        "tags": [
+                              "运营",
+                              "学生"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生"
+                        ],
+                        "url": "https://canva.com",
+                        "price": "免费+付费",
+                        "audience": "运营和学生"
+                  }
+            ]
+      },
+      {
+            "icon": "🎬",
+            "name": "AI 视频",
+            "bg": "rgba(239,68,68,0.13)",
+            "tools": [
+                  {
+                        "name": "Runway",
+                        "q": "Runway怎么生成高质量AI视频",
+                        "desc": "AI视频生成标杆，支持图生视频和精细动作控制",
+                        "tags": [
+                              "视频创作者",
+                              "广告人"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://runwayml.com",
+                        "price": "免费+付费",
+                        "audience": "视频创作者"
+                  },
+                  {
+                        "name": "Kling",
+                        "q": "Kling和Runway哪个更适合中国用户",
+                        "desc": "快手出品，国内直接访问，免费额度多，中文支持好",
+                        "tags": [
+                              "短视频创作者",
+                              "国内用户"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连"
+                        ],
+                        "url": "https://klingai.com",
+                        "price": "免费+付费",
+                        "audience": "短视频创作者"
+                  },
+                  {
+                        "name": "Pika",
+                        "q": "如何用Pika生成AI视频",
+                        "desc": "操作最简单的AI视频工具，Pikaffects特效抖音传播率高",
+                        "tags": [
+                              "内容创作者",
+                              "短视频创作者"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://pika.art",
+                        "price": "免费+付费",
+                        "audience": "内容创作者"
+                  },
+                  {
+                        "name": "PixVerse",
+                        "q": "PixVerse和Kling、Runway怎么选",
+                        "desc": "字节旗下，免费额度最多，入门AI视频创作首选",
+                        "tags": [
+                              "短视频创作者",
+                              "国内用户"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连"
+                        ],
+                        "url": "https://pixverse.ai",
+                        "price": "免费",
+                        "audience": "短视频创作者"
+                  },
+                  {
+                        "name": "Luma AI",
+                        "q": "如何用Luma AI Dream Machine生成AI视频",
+                        "desc": "物理感最真实的AI视频，液体烟雾布料运动自然",
+                        "tags": [
+                              "视频创作者",
+                              "广告人"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://lumalabs.ai",
+                        "price": "免费+付费",
+                        "audience": "视频创作者"
+                  },
+                  {
+                        "name": "即梦AI",
+                        "q": "如何用即梦AI生成视频",
+                        "desc": "字节出品，国内免费，中文提示词好，与剪映无缝衔接",
+                        "tags": [
+                              "短视频创作者",
+                              "国内用户"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连"
+                        ],
+                        "url": "https://jimeng.jianying.com",
+                        "price": "免费",
+                        "audience": "短视频创作者"
+                  },
+                  {
+                        "name": "HeyGen",
+                        "q": "如何用HeyGen制作AI数字人视频",
+                        "desc": "AI数字人视频，无需出镜，适合产品介绍和教程制作",
+                        "tags": [
+                              "运营",
+                              "企业用户"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://heygen.com",
+                        "price": "付费",
+                        "audience": "企业用户"
+                  },
+                  {
+                        "name": "CapCut AI",
+                        "q": "CapCut有哪些AI功能",
+                        "desc": "AI字幕、抠图、增强、配音，短视频创作者必备",
+                        "tags": [
+                              "短视频创作者",
+                              "内容创作者"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连"
+                        ],
+                        "url": "https://capcut.com",
+                        "price": "免费+付费",
+                        "audience": "短视频创作者"
+                  },
+                  {
+                        "name": "Sora",
+                        "q": "Sora怎么生成AI视频，有什么限制",
+                        "desc": "OpenAI出品，文生视频质量顶级，叙事感强，需要ChatGPT Plus订阅",
+                        "tags": [
+                              "视频创作者",
+                              "广告人"
+                        ],
+                        "filters": [
+                              "付费"
+                        ],
+                        "url": "https://sora.com",
+                        "price": "付费",
+                        "audience": "视频创作者"
+                  },
+                  {
+                        "name": "Vidu",
+                        "q": "Vidu和Kling哪个更适合中国用户",
+                        "desc": "生数科技出品，国内视频生成新星，运镜自然，免费额度充足",
+                        "tags": [
+                              "短视频创作者",
+                              "国内用户"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连"
+                        ],
+                        "url": "https://www.vidu.cn",
+                        "price": "免费+付费",
+                        "audience": "短视频创作者"
+                  },
+                  {
+                        "name": "海螺AI",
+                        "q": "海螺AI视频生成怎么用",
+                        "desc": "MiniMax出品，国内直连，动作流畅，免费可用",
+                        "tags": [
+                              "短视频创作者",
+                              "国内用户"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连"
+                        ],
+                        "url": "https://hailuoai.com",
+                        "price": "免费+付费",
+                        "audience": "短视频创作者"
+                  }
+            ]
+      },
+      {
+            "icon": "🎵",
+            "name": "AI 音乐 & 语音",
+            "bg": "rgba(16,185,129,0.13)",
+            "tools": [
+                  {
+                        "name": "Suno",
+                        "q": "Suno怎么生成专业级音乐",
+                        "desc": "输入风格描述和歌词，直接生成完整歌曲，免费每天50积分",
+                        "tags": [
+                              "音乐爱好者",
+                              "内容创作者"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生"
+                        ],
+                        "url": "https://suno.com",
+                        "price": "免费+付费",
+                        "audience": "音乐爱好者"
+                  },
+                  {
+                        "name": "ElevenLabs",
+                        "q": "如何用ElevenLabs生成高质量AI语音",
+                        "desc": "声音最自然的AI语音工具，支持克隆声音，可商用",
+                        "tags": [
+                              "内容创作者",
+                              "播客主"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://elevenlabs.io",
+                        "price": "免费+付费",
+                        "audience": "内容创作者"
+                  },
+                  {
+                        "name": "Udio",
+                        "q": "Udio和Suno有什么区别，怎么选",
+                        "desc": "音乐细节和混音质量优于Suno，适合追求音质的创作者",
+                        "tags": [
+                              "音乐爱好者",
+                              "内容创作者"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://udio.com",
+                        "price": "免费+付费",
+                        "audience": "音乐爱好者"
+                  },
+                  {
+                        "name": "FishAudio",
+                        "q": "FishAudio怎么做声音克隆",
+                        "desc": "开源语音克隆工具，几秒音频即可克隆声音，支持本地部署",
+                        "tags": [
+                              "开发者",
+                              "内容创作者"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://fish.audio",
+                        "price": "免费+付费",
+                        "audience": "开发者和创作者"
+                  }
+            ]
+      },
+      {
+            "icon": "💻",
+            "name": "AI 编程",
+            "bg": "rgba(249,115,22,0.13)",
+            "tools": [
+                  {
+                        "name": "Cursor",
+                        "q": "Cursor怎么提升编程效率",
+                        "desc": "AI加持的代码编辑器，Tab补全和对话改代码，免费版够用",
+                        "tags": [
+                              "开发者",
+                              "独立开发者"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生"
+                        ],
+                        "url": "https://cursor.com",
+                        "price": "免费+付费",
+                        "audience": "开发者"
+                  },
+                  {
+                        "name": "Claude Code",
+                        "q": "Claude Code和Cursor有什么区别",
+                        "desc": "命令行AI编程工具，擅长整个项目级别的重构和自动化",
+                        "tags": [
+                              "高级开发者"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://claude.ai/code",
+                        "price": "付费",
+                        "audience": "高级开发者"
+                  },
+                  {
+                        "name": "GitHub Copilot",
+                        "q": "GitHub Copilot怎么用，和Cursor有什么区别",
+                        "desc": "GitHub官方AI助手，与VS Code深度集成，企业用户首选",
+                        "tags": [
+                              "企业开发者",
+                              "团队"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生"
+                        ],
+                        "url": "https://github.com/features/copilot",
+                        "price": "免费+付费",
+                        "audience": "企业开发者"
+                  },
+                  {
+                        "name": "Windsurf",
+                        "q": "Windsurf是什么，和Cursor怎么选",
+                        "desc": "Codeium出品，免费额度比Cursor多，AI对话能力接近",
+                        "tags": [
+                              "开发者",
+                              "学生"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生"
+                        ],
+                        "url": "https://codeium.com/windsurf",
+                        "price": "免费+付费",
+                        "audience": "开发者"
+                  },
+                  {
+                        "name": "Microsoft Copilot",
+                        "q": "Microsoft Copilot怎么在Office里用",
+                        "desc": "深度集成Word/Excel/PPT/Teams，职场Office用户首选",
+                        "tags": [
+                              "职场人",
+                              "企业用户"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://copilot.microsoft.com",
+                        "price": "付费",
+                        "audience": "职场人"
+                  },
+                  {
+                        "name": "Bolt.new",
+                        "q": "Bolt.new怎么用AI生成完整Web应用",
+                        "desc": "浏览器里直接生成并运行完整全栈应用，无需本地环境",
+                        "tags": [
+                              "独立开发者",
+                              "非技术用户"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://bolt.new",
+                        "price": "免费+付费",
+                        "audience": "独立开发者"
+                  },
+                  {
+                        "name": "v0.dev",
+                        "q": "v0.dev怎么生成React组件",
+                        "desc": "Vercel出品，输入描述生成高质量React UI组件，前端开发提速",
+                        "tags": [
+                              "前端开发者",
+                              "设计师"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://v0.dev",
+                        "price": "免费+付费",
+                        "audience": "前端开发者"
+                  }
+            ]
+      },
+      {
+            "icon": "⚡",
+            "name": "AI 自动化",
+            "bg": "rgba(234,179,8,0.15)",
+            "tools": [
+                  {
+                        "name": "Zapier AI",
+                        "q": "Zapier AI怎么自动化日常工作流",
+                        "desc": "用自然语言描述需求即可创建自动化流程，无需写代码",
+                        "tags": [
+                              "运营",
+                              "非技术用户"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://zapier.com",
+                        "price": "免费+付费",
+                        "audience": "运营"
+                  },
+                  {
+                        "name": "Make.com",
+                        "q": "Make.com和Zapier有什么区别",
+                        "desc": "可视化流程设计，灵活度更高，免费版额度比Zapier多",
+                        "tags": [
+                              "运营",
+                              "创业者"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合职场"
+                        ],
+                        "url": "https://make.com",
+                        "price": "免费+付费",
+                        "audience": "运营"
+                  }
+            ]
+      },
+      {
+            "icon": "🔍",
+            "name": "AI 搜索 & 办公",
+            "bg": "rgba(6,182,212,0.13)",
+            "tools": [
+                  {
+                        "name": "Perplexity",
+                        "q": "Perplexity怎么做高效信息检索",
+                        "desc": "带引用来源的AI搜索，每个结论可溯源，不用担心AI瞎编",
+                        "tags": [
+                              "研究员",
+                              "学生"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生",
+                              "适合职场"
+                        ],
+                        "url": "https://perplexity.ai",
+                        "price": "免费+付费",
+                        "audience": "研究员"
+                  },
+                  {
+                        "name": "NotebookLM",
+                        "q": "NotebookLM是什么，最适合用来做什么",
+                        "desc": "谷歌出品，上传资料后AI问答+生成播客音频，学习神器",
+                        "tags": [
+                              "学生",
+                              "研究人员"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生"
+                        ],
+                        "url": "https://notebooklm.google.com",
+                        "price": "免费",
+                        "audience": "学生"
+                  },
+                  {
+                        "name": "Notion AI",
+                        "q": "Notion AI怎么管理工作知识库",
+                        "desc": "集成在Notion里，可以问你的知识库问题，整理会议记录",
+                        "tags": [
+                              "知识工作者",
+                              "团队"
+                        ],
+                        "filters": [
+                              "适合职场",
+                              "适合学生"
+                        ],
+                        "url": "https://notion.so",
+                        "price": "免费+付费",
+                        "audience": "知识工作者"
+                  },
+                  {
+                        "name": "飞书 AI",
+                        "q": "飞书AI有哪些实用功能",
+                        "desc": "会议录音转文字、多维表格数据分析，企业协作场景实用",
+                        "tags": [
+                              "企业用户",
+                              "团队"
+                        ],
+                        "filters": [
+                              "国内直连",
+                              "适合职场"
+                        ],
+                        "url": "https://www.feishu.cn",
+                        "price": "免费+付费",
+                        "audience": "企业用户"
+                  },
+                  {
+                        "name": "Felo",
+                        "q": "Felo和Perplexity有什么区别",
+                        "desc": "多语言AI搜索，中文优化好，支持思维导图输出，国内可直连",
+                        "tags": [
+                              "研究员",
+                              "学生"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连",
+                              "适合学生"
+                        ],
+                        "url": "https://felo.ai",
+                        "price": "免费+付费",
+                        "audience": "研究员和学生"
+                  }
+            ]
+      },
+      {
+            "icon": "✍️",
+            "name": "AI 写作 & PPT",
+            "bg": "rgba(236,72,153,0.13)",
+            "tools": [
+                  {
+                        "name": "Jasper",
+                        "q": "Jasper怎么写营销文案",
+                        "desc": "专注营销文案生成，支持多种内容模板，适合品牌内容团队",
+                        "tags": [
+                              "市场营销",
+                              "广告人"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://jasper.ai",
+                        "price": "付费",
+                        "audience": "市场营销"
+                  },
+                  {
+                        "name": "Copy.ai",
+                        "q": "Copy.ai怎么快速生成社媒内容",
+                        "desc": "社媒内容批量生成，支持多平台格式，操作简单",
+                        "tags": [
+                              "社媒运营",
+                              "内容创作者"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://copy.ai",
+                        "price": "免费+付费",
+                        "audience": "社媒运营"
+                  },
+                  {
+                        "name": "Gamma",
+                        "q": "Gamma怎么快速做PPT",
+                        "desc": "输入主题自动生成完整PPT，设计感强，不需要手动排版",
+                        "tags": [
+                              "职场人",
+                              "学生"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合学生"
+                        ],
+                        "url": "https://gamma.app",
+                        "price": "免费+付费",
+                        "audience": "职场人和学生"
+                  },
+                  {
+                        "name": "Beautiful.ai",
+                        "q": "Beautiful.ai怎么做品牌演示文稿",
+                        "desc": "智能对齐排版，品牌一致性强，适合商务演示",
+                        "tags": [
+                              "设计师",
+                              "销售"
+                        ],
+                        "filters": [
+                              "适合职场"
+                        ],
+                        "url": "https://beautiful.ai",
+                        "price": "付费",
+                        "audience": "设计师"
+                  }
+            ]
+      },
+      {
+            "icon": "🤖",
+            "name": "AI Agent",
+            "bg": "rgba(168,85,247,0.13)",
+            "tools": [
+                  {
+                        "name": "Coze",
+                        "q": "Coze怎么搭建AI Agent",
+                        "desc": "字节出品，可视化搭建 AI Agent，国内直连免费，无需代码",
+                        "tags": [
+                              "内容创作者",
+                              "运营"
+                        ],
+                        "filters": [
+                              "免费",
+                              "国内直连"
+                        ],
+                        "url": "https://coze.cn",
+                        "price": "免费",
+                        "audience": "无代码用户"
+                  },
+                  {
+                        "name": "Dify",
+                        "q": "Dify怎么开发LLM应用",
+                        "desc": "开源 LLM 应用开发平台，支持本地部署，可视化编排工作流",
+                        "tags": [
+                              "开发者",
+                              "企业用户"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合职场"
+                        ],
+                        "url": "https://dify.ai",
+                        "price": "免费+付费",
+                        "audience": "开发者"
+                  },
+                  {
+                        "name": "n8n",
+                        "q": "n8n怎么搭建AI自动化工作流",
+                        "desc": "开源工作流自动化，AI 节点丰富，可自托管完全免费",
+                        "tags": [
+                              "开发者",
+                              "运营"
+                        ],
+                        "filters": [
+                              "免费",
+                              "适合职场"
+                        ],
+                        "url": "https://n8n.io",
+                        "price": "免费+付费",
+                        "audience": "开发者"
+                  },
+                  {
+                        "name": "AutoGPT",
+                        "q": "AutoGPT是什么，怎么用",
+                        "desc": "最早的开源 AI Agent 框架，自主规划任务，社区生态丰富",
+                        "tags": [
+                              "开发者",
+                              "AI爱好者"
+                        ],
+                        "filters": [
+                              "免费"
+                        ],
+                        "url": "https://agpt.co",
+                        "price": "免费",
+                        "audience": "开发者"
+                  },
+                  {
+                        "name": "Manus",
+                        "q": "Manus AI Agent能做什么，怎么用",
+                        "desc": "通用AI Agent，能自主浏览网页、写代码、处理文件，任务完成度高",
+                        "tags": [
+                              "职场人",
+                              "研究员"
+                        ],
+                        "filters": [
+                              "付费"
+                        ],
+                        "url": "https://manus.im",
+                        "price": "付费",
+                        "audience": "职场人和研究员"
+                  }
+            ]
+      }
+];
 
     const HOT_TOOL_NAMES = ['Claude', 'ChatGPT', 'DeepSeek', 'Midjourney', 'Cursor', 'Suno', 'Kimi', 'Perplexity'];
     const LATEST_TOOL_NAMES = ['Kimi', '秘塔AI搜索', 'WPS AI', 'PixVerse', 'Pika', 'NotebookLM', 'Claude Code', 'Windsurf'];

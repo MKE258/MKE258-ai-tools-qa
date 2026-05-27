@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "sync:data": "node scripts/sync-index-from-tools.mjs",
     "build": "node scripts/build-worker.mjs",
     "check": "npm run build && node --check dist/worker.js",
     "deploy": "npm run build && wrangler deploy dist/worker.js"

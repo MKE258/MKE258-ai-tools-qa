@@ -24,6 +24,7 @@ Do not directly overwrite the live Worker without updating this repository.
 ## Commands
 
 ```powershell
+npm run sync:data
 npm run check
 npx wrangler deploy --dry-run
 npx wrangler deploy
@@ -63,6 +64,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Added price, access status, audience, and official site metadata to tool cards.
 - Moved hot news below the primary tool discovery workflow.
 - Backed up source to GitHub.
+- Added `data/tools.json` as a separate tool data source.
+- Added `/admin` as a safe offline tool-data editor.
+- Added `npm run sync:data` to sync `data/tools.json` into `public/index.html`.
 
 ## Safety Rules
 
@@ -79,3 +83,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - The original Cloudflare source structure could not be exported directly, so this repository is a reconstructed maintainable source.
 - The previous issue was caused by replacing the Worker with a static-only version. Avoid that pattern.
 - Future optimization should be incremental and preserve old behavior by default.
+- The admin page intentionally exports JSON instead of writing production data directly. Add authentication plus KV/D1 before enabling live writes.
