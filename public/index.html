@@ -73,7 +73,7 @@
     .td-modal-head { padding:24px 24px 16px; display:flex; align-items:center; gap:14px; border-bottom:1px solid var(--border); }
     .td-modal-ico { width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; border:1px solid var(--border); }
     .td-modal-title { font-size:20px; font-weight:800; color:var(--text); }
-    .td-modal-close { position:absolute; top:14px; right:14px; background:none; border:1px solid var(--border); color:var(--text2); width:28px; height:28px; border-radius:var(--r); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+    .td-modal-close { position:absolute; top:14px; right:14px; background:none; border:1px solid var(--border); color:var(--text2); width:36px; height:36px; border-radius:var(--r); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
     .td-modal-close:hover { border-color:var(--accent); color:var(--accent); }
     .td-modal-body { padding:16px 24px 24px; display:flex; flex-direction:column; gap:10px; }
     .td-meta-row { display:flex; gap:8px; flex-wrap:wrap; }
@@ -86,9 +86,11 @@
     .td-btn-visit:hover { opacity:0.88; }
     .td-btn-ask { flex:1; background:none; border:1px solid var(--border); color:var(--text); font-size:13px; font-weight:600; padding:10px; border-radius:var(--rl); cursor:pointer; font-family:inherit; transition:all 0.15s; }
     .td-btn-ask:hover { border-color:var(--accent); color:var(--accent); }
-    .dir-tool-info-btn { position:absolute; top:6px; right:6px; background:var(--surface2); border:1px solid var(--border); color:var(--text3); font-size:10px; font-weight:700; letter-spacing:0; width:20px; height:20px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; z-index:2; font-family:sans-serif; line-height:1; padding:0; }
+    .dir-tool-info-btn { position:absolute; top:6px; right:6px; background:var(--surface2); border:1px solid var(--border); color:var(--text3); font-size:10px; font-weight:700; letter-spacing:0; width:28px; height:28px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; z-index:2; font-family:sans-serif; line-height:1; padding:0; }
     .dir-tool-info-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    .sr-only { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    :is(a, button, input, textarea, select, [tabindex]):focus-visible { outline:2px solid var(--accent); outline-offset:3px; box-shadow:0 0 0 4px var(--accent-bg); }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Segoe UI', sans-serif;
       background: var(--bg);
@@ -133,7 +135,7 @@
     .sidebar-brand-name { font-size:13px; font-weight:700; color:var(--text); line-height:1.2; }
     .sidebar-brand-sub { font-family:'DM Mono',monospace; font-size:9px; color:var(--text3); letter-spacing:0.1em; text-transform:uppercase; margin-top:1px; }
     .sidebar-header { padding:14px 14px 6px; font-size:11px; font-weight:700; color:var(--text3); letter-spacing:0.06em; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-    .sidebar-close { display:none; background:none; border:none; color:var(--text3); font-size:20px; cursor:pointer; line-height:1; }
+    .sidebar-close { display:none; background:none; border:none; color:var(--text3); font-size:20px; cursor:pointer; line-height:1; min-width:36px; min-height:36px; align-items:center; justify-content:center; }
     .sidebar-close:hover { color:var(--text); }
     .sidebar-cat-title { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:var(--r); cursor:pointer; color:var(--text2); font-size:13px; font-weight:500; transition:background 0.12s,color 0.12s; }
     .sidebar-cat-title:hover { background:var(--accent-bg); color:var(--accent); }
@@ -225,17 +227,17 @@
     .dir-tool-name { font-size:14px; font-weight:600; color:var(--text); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .dir-tool-desc { font-size:12px; color:var(--text2); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
     .dir-tool-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; padding-right:22px; max-width:100%; }
-    .dir-tool-visit,.dir-tool-detail { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:var(--r); padding:3px 8px; font-size:10px; line-height:1.4; cursor:pointer; text-decoration:none; transition:all 0.15s; white-space:nowrap; }
+    .dir-tool-visit,.dir-tool-detail { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:var(--r); padding:5px 10px; font-size:11px; line-height:1.4; cursor:pointer; text-decoration:none; transition:all 0.15s; white-space:nowrap; min-height:28px; display:inline-flex; align-items:center; justify-content:center; }
     .dir-tool-visit:hover { border-color:var(--accent); color:var(--accent); }
     .dir-tool-detail:hover { border-color:var(--accent); color:var(--accent); }
 
     /* ── Hot news section ── */
     .hot-news-section { margin-bottom:28px; }
     .hot-news-tabs { display:flex; gap:6px; margin-bottom:10px; align-items:center; flex-wrap:wrap; }
-    .hot-tab { background:var(--surface); border:1px solid var(--border); color:var(--text2); font-size:12px; padding:4px 12px; border-radius:20px; cursor:pointer; transition:all 0.15s; font-family:inherit; white-space:nowrap; }
+    .hot-tab { background:var(--surface); border:1px solid var(--border); color:var(--text2); font-size:12px; padding:6px 14px; border-radius:20px; cursor:pointer; transition:all 0.15s; font-family:inherit; white-space:nowrap; min-height:32px; }
     .hot-tab.active { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); font-weight:600; }
     .hot-tab:hover:not(.active) { border-color:var(--border-s); color:var(--text); }
-    .hot-tab-refresh { background:none; border:none; color:var(--text3); font-size:13px; padding:2px 6px; cursor:pointer; transition:color 0.15s; }
+    .hot-tab-refresh { background:none; border:1px solid transparent; color:var(--text3); font-size:13px; padding:0; cursor:pointer; transition:color 0.15s,border-color 0.15s; width:32px; height:32px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; }
     .hot-tab-refresh:hover { color:var(--accent); }
     .hot-update-time { font-size:11px; color:var(--text3); margin-left:auto; font-family:'DM Mono',monospace; }
     .hot-news-list { display:grid; grid-template-columns:repeat(2,1fr); gap:5px; }
@@ -335,7 +337,7 @@
     .footer { margin-top:52px; color:var(--text3); font-size:11px; text-align:center; font-family:'DM Mono',monospace; letter-spacing:0.05em; }
     .footer a { color:var(--text2); text-decoration:none; }
     .footer a:hover { color:var(--accent); }
-    .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(12px); background:var(--bg3); color:var(--text); border:1px solid var(--border-s); padding:10px 20px; border-radius:var(--rxl); font-size:13px; z-index:9999; opacity:0; transition:opacity 0.2s,transform 0.2s; pointer-events:none; white-space:nowrap; }
+    .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(12px); background:var(--bg3); color:var(--text); border:1px solid var(--border-s); padding:10px 20px; border-radius:var(--rxl); font-size:13px; z-index:9999; opacity:0; transition:opacity 0.2s,transform 0.2s; pointer-events:none; white-space:normal; max-width:min(92vw,420px); text-align:center; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
     .toast.error { border-color:#ef4444; color:#ef4444; }
     .answer-stats { font-size:12px; color:var(--text3); font-family:'DM Mono',monospace; margin:6px 0 2px; align-self:flex-end; letter-spacing:0.03em; }
@@ -508,7 +510,7 @@
     @media (max-width:768px) {
       .sidebar { top:56px; transform:translateX(-220px); }
       .sidebar.open { transform:translateX(0); }
-      .sidebar-close { display:block; }
+      .sidebar-close { display:flex; }
       .main { margin-left:0; }
       .menu-btn { display:flex; }
       .chat-box { max-width:100%; }
@@ -526,10 +528,15 @@
       .dir-banner { align-items:flex-start; flex-wrap:wrap; padding:12px 14px; }
       .dir-banner-sub { flex-basis:100%; line-height:1.5; }
       .task-panel-head { align-items:flex-start; }
-      .task-card { min-height:58px; }
+      .task-card { min-height:58px; padding:12px 14px; }
       .dir-tool-card { min-height:128px; padding:13px 14px; }
-      .dir-tool-body { padding-right:22px; }
-      .dir-tool-actions { padding-right:20px; }
+      .dir-tool-body { padding-right:34px; }
+      .dir-tool-actions { padding-right:28px; }
+      .dir-tool-cmp { width:36px; height:36px; right:48px; top:7px; }
+      .dir-tool-info-btn { width:36px; height:36px; right:7px; top:7px; }
+      .dir-tool-fav { width:36px; height:36px; right:5px; bottom:5px; }
+      .dir-tool-visit,.dir-tool-detail { min-height:36px; padding:7px 11px; }
+      .hot-tab,.scene-chip,.hot-search-chip { min-height:36px; }
       .hot-update-time { margin-left:0; width:100%; }
       .cmp-float { width:calc(100% - 24px); justify-content:center; flex-wrap:wrap; white-space:normal; bottom:16px; }
       .bubble { font-size:14px; padding:12px 14px; }
@@ -539,18 +546,18 @@
       .cat-modal-box { max-height:90vh; }
       textarea { font-size:14px; padding:12px 14px; }
       .social-share-row { flex-wrap:wrap; gap:3px; }
-      .share-x-btn,.share-wb-btn { font-size:10px; padding:2px 6px; }
+      .share-x-btn,.share-wb-btn { font-size:10px; padding:6px 9px; min-height:32px; }
       .rating-row { gap:3px; }
     }
     /* ── NEW badge ── */
     .new-badge { position:absolute; top:5px; left:6px; background:#ef4444; color:#fff; font-size:9px; font-weight:800; padding:2px 7px; border-radius:20px; letter-spacing:0.04em; z-index:3; pointer-events:none; line-height:1.5; }
     /* ── Card fav button ── */
-    .dir-tool-fav { position:absolute; bottom:8px; right:6px; background:none; border:none; color:var(--text3); font-size:14px; cursor:pointer; z-index:2; padding:2px 4px; line-height:1; transition:color 0.15s,transform 0.15s,opacity 0.15s; opacity:0; }
+    .dir-tool-fav { position:absolute; bottom:6px; right:4px; background:none; border:1px solid transparent; color:var(--text3); font-size:14px; cursor:pointer; z-index:2; padding:0; width:30px; height:30px; border-radius:50%; line-height:1; transition:color 0.15s,transform 0.15s,opacity 0.15s,border-color 0.15s; opacity:0; display:flex; align-items:center; justify-content:center; }
     .dir-tool-card:hover .dir-tool-fav { opacity:1; }
     .dir-tool-fav:hover { color:#f59e0b; transform:scale(1.15); }
     .dir-tool-fav.faved { color:#f59e0b; opacity:1; }
     /* ── Card compare select ── */
-    .dir-tool-cmp { position:absolute; top:6px; right:30px; background:var(--surface2); border:1px solid var(--border); color:var(--text3); font-size:11px; width:20px; height:20px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; z-index:2; font-weight:700; padding:0; line-height:1; opacity:0; }
+    .dir-tool-cmp { position:absolute; top:6px; right:38px; background:var(--surface2); border:1px solid var(--border); color:var(--text3); font-size:11px; width:28px; height:28px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; z-index:2; font-weight:700; padding:0; line-height:1; opacity:0; }
     .dir-tool-card:hover .dir-tool-cmp { opacity:1; }
     .dir-tool-cmp:hover { border-color:var(--accent); color:var(--accent); }
     .dir-tool-cmp.selected { background:var(--accent); border-color:var(--accent); color:#fff; opacity:1; }
@@ -589,6 +596,13 @@
     .dir-search-status strong { color:var(--text); font-size:13px; }
     .dir-search-status button { border:1px solid var(--border); background:var(--surface); color:var(--text2); border-radius:20px; padding:4px 10px; cursor:pointer; font:inherit; white-space:nowrap; }
     .dir-search-status button:hover { border-color:var(--accent); color:var(--accent); }
+    @media (max-width:768px) {
+      .dir-tool-cmp { width:36px; height:36px; right:48px; top:7px; }
+      .dir-tool-info-btn { width:36px; height:36px; right:7px; top:7px; }
+      .dir-tool-fav { width:36px; height:36px; right:5px; bottom:5px; }
+      .dir-tool-visit,.dir-tool-detail { min-height:36px; padding:7px 11px; }
+      .hot-tab,.scene-chip,.hot-search-chip { min-height:36px; }
+    }
   </style>
 </head>
 <body>
@@ -600,16 +614,17 @@
     <div class="topbar-spacer"></div>
     <div class="topbar-search">
       <span class="topbar-search-icon">🔍</span>
-      <input id="topbarSearch" placeholder="搜索AI工具…" oninput="searchTools(this.value)" onkeydown="if(event.key==='Enter'){var v=this.value.trim();if(v){searchTools(v);}}">
+      <label class="sr-only" for="topbarSearch">搜索 AI 工具</label>
+      <input id="topbarSearch" aria-label="搜索 AI 工具" placeholder="搜索AI工具…" oninput="searchTools(this.value)" onkeydown="if(event.key==='Enter'){var v=this.value.trim();if(v){searchTools(v);}}">
     </div>
-    <button class="topbar-btn" onclick="openSkills()">技能包</button>
-    <button class="topbar-btn" onclick="openThemeModal()">主题</button>
-    <button class="topbar-cta" id="loginBtn" onclick="toggleLogin()" style="background: var(--accent); color: rgb(255, 255, 255); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial;">登录</button>
+    <button class="topbar-btn" type="button" onclick="openSkills()">技能包</button>
+    <button class="topbar-btn" type="button" onclick="openThemeModal()">主题</button>
+    <button class="topbar-cta" id="loginBtn" type="button" onclick="toggleLogin()" style="background: var(--accent); color: rgb(255, 255, 255); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial;">登录</button>
   </div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span>分类</span>
-      <button class="sidebar-close" onclick="closeSidebar()">×</button>
+      <button class="sidebar-close" type="button" aria-label="关闭分类栏" onclick="closeSidebar()">×</button>
     </div>
     <div class="sidebar-scroll">
       <nav id="sidebarNav"><div class="sidebar-cat-title" data-target="dir-hot" onclick="scrollToDir('dir-hot')"><span class="ico">🔥</span><span>热门工具</span></div><div class="sidebar-cat-title" data-target="dir-latest" onclick="scrollToDir('dir-latest')"><span class="ico">🆕</span><span>最新收录</span></div><div class="sidebar-sep"></div><div class="sidebar-cat-title" data-target="dir-cat-0" onclick="scrollToDir('dir-cat-0')"><span class="ico" style="background:rgba(59,130,246,0.13);border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">💬</span><span>对话 AI</span><span class="cnt">12</span></div><div class="sidebar-cat-title" data-target="dir-cat-1" onclick="scrollToDir('dir-cat-1')"><span class="ico" style="background:rgba(147,51,234,0.13);border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">🎨</span><span>AI 画图</span><span class="cnt">5</span></div><div class="sidebar-cat-title" data-target="dir-cat-2" onclick="scrollToDir('dir-cat-2')"><span class="ico" style="background:rgba(239,68,68,0.13);border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">🎬</span><span>AI 视频</span><span class="cnt">8</span></div><div class="sidebar-cat-title" data-target="dir-cat-3" onclick="scrollToDir('dir-cat-3')"><span class="ico" style="background:rgba(16,185,129,0.13);border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">🎵</span><span>AI 音乐 &amp; 语音</span><span class="cnt">2</span></div><div class="sidebar-cat-title" data-target="dir-cat-4" onclick="scrollToDir('dir-cat-4')"><span class="ico" style="background:rgba(249,115,22,0.13);border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">💻</span><span>AI 编程</span><span class="cnt">5</span></div><div class="sidebar-cat-title" data-target="dir-cat-5" onclick="scrollToDir('dir-cat-5')"><span class="ico" style="background:rgba(234,179,8,0.15);border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">⚡</span><span>AI 自动化</span><span class="cnt">2</span></div><div class="sidebar-cat-title" data-target="dir-cat-6" onclick="scrollToDir('dir-cat-6')"><span class="ico" style="background:rgba(6,182,212,0.13);border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">🔍</span><span>AI 搜索 &amp; 办公</span><span class="cnt">4</span></div><div class="sidebar-cat-title" data-target="dir-cat-7" onclick="scrollToDir('dir-cat-7')"><span class="ico" style="background:rgba(236,72,153,0.13);border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">✍️</span><span>AI 写作 &amp; PPT</span><span class="cnt">4</span></div></nav>
@@ -623,7 +638,7 @@
       </div>
     </div>
     <div class="sidebar-bottom">
-      <button class="sidebar-cta" onclick="showToast('提交功能即将上线')">+ 提交站点</button>
+      <button class="sidebar-cta" type="button" onclick="showToast('提交功能即将上线')">+ 提交站点</button>
     </div>
   </aside>
   <!-- Invisible stat placeholders -->
@@ -632,13 +647,13 @@
     <span id="statToday">0</span><span id="statTotal">0</span><span id="statFav">-</span>
   </div>
   <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <button class="menu-btn" type="button" aria-label="打开分类栏" onclick="toggleSidebar()">☰</button>
   <div class="cat-modal" id="catModal">
     <div class="cat-modal-bg" onclick="closeModal()"></div>
     <div class="cat-modal-box">
       <div class="cat-modal-head">
         <h2 id="catModalTitle"></h2>
-        <button class="cat-close" onclick="closeModal()">×</button>
+        <button class="cat-close" type="button" aria-label="关闭分类弹窗" onclick="closeModal()">×</button>
       </div>
       <div class="cat-modal-body" id="catModalBody"></div>
     </div>
@@ -646,7 +661,7 @@
   <div class="theme-modal" id="themeModal">
     <div class="theme-modal-bg" onclick="closeThemeModal()"></div>
     <div class="theme-modal-box">
-      <button class="theme-close-btn" onclick="closeThemeModal()">×</button>
+      <button class="theme-close-btn" type="button" aria-label="关闭主题弹窗" onclick="closeThemeModal()">×</button>
       <h3>选择主题</h3>
       <div class="theme-grid">
         <div class="theme-card theme-card-navy active" id="tc-navy" onclick="applyTheme('navy')">
@@ -695,21 +710,23 @@
   <div class="cmp-modal" id="cmpModal">
     <div class="cmp-modal-bg" onclick="closeCompare()"></div>
     <div class="cmp-modal-box">
-      <button class="cmp-close-btn" onclick="closeCompare()">×</button>
+      <button class="cmp-close-btn" type="button" aria-label="关闭对比弹窗" onclick="closeCompare()">×</button>
       <h3>⚡ 工具对比</h3>
-      <input class="cmp-input" id="cmpTool1" placeholder="工具 A（如 Cursor）" onkeydown="if(event.key==='Enter')document.getElementById('cmpTool2').focus()">
+      <label class="sr-only" for="cmpTool1">对比工具 A</label>
+      <input class="cmp-input" id="cmpTool1" aria-label="对比工具 A" placeholder="工具 A（如 Cursor）" onkeydown="if(event.key==='Enter')document.getElementById('cmpTool2').focus()">
       <div class="cmp-sep">vs</div>
-      <input class="cmp-input" id="cmpTool2" placeholder="工具 B（如 Windsurf）" onkeydown="if(event.key==='Enter')submitCompare()">
-      <button class="cmp-submit" onclick="submitCompare()">开始对比</button>
+      <label class="sr-only" for="cmpTool2">对比工具 B</label>
+      <input class="cmp-input" id="cmpTool2" aria-label="对比工具 B" placeholder="工具 B（如 Windsurf）" onkeydown="if(event.key==='Enter')submitCompare()">
+      <button class="cmp-submit" type="button" onclick="submitCompare()">开始对比</button>
     </div>
   </div>
   <div class="quiz-modal" id="quizModal">
     <div class="quiz-bg" onclick="closeQuiz()"></div>
     <div class="quiz-box">
-      <button class="quiz-close" onclick="closeQuiz()">×</button>
+      <button class="quiz-close" type="button" aria-label="关闭推荐弹窗" onclick="closeQuiz()">×</button>
       <h3>✨ 帮我选 AI 工具</h3>
       <div id="quizBox"></div>
-      <button class="quiz-submit" onclick="submitQuiz()">帮我推荐 →</button>
+      <button class="quiz-submit" type="button" onclick="submitQuiz()">帮我推荐 →</button>
     </div>
   </div>
   <div class="sk-modal" id="skModal">
@@ -717,7 +734,7 @@
     <div class="sk-box">
       <div class="sk-head">
         <span class="sk-title">⚡ 技能包</span>
-        <button class="sk-close" onclick="closeSkills()">×</button>
+        <button class="sk-close" type="button" aria-label="关闭技能包弹窗" onclick="closeSkills()">×</button>
       </div>
       <div class="sk-body">
         <div class="sk-cats" id="skCats"></div>
@@ -730,7 +747,7 @@
     <div class="ig-box">
       <div class="ig-head">
         <span class="ig-title">🎨 AI 文字生图</span>
-        <button class="ig-close" onclick="closeImageGen()">×</button>
+        <button class="ig-close" type="button" aria-label="关闭生图弹窗" onclick="closeImageGen()">×</button>
       </div>
       <textarea class="ig-input" id="igPrompt" placeholder="描述你想要的画面，用英文效果更好
 例如：a cat astronaut in space, digital art, 4k" rows="4"></textarea>
@@ -740,7 +757,7 @@
         <span class="ig-tip" onclick="setIgPrompt('a majestic mountain landscape at sunset, oil painting')">日落山景</span>
         <span class="ig-tip" onclick="setIgPrompt('a robot playing piano in a jazz bar, illustration')">机器人演奏</span>
       </div>
-      <button class="ig-btn" id="igSubmit" onclick="submitImageGen()">✨ 开始生成</button>
+      <button class="ig-btn" id="igSubmit" type="button" onclick="submitImageGen()">✨ 开始生成</button>
       <div class="ig-preview" id="igPreview"></div>
     </div>
   </div>
@@ -754,27 +771,27 @@
         <div class="sc-footer">tools.aitoolsguide.top · @RealYDT</div>
       </div>
       <div class="sc-hint">
-        <button class="sc-dl-btn" onclick="downloadShareCard()">⬇ 下载图片</button>
-        <button class="sc-close-btn" onclick="closeShareCard()">关闭</button>
+        <button class="sc-dl-btn" type="button" onclick="downloadShareCard()">⬇ 下载图片</button>
+        <button class="sc-close-btn" type="button" onclick="closeShareCard()">关闭</button>
       </div>
     </div>
   </div>
-  <div class="td-modal" id="tdModal"><div class="td-modal-bg" onclick="closeTdModal()"></div><div class="td-modal-box"><button class="td-modal-close" onclick="closeTdModal()">&#215;</button><div class="td-modal-head"><div class="td-modal-ico" id="tdModalIco"></div><div class="td-modal-title" id="tdModalTitle"></div></div><div class="td-modal-body"><div class="td-meta-row" id="tdModalMeta"></div><div class="td-desc" id="tdModalDesc"></div></div><div class="td-related" id="tdModalRelated"></div><div class="td-modal-actions"><a class="td-btn-visit" id="tdModalVisit" target="_blank" rel="noopener noreferrer">&#x1F310; 去官网</a><button class="td-btn-ask" id="tdModalAsk">&#x1F4AC; 直接提问</button><button class="td-btn-share" id="tdModalShare" title="复制工具链接">&#x1F517;</button></div></div></div>
+  <div class="td-modal" id="tdModal"><div class="td-modal-bg" onclick="closeTdModal()"></div><div class="td-modal-box"><button class="td-modal-close" type="button" aria-label="关闭工具详情" onclick="closeTdModal()">&#215;</button><div class="td-modal-head"><div class="td-modal-ico" id="tdModalIco"></div><div class="td-modal-title" id="tdModalTitle"></div></div><div class="td-modal-body"><div class="td-meta-row" id="tdModalMeta"></div><div class="td-desc" id="tdModalDesc"></div></div><div class="td-related" id="tdModalRelated"></div><div class="td-modal-actions"><a class="td-btn-visit" id="tdModalVisit" target="_blank" rel="noopener noreferrer">&#x1F310; 去官网</a><button class="td-btn-ask" id="tdModalAsk" type="button">&#x1F4AC; 直接提问</button><button class="td-btn-share" id="tdModalShare" type="button" title="复制工具链接" aria-label="复制工具链接">&#x1F517;</button></div></div></div>
   <div class="cmp-float hidden" id="cmpFloat">
     <span style="font-size:12px;color:var(--text3)">对比</span>
     <span class="cmp-float-name" id="cmpFloatName1" style="display:none"></span>
     <span class="cmp-float-vs" id="cmpFloatVs" style="display:none">vs</span>
     <span class="cmp-float-name" id="cmpFloatName2" style="display:none"></span>
-    <button class="cmp-float-btn" id="cmpFloatGo" onclick="executeCmpFloat()" disabled>开始对比</button>
-    <button class="cmp-float-clear" onclick="clearCmpFloat()" title="取消">×</button>
+    <button class="cmp-float-btn" id="cmpFloatGo" type="button" onclick="executeCmpFloat()" disabled>开始对比</button>
+    <button class="cmp-float-clear" type="button" onclick="clearCmpFloat()" title="取消" aria-label="取消对比">×</button>
   </div>
   <div id="tourHL"></div>
   <div id="tourBubble">
     <div class="tour-counter" id="tourCounter"></div>
     <div class="tour-msg" id="tourMsg"></div>
     <div class="tour-btns">
-      <button class="tour-skip" onclick="endTour()">跳过</button>
-      <button class="tour-next" id="tourNextBtn" onclick="nextTourStep()">下一步</button>
+      <button class="tour-skip" type="button" onclick="endTour()">跳过</button>
+      <button class="tour-next" id="tourNextBtn" type="button" onclick="nextTourStep()">下一步</button>
     </div>
   </div>
   <div class="main">
@@ -821,21 +838,21 @@
       <div class="suggestions-bar" id="suggestionsBar"></div>
       <div class="input-area">
         <textarea id="input" placeholder="问我AI工具怎么用… 或输入 /draw 描述 生成图片" rows="1" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();sendMessage()}" oninput="this.style.height='52px';this.style.height=Math.min(this.scrollHeight,160)+'px'"></textarea>
-        <button class="mic-btn" id="micBtn" onclick="startVoice()" title="语音输入">🎤</button>
-        <button class="send" id="sendBtn" onclick="sendMessage()">发送</button>
+        <button class="mic-btn" id="micBtn" type="button" onclick="startVoice()" title="语音输入" aria-label="语音输入">🎤</button>
+        <button class="send" id="sendBtn" type="button" onclick="sendMessage()">发送</button>
       </div>
       <div class="toolbar">
-        <button class="quiz-add-btn" onclick="openQuiz()">✨ 帮我选工具</button>
-        <button class="quiz-add-btn" onclick="openImageGen()" id="imgGenBtn">🎨 生成图片</button>
-        <button class="export-btn" onclick="exportChat()">📥 导出对话</button>
-        <button class="clear-btn" onclick="clearHistory()">🗑 清空对话</button>
+        <button class="quiz-add-btn" type="button" onclick="openQuiz()">✨ 帮我选工具</button>
+        <button class="quiz-add-btn" type="button" onclick="openImageGen()" id="imgGenBtn">🎨 生成图片</button>
+        <button class="export-btn" type="button" onclick="exportChat()">📥 导出对话</button>
+        <button class="clear-btn" type="button" onclick="clearHistory()">🗑 清空对话</button>
       </div>
     </div>
     </div><!-- /chat-section -->
   </div><!-- /content-area -->
   <div class="footer">内容由 DeepSeek AI 驱动 · 关注 <a href="https://x.com/RealYDT" target="_blank">@RealYDT</a> 获取更多 AI 技巧</div>
-  <button id="scrollBtn" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" style="display:none;position:fixed;bottom:24px;right:24px;z-index:500;background:var(--accent);color:var(--user-text);border:none;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;box-shadow:0 4px 16px var(--accent-glow);transition:opacity 0.2s">↓</button>
-  <div id="toast" class="toast"></div>
+  <button id="scrollBtn" type="button" aria-label="滚动到底部" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" style="display:none;position:fixed;bottom:24px;right:24px;z-index:500;background:var(--accent);color:var(--user-text);border:none;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;box-shadow:0 4px 16px var(--accent-glow);transition:opacity 0.2s">↓</button>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div class="ann-modal" id="annModal">
     <div class="ann-bg" onclick="dismissAnnouncement()"></div>
     <div class="ann-box" id="annBox"></div>
@@ -1883,7 +1900,7 @@
           <span class="ann-version">${VERSION}</span>
         </div>
         ${groups}
-        <button class="ann-dismiss" onclick="dismissAnnouncement()">我知道了</button>`;
+        <button class="ann-dismiss" type="button" onclick="dismissAnnouncement()">我知道了</button>`;
       document.getElementById('annModal').classList.add('open');
     }
     function checkAnnouncement() {
@@ -1903,6 +1920,12 @@
       clearTimeout(_toastTimer);
       requestAnimationFrame(() => { t.classList.add('show'); });
       _toastTimer = setTimeout(() => { t.classList.remove('show'); }, 2800);
+    }
+
+    function runOnKeyboardActivate(event, action) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      action();
     }
 
     function escapeHtml(str) { return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
@@ -2123,7 +2146,7 @@
           '<span class="prompt-chip" data-tname="' + t.name + '" data-pi="' + pi + '" onclick="pickPrompt(this)">' + p.slice(0, 26) + (p.length > 26 ? '…' : '') + '</span>'
         ).join('') + '</div>' : '';
         const firstChar = t.name.charAt(0);
-        return `<div class="tool-card"><div class="tool-card-icon">${firstChar}</div><div class="tool-card-body"><div class="tool-name">${t.name}</div><div class="tool-desc">${t.desc}</div><div class="tool-tags">${(t.tags||[]).map(tag => `<span class="tool-tag">${tag}</span>`).join('')}</div>${chipsHtml}</div><button class="tool-ask" onclick="closeModal();ask('${t.q.replace(/'/g, "\\'")}')">立即提问</button></div>`;
+        return `<div class="tool-card"><div class="tool-card-icon">${firstChar}</div><div class="tool-card-body"><div class="tool-name">${t.name}</div><div class="tool-desc">${t.desc}</div><div class="tool-tags">${(t.tags||[]).map(tag => `<span class="tool-tag">${tag}</span>`).join('')}</div>${chipsHtml}</div><button class="tool-ask" type="button" onclick="closeModal();ask('${t.q.replace(/'/g, "\\'")}')">立即提问</button></div>`;
       }).join('');
       document.getElementById("catModal").classList.add("open");
     }
@@ -2149,7 +2172,7 @@
     }
 
     function botHtml(answer, question) {
-      return `<div class="message bot" data-question="${escapeHtml(question||"")}"><div class="avatar">🤖</div><div class="msg-wrap"><div class="bubble">${renderMarkdown(answer)}</div><div style="display:flex;gap:5px;align-self:flex-end;flex-wrap:wrap;margin-top:5px;align-items:center"><div class="rating-row"><button class="rate-btn" onclick="rateAnswer(this,1)">👍</button><button class="rate-btn" onclick="rateAnswer(this,-1)">👎</button></div><button class="fav-btn" onclick="toggleFavorite(this)">☆</button><button class="copy-btn" onclick="copyText(this)">复制</button></div><div class="social-share-row" style="align-self:flex-end"><button class="share-btn" onclick="shareAnswer(this)">🔗</button><button class="share-x-btn" onclick="shareToX(this)">𝕏</button><button class="share-wb-btn" onclick="shareToWeibo(this)">微博</button><button class="img-btn" onclick="showShareCard(this)">🖼</button></div></div></div>`;
+      return `<div class="message bot" data-question="${escapeHtml(question||"")}"><div class="avatar">🤖</div><div class="msg-wrap"><div class="bubble">${renderMarkdown(answer)}</div><div style="display:flex;gap:5px;align-self:flex-end;flex-wrap:wrap;margin-top:5px;align-items:center"><div class="rating-row"><button class="rate-btn" type="button" aria-label="回答有帮助" onclick="rateAnswer(this,1)">👍</button><button class="rate-btn" type="button" aria-label="回答没帮助" onclick="rateAnswer(this,-1)">👎</button></div><button class="fav-btn" type="button" aria-label="收藏回答" onclick="toggleFavorite(this)">☆</button><button class="copy-btn" type="button" onclick="copyText(this)">复制</button></div><div class="social-share-row" style="align-self:flex-end"><button class="share-btn" type="button" aria-label="复制分享链接" onclick="shareAnswer(this)">🔗</button><button class="share-x-btn" type="button" onclick="shareToX(this)">𝕏</button><button class="share-wb-btn" type="button" onclick="shareToWeibo(this)">微博</button><button class="img-btn" type="button" aria-label="生成分享图片" onclick="showShareCard(this)">🖼</button></div></div></div>`;
     }
 
     function copyText(btn) {
@@ -2362,11 +2385,11 @@
       const safeLabel = escapeHtml(label || '');
       if (kind === 'empty') {
         el.classList.add('show');
-        el.innerHTML = '<span><strong>没有找到匹配工具</strong>：' + safeLabel + '</span><button onclick="clearDirectoryFilters()">清除</button>';
+        el.innerHTML = '<span><strong>没有找到匹配工具</strong>：' + safeLabel + '</span><button type="button" onclick="clearDirectoryFilters()">清除</button>';
         return;
       }
       el.classList.add('show');
-      el.innerHTML = '<span><strong>已筛选</strong>：' + safeLabel + '，共 ' + count + ' 个工具</span><button onclick="clearDirectoryFilters()">清除</button>';
+      el.innerHTML = '<span><strong>已筛选</strong>：' + safeLabel + '，共 ' + count + ' 个工具</span><button type="button" onclick="clearDirectoryFilters()">清除</button>';
     }
 
     function clearDirectoryFilters() {
@@ -2642,7 +2665,7 @@
           if (rafId) cancelAnimationFrame(rafId);
           bubble.innerHTML = renderMarkdown(answer);
         } catch {
-          bubble.innerHTML = '<span style="color:var(--text2)">出了点问题，请重试。</span> <button class="rate-btn" style="margin-left:6px" onclick="retryMessage(this)">重试</button>';
+          bubble.innerHTML = '<span style="color:var(--text2)">出了点问题，请重试。</span> <button class="rate-btn" type="button" style="margin-left:6px" onclick="retryMessage(this)">重试</button>';
         }
 
         const statsEl = document.createElement('div');
@@ -3057,19 +3080,19 @@
         const newBadge = NEW_TOOL_NAMES.has(t.name) ? '<span class="new-badge">NEW</span>' : '';
         const dataAttrs = ' data-filters="' + (t.filters||[]).join(',') + '" data-tags="' + (t.tags||[]).join(',') + '" data-category="' + (findTool(t.name)?.cat?.name || '') + '" data-name="' + t.name.replace(/"/g,'&quot;') + '"';
         const isFav = getFavTools().has(t.name);
-        const favBtn = '<button class="dir-tool-fav' + (isFav ? ' faved' : '') + '" onclick="event.stopPropagation();toggleFavTool(\'' + nameEsc + '\',this)" title="' + (isFav ? '已收藏' : '收藏') + '">' + (isFav ? '❤' : '♡') + '</button>';
-        const cmpBtn = '<button class="dir-tool-cmp" onclick="event.stopPropagation();toggleCmpSelect(\'' + nameEsc + '\',this)" title="加入对比">+</button>';
-        const visitBtn = t.url ? '<a class="dir-tool-visit" href="' + urlEsc + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">官网</a>' : '';
-        const detailBtn = '<a class="dir-tool-detail" href="' + detailUrl + '" onclick="event.stopPropagation()">详情</a>';
+        const favBtn = '<button class="dir-tool-fav' + (isFav ? ' faved' : '') + '" type="button" onclick="event.stopPropagation();toggleFavTool(\'' + nameEsc + '\',this)" title="' + (isFav ? '已收藏' : '收藏') + '" aria-label="' + (isFav ? '取消收藏 ' : '收藏 ') + t.name.replace(/"/g,'&quot;') + '">' + (isFav ? '❤' : '♡') + '</button>';
+        const cmpBtn = '<button class="dir-tool-cmp" type="button" onclick="event.stopPropagation();toggleCmpSelect(\'' + nameEsc + '\',this)" title="加入对比" aria-label="加入对比 ' + t.name.replace(/"/g,'&quot;') + '">+</button>';
+        const visitBtn = t.url ? '<a class="dir-tool-visit" href="' + urlEsc + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" aria-label="打开 ' + t.name.replace(/"/g,'&quot;') + ' 官网">官网</a>' : '';
+        const detailBtn = '<a class="dir-tool-detail" href="' + detailUrl + '" onclick="event.stopPropagation()" aria-label="查看 ' + t.name.replace(/"/g,'&quot;') + ' 详情">详情</a>';
         const actionsHtml = '<div class="dir-tool-actions">' + visitBtn + detailBtn + '</div>';
-        return '<div class="dir-tool-card"' + dataAttrs + ' onclick="jumpToChat(\'' + qEsc + '\')">' +
+        return '<div class="dir-tool-card"' + dataAttrs + ' role="button" tabindex="0" aria-label="询问 ' + t.name.replace(/"/g,'&quot;') + '" onclick="jumpToChat(\'' + qEsc + '\')" onkeydown="runOnKeyboardActivate(event,function(){jumpToChat(\'' + qEsc + '\')})">' +
           newBadge + cmpBtn +
           '<div class="dir-tool-icon"' + iconStyle + '>' + catIcon + '</div>' +
           '<div class="dir-tool-body">' +
           '<div class="dir-tool-name">' + t.name + '</div>' +
           '<div class="dir-tool-desc">' + t.desc + '</div>' +
           actionsHtml +
-          '<button class="dir-tool-info-btn" onclick="event.stopPropagation();openTdModal(\'' + nameEsc + '\',\'' + catIcon + '\',\'' + (catBg||'') + '\')">i</button></div>' +
+          '<button class="dir-tool-info-btn" type="button" onclick="event.stopPropagation();openTdModal(\'' + nameEsc + '\',\'' + catIcon + '\',\'' + (catBg||'') + '\')" aria-label="查看 ' + t.name.replace(/"/g,'&quot;') + ' 信息">i</button></div>' +
           favBtn + '</div>';
       }
 
@@ -3104,7 +3127,7 @@
         '<div class="task-panel-head"><div><div class="task-panel-title">按任务找工具</div><div class="task-panel-sub">先选场景，再看工具。原有问答、生图、热点功能保留。</div></div></div>' +
         '<div class="task-grid">' +
         TASK_GUIDES.map(function(t) {
-          return '<button class="task-card" onclick="selectTaskGuide(\'' + t.query.replace(/'/g,"\\'") + '\')"><strong>' + t.title + '</strong><span>' + t.hint + '</span></button>';
+          return '<button class="task-card" type="button" onclick="selectTaskGuide(\'' + t.query.replace(/'/g,"\\'") + '\')"><strong>' + t.title + '</strong><span>' + t.hint + '</span></button>';
         }).join('') +
         '</div></div>';
 
@@ -3113,13 +3136,13 @@
         { key:'ithome', label:'IT之家' },
       ];
       const hotNewsTabsHtml = hotNewsTabs.map(function(t) {
-        return '<button class="hot-tab' + (t.key==='kr36'?' active':'') + '" data-key="' + t.key + '" onclick="switchHotTab(\'' + t.key + '\')">' + t.label + '</button>';
+        return '<button class="hot-tab' + (t.key==='kr36'?' active':'') + '" type="button" data-key="' + t.key + '" onclick="switchHotTab(\'' + t.key + '\')">' + t.label + '</button>';
       }).join('');
       const hotNewsSection =
         '<div class="hot-news-section" id="hotNewsSection">' +
         '<div class="dir-section-title">📡 实时热点<span class="dir-section-count" id="hotNewsCount">-</span></div>' +
         '<div class="hot-news-tabs">' + hotNewsTabsHtml +
-        '<button class="hot-tab-refresh" onclick="refreshHotNews()" title="刷新">↻</button>' +
+        '<button class="hot-tab-refresh" type="button" onclick="refreshHotNews()" title="刷新" aria-label="刷新实时热点">↻</button>' +
         '<span class="hot-update-time" id="hotUpdateTime"></span></div>' +
         '<div class="hot-news-list" id="hotNewsList"><div class="hot-news-loading">加载中…</div></div>' +
         '</div>';
@@ -3130,12 +3153,12 @@
       const sceneBar =
         '<div class="scene-bar" id="sceneBar">' +
         '<span class="scene-lbl">快速筛选</span>' +
-        '<button class="scene-chip" data-scene="适合学生" onclick="filterByScene(this)">🎓 学生</button>' +
-        '<button class="scene-chip" data-scene="适合职场" onclick="filterByScene(this)">💼 职场</button>' +
-        '<button class="scene-chip" data-scene="免费" onclick="filterByScene(this)">🆓 免费</button>' +
-        '<button class="scene-chip" data-scene="国内直连" onclick="filterByScene(this)">🇨🇳 国内直连</button>' +
-        '<button class="scene-chip" data-scene="开发者" onclick="filterByScene(this,true)">👨‍💻 开发者</button>' +
-        '<button class="scene-chip" data-scene="设计师" onclick="filterByScene(this,true)">🎨 设计师</button>' +
+        '<button class="scene-chip" type="button" data-scene="适合学生" onclick="filterByScene(this)">🎓 学生</button>' +
+        '<button class="scene-chip" type="button" data-scene="适合职场" onclick="filterByScene(this)">💼 职场</button>' +
+        '<button class="scene-chip" type="button" data-scene="免费" onclick="filterByScene(this)">🆓 免费</button>' +
+        '<button class="scene-chip" type="button" data-scene="国内直连" onclick="filterByScene(this)">🇨🇳 国内直连</button>' +
+        '<button class="scene-chip" type="button" data-scene="开发者" onclick="filterByScene(this,true)">👨‍💻 开发者</button>' +
+        '<button class="scene-chip" type="button" data-scene="设计师" onclick="filterByScene(this,true)">🎨 设计师</button>' +
         '</div>';
 
       board.innerHTML = banner +
@@ -3179,7 +3202,7 @@
         var rankCls = i < 3 ? ' top3' : '';
         var qEsc = item.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
         var heatHtml = item.heat ? '<span class="hot-news-heat">' + escapeHtml(String(item.heat)) + '</span>' : '';
-        return '<div class="hot-news-item" onclick="jumpToChat(\'' + qEsc + '\')">' +
+        return '<div class="hot-news-item" role="button" tabindex="0" onclick="jumpToChat(\'' + qEsc + '\')" onkeydown="runOnKeyboardActivate(event,function(){jumpToChat(\'' + qEsc + '\')})">' +
           '<span class="hot-news-rank' + rankCls + '">' + (i + 1) + '</span>' +
           '<span class="hot-news-title">' + escapeHtml(item.title) + '</span>' +
           heatHtml + '</div>';
@@ -3260,7 +3283,7 @@
         if (siblings.length) {
           relatedEl.innerHTML = '<div class="td-related-title">同类工具</div><div class="td-related-list">' +
             siblings.map(function(s) {
-              return '<button class="td-related-chip" onclick="openTdModal(\'' + s.name.replace(/'/g,"\\'") + '\',\'' + (catIcon||cat.icon) + '\',\'' + (catBg||cat.bg||'') + '\')">' + escapeHtml(s.name) + '</button>';
+              return '<button class="td-related-chip" type="button" onclick="openTdModal(\'' + s.name.replace(/'/g,"\\'") + '\',\'' + (catIcon||cat.icon) + '\',\'' + (catBg||cat.bg||'') + '\')">' + escapeHtml(s.name) + '</button>';
             }).join('') + '</div>';
           relatedEl.style.display = '';
         } else { relatedEl.style.display = 'none'; }
@@ -3355,7 +3378,7 @@
       el.style.display = '';
       el.innerHTML = '<span class="hot-search-lbl">热搜</span>' +
         sorted.map(function(k) {
-          return '<button class="hot-search-chip" onclick="applyHotSearch(\'' + k.replace(/'/g,"\\'") + '\')">' + escapeHtml(k) + '</button>';
+          return '<button class="hot-search-chip" type="button" onclick="applyHotSearch(\'' + k.replace(/'/g,"\\'") + '\')">' + escapeHtml(k) + '</button>';
         }).join('');
     }
     function applyHotSearch(kw) {
