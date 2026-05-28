@@ -53,9 +53,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `36c7b2a7-c1b8-486f-b28a-8f85741905b7`
-- Verified rollback version: `ff550c9d-f24d-41fd-b85c-1d375be1759c`
-- Previous deployed version: `6da45154-2515-469b-aae4-4b3050a44194`
+- Current deployed version: `140e229d-d034-4304-923b-aa9c609bdcef`
+- Verified rollback version: `36c7b2a7-c1b8-486f-b28a-8f85741905b7`
+- Previous deployed version: `36c7b2a7-c1b8-486f-b28a-8f85741905b7`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -82,6 +82,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Removed the duplicate orange audience/best-for line from tool cards; the audience now appears once as a compact pill.
 - Removed all metadata pills from tool cards; price, access, and audience data remain available in tool details/data.
 - Improved `/admin` offline maintenance with current-category search, data validation summary, safer JSON import errors, and escaped list rendering.
+- Improved homepage and admin accessibility with visible focus states, clearer labels, keyboard-operable cards, and larger mobile touch targets.
 
 ## Safety Rules
 

@@ -9,10 +9,11 @@
 - Added tool card metadata for price, access status, audience, and official site.
 - Moved hot news lower in the tool directory so tool selection is the primary first-screen workflow.
 - Verified production deployment:
-  - Current version: `36c7b2a7-c1b8-486f-b28a-8f85741905b7`
-  - Rollback version: `ff550c9d-f24d-41fd-b85c-1d375be1759c`
+  - Current version: `140e229d-d034-4304-923b-aa9c609bdcef`
+  - Rollback version: `36c7b2a7-c1b8-486f-b28a-8f85741905b7`
 - Fixed tool card layout follow-ups and removed duplicate card metadata pills.
 - Improved `/admin` offline maintenance with tool search, validation summary, safer import errors, and escaped list output.
+- Improved homepage and admin accessibility with visible focus states, clearer labels, keyboard-operable cards, and larger mobile touch targets.
 - Added `npm run validate:data` and wired it into `npm run check` to catch invalid or unsynced tool data before deployment.
 - Added `npm run validate:html`, removed the captured Cloudflare Insights beacon, and wired HTML checks into `npm run check`.
 - Added `npm run smoke:worker` and wired it into `npm run check` to verify built Worker routes before deployment.
