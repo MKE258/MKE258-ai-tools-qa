@@ -53,9 +53,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `140e229d-d034-4304-923b-aa9c609bdcef`
-- Verified rollback version: `36c7b2a7-c1b8-486f-b28a-8f85741905b7`
-- Previous deployed version: `36c7b2a7-c1b8-486f-b28a-8f85741905b7`
+- Current deployed version: `8acf718e-ab0e-4cab-82e9-0388321abe60`
+- Verified rollback version: `140e229d-d034-4304-923b-aa9c609bdcef`
+- Previous deployed version: `140e229d-d034-4304-923b-aa9c609bdcef`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -83,6 +83,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Removed all metadata pills from tool cards; price, access, and audience data remain available in tool details/data.
 - Improved `/admin` offline maintenance with current-category search, data validation summary, safer JSON import errors, and escaped list rendering.
 - Improved homepage and admin accessibility with visible focus states, clearer labels, keyboard-operable cards, and larger mobile touch targets.
+- Refined the homepage visual system into a clearer tool-workbench style and improved the tool detail modal information hierarchy.
 
 ## Safety Rules
 

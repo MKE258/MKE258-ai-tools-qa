@@ -32,8 +32,8 @@ npm run deploy
 
 - 域名：https://tools.aitoolsguide.top/
 - Worker：`ai-tools-qa`
-- 当前已部署版本：`140e229d-d034-4304-923b-aa9c609bdcef`
-- 回滚版本：`36c7b2a7-c1b8-486f-b28a-8f85741905b7`
+- 当前已部署版本：`8acf718e-ab0e-4cab-82e9-0388321abe60`
+- 回滚版本：`140e229d-d034-4304-923b-aa9c609bdcef`
 
 发布前检查：
 
