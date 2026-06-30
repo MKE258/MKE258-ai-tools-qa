@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `758f7ecb-c486-4dfc-9f97-a1e3cf3c8bcb`
-- Verified rollback version: `8acf718e-ab0e-4cab-82e9-0388321abe60`
-- Previous deployed version: `8acf718e-ab0e-4cab-82e9-0388321abe60`
+- Current deployed version: `944dbf13-c887-4fcb-a950-e7a6f1d40dec`
+- Verified rollback version: `758f7ecb-c486-4dfc-9f97-a1e3cf3c8bcb`
+- Previous deployed version: `6dca5261-5848-4715-adc8-37b0e201a080`
 - Backup commit: `4a2a141`
 
 ## Completed Work
