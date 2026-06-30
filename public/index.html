@@ -226,6 +226,19 @@
     .task-card:hover { border-color:var(--accent); background:var(--accent-bg); transform:translateY(-1px); box-shadow:0 10px 24px var(--accent-glow); }
     .task-card strong { display:block; font-size:13px; margin-bottom:5px; font-weight:800; }
     .task-card span { display:block; color:var(--text2); font-size:11px; line-height:1.5; }
+    .home-ai-entry { background:linear-gradient(135deg,var(--bg2),var(--accent-bg)); border:1px solid var(--border); border-radius:var(--rxl); padding:18px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; gap:14px; box-shadow:var(--shadow-md); }
+    .home-ai-title { font-size:18px; font-weight:850; color:var(--text); margin-bottom:4px; }
+    .home-ai-desc { color:var(--text2); font-size:13px; line-height:1.6; }
+    .home-ai-cta { border:none; background:var(--accent); color:#fff; border-radius:var(--rl); min-height:42px; padding:0 18px; font-weight:800; cursor:pointer; white-space:nowrap; font-family:inherit; box-shadow:0 10px 24px var(--accent-glow); }
+    .quiz-results { margin-top:16px; border-top:1px solid var(--border); padding-top:14px; display:grid; gap:10px; }
+    .quiz-result-card { border:1px solid var(--border); background:var(--bg); border-radius:var(--rl); padding:12px; }
+    .quiz-result-head { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:6px; }
+    .quiz-result-name { font-weight:850; color:var(--text); }
+    .quiz-result-reason { color:var(--text2); font-size:12px; line-height:1.55; margin-top:4px; }
+    .quiz-result-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+    .quiz-result-actions button,.quiz-result-actions a { border:1px solid var(--border); background:var(--bg2); color:var(--text2); border-radius:var(--r); padding:7px 10px; font-size:12px; cursor:pointer; text-decoration:none; font-family:inherit; }
+    .quiz-result-actions .primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .mobile-ai-entry { display:none; position:fixed; left:14px; right:14px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:650; border:none; background:var(--accent); color:#fff; min-height:48px; border-radius:var(--rl); font-weight:850; box-shadow:0 12px 30px var(--accent-glow); font-family:inherit; }
     @media (max-width:900px) { .task-grid { grid-template-columns:repeat(2,1fr); } }
     @media (max-width:600px) { .task-grid { grid-template-columns:1fr; } }
     .dir-section { margin-bottom:30px; }
@@ -547,6 +560,8 @@
       .dir-banner { align-items:flex-start; flex-wrap:wrap; padding:12px 14px; }
       .dir-banner-sub { flex-basis:100%; line-height:1.5; }
       .task-panel { padding:14px; box-shadow:var(--shadow-sm); }
+      .home-ai-entry { align-items:flex-start; flex-direction:column; padding:14px; box-shadow:var(--shadow-sm); }
+      .home-ai-cta { width:100%; }
       .task-panel-head { align-items:flex-start; }
       .task-card { min-height:58px; padding:12px 14px; }
       .dir-tool-card { min-height:128px; padding:13px 14px; }
@@ -625,6 +640,8 @@
       .dir-tool-fav { width:36px; height:36px; right:5px; bottom:5px; }
       .dir-tool-visit,.dir-tool-detail { min-height:36px; padding:7px 11px; }
       .hot-tab,.scene-chip,.hot-search-chip { min-height:36px; }
+      body { padding-bottom:72px; }
+      .mobile-ai-entry { display:block; }
     }
   </style>
 </head>
@@ -671,6 +688,7 @@
   </div>
   <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
   <button class="menu-btn" type="button" aria-label="打开分类栏" onclick="toggleSidebar()">☰</button>
+  <button class="mobile-ai-entry" type="button" onclick="openQuiz()" aria-label="让 AI 帮我选工具">让 AI 帮我选工具</button>
   <div class="cat-modal" id="catModal">
     <div class="cat-modal-bg" onclick="closeModal()"></div>
     <div class="cat-modal-box">
@@ -1952,6 +1970,64 @@
     }
 
     function escapeHtml(str) { return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+    const accountState = { user: null, ready: false, serverFavs: new Set() };
+    function apiFetch(path, options) {
+      return fetch(path, Object.assign({ credentials: 'same-origin' }, options || {}));
+    }
+    function eventPayload(type, data) {
+      return Object.assign({ type: type }, data || {});
+    }
+    function trackEvent(type, data) {
+      apiFetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventPayload(type, data))
+      }).catch(function() {});
+    }
+    async function initAccountState() {
+      try {
+        const res = await apiFetch('/api/auth/me');
+        const data = await res.json();
+        accountState.user = data.user || null;
+        accountState.ready = true;
+        if (accountState.user) await syncServerFavorites();
+      } catch(e) {
+        accountState.ready = true;
+      }
+      updateLoginBtn();
+      updateFavButtons();
+    }
+    async function syncServerFavorites() {
+      if (!accountState.user) return;
+      const localFavs = [...getFavTools()];
+      for (const name of localFavs) {
+        await saveServerFavorite(name, true).catch(function() {});
+      }
+      const res = await apiFetch('/api/favorites');
+      if (!res.ok) return;
+      const data = await res.json();
+      accountState.serverFavs = new Set((data.items || []).map(function(item) { return item.name; }).filter(Boolean));
+      saveFavTools(accountState.serverFavs);
+    }
+    async function saveServerFavorite(name, enabled) {
+      const tool = findTool(name)?.t || { name: name };
+      return apiFetch('/api/favorites', {
+        method: enabled ? 'POST' : 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toolName: tool.name, toolSlug: toolSlug(tool.name) })
+      });
+    }
+    function updateFavButtons() {
+      const favs = getFavTools();
+      document.querySelectorAll('.dir-tool-fav').forEach(function(btn) {
+        const name = btn.dataset.toolName;
+        const isFav = favs.has(name);
+        btn.classList.toggle('faved', isFav);
+        btn.title = isFav ? '已收藏' : '收藏';
+        btn.setAttribute('aria-label', (isFav ? '取消收藏 ' : '收藏 ') + name);
+        btn.textContent = isFav ? '❤' : '♡';
+      });
+    }
     function renderMarkdown(raw) {
       const html = marked.parse(raw);
       if (!window.hljs) return html;
@@ -2386,7 +2462,10 @@
 
     function closeHeroSearch() { /* hero removed, no-op */ }
 
-    function jumpToChat(q) {
+    function jumpToChat(q, meta) {
+      if (meta && meta.toolName) {
+        trackEvent('ask_tool', { toolName: meta.toolName, toolSlug: toolSlug(meta.toolName), question: q });
+      }
       const chatSec = document.getElementById('chatSection');
       if (chatSec) {
         const top = chatSec.getBoundingClientRect().top + window.scrollY - 72;
@@ -2396,6 +2475,12 @@
     }
 
     async function ask(text) { document.getElementById("input").value = text; sendMessage(); }
+    function jumpToToolChat(name, q) {
+      jumpToChat(q, { toolName: name });
+    }
+    function trackOfficialClick(name) {
+      trackEvent('official_click', { toolName: name, toolSlug: toolSlug(name) });
+    }
 
     function setDirectoryStatus(kind, label, count) {
       const el = document.getElementById('dirSearchStatus');
@@ -2437,7 +2522,10 @@
       const normalized = keyword.toLowerCase();
       const terms = normalized.split(/\s+/).filter(Boolean);
       syncSearchInputs(keyword);
-      if (normalized.length >= 2) trackSearch(normalized);
+      if (normalized.length >= 2) {
+        trackSearch(normalized);
+        trackEvent('search', { keyword: normalized });
+      }
       // clear scene filter when doing a text search
       document.querySelectorAll('.scene-chip').forEach(function(c) { c.classList.remove('active'); });
       const sections = document.querySelectorAll('.dir-section');
@@ -2491,22 +2579,22 @@
       setDirectoryStatus(totalVisible ? 'filtered' : 'empty', scene, totalVisible);
     }
 
-    // Login toggle (mock)
-    function toggleLogin() {
-      if (localStorage.getItem('loggedIn')) {
-        localStorage.removeItem('loggedIn');
+    async function toggleLogin() {
+      if (accountState.user) {
+        await apiFetch('/api/auth/logout', { method: 'POST' }).catch(function() {});
+        accountState.user = null;
+        accountState.serverFavs = new Set();
         showToast('已退出登录');
-      } else {
-        localStorage.setItem('loggedIn', '1');
-        showToast('登录成功 👋');
+        updateLoginBtn();
+        return;
       }
-      updateLoginBtn();
+      location.href = '/api/auth/github/login?next=' + encodeURIComponent(location.pathname + location.search);
     }
     function updateLoginBtn() {
       const btn = document.getElementById('loginBtn');
       if (!btn) return;
-      if (localStorage.getItem('loggedIn')) {
-        btn.textContent = '个人中心';
+      if (accountState.user) {
+        btn.textContent = accountState.user.name || '个人中心';
         btn.style.background = 'var(--bg3)';
         btn.style.color = 'var(--text)';
         btn.style.border = '1px solid var(--border)';
@@ -2759,6 +2847,7 @@
     const quizAnswers = {};
 
     function openQuiz() {
+      trackEvent('quiz_open');
       QUIZ_DATA.forEach(d => { quizAnswers[d.key] = d.multi ? [] : ''; });
       let html = '';
       QUIZ_DATA.forEach((d, qi) => {
@@ -2787,7 +2876,7 @@
         quizAnswers[d.key] = val;
       }
     }
-    function submitQuiz() {
+    async function submitQuiz() {
       const uses = quizAnswers.use && quizAnswers.use.length ? quizAnswers.use.join("、") : "日常任务";
       const budget = quizAnswers.budget || "";
       const region = quizAnswers.region || "";
@@ -2796,8 +2885,48 @@
       else if (budget) q += "付费工具也可以接受。";
       if (region.includes("中国大陆")) q += "我在中国大陆使用，最好能直连不用VPN。";
       q += "请帮我从功能、价格、上手难度几个维度推荐最合适的AI工具，并给出具体建议。";
-      closeQuiz();
-      ask(q);
+      const submitBtn = document.querySelector('.quiz-submit');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '推荐中…'; }
+      try {
+        const res = await apiFetch('/api/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ goal: uses, budget: budget, platform: region, tags: quizAnswers.use || [] })
+        });
+        if (!res.ok) throw new Error('recommend failed');
+        const data = await res.json();
+        renderQuizRecommendations(data.items || [], q);
+      } catch(e) {
+        closeQuiz();
+        ask(q);
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '帮我推荐 →'; }
+      }
+    }
+    function renderQuizRecommendations(items, fallbackQuestion) {
+      const box = document.getElementById('quizBox');
+      if (!box || !items.length) {
+        closeQuiz();
+        ask(fallbackQuestion);
+        return;
+      }
+      box.innerHTML += '<div class="quiz-results">' + items.slice(0, 5).map(function(item) {
+        const name = item.name || '';
+        const found = findTool(name);
+        const q = found?.t?.q || (name + '怎么用');
+        const url = item.url || found?.t?.url || '';
+        const reason = item.reason || item.desc || '和你的需求匹配';
+        const nameEsc = name.replace(/'/g,"\\'");
+        const qEsc = q.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+        const favText = getFavTools().has(name) ? '已收藏' : '收藏';
+        return '<div class="quiz-result-card">' +
+          '<div class="quiz-result-head"><div><div class="quiz-result-name">' + escapeHtml(name) + '</div><div class="quiz-result-reason">' + escapeHtml(reason) + '</div></div><span class="td-badge">' + escapeHtml(item.category || 'AI 工具') + '</span></div>' +
+          '<div class="quiz-result-actions">' +
+          '<button class="primary" type="button" onclick="closeQuiz();jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\')">问 AI 怎么用</button>' +
+          (url ? '<a href="' + url.replace(/"/g,'&quot;') + '" target="_blank" rel="noopener noreferrer" onclick="trackOfficialClick(\'' + nameEsc + '\')">去官网</a>' : '') +
+          '<button type="button" onclick="toggleFavTool(\'' + nameEsc + '\',this)">' + favText + '</button>' +
+          '</div></div>';
+      }).join('') + '</div>';
     }
 
     // ── Prompt 模板库 ──────────────────────────────────────
@@ -3103,12 +3232,13 @@
         const newBadge = NEW_TOOL_NAMES.has(t.name) ? '<span class="new-badge">NEW</span>' : '';
         const dataAttrs = ' data-filters="' + (t.filters||[]).join(',') + '" data-tags="' + (t.tags||[]).join(',') + '" data-category="' + (findTool(t.name)?.cat?.name || '') + '" data-name="' + t.name.replace(/"/g,'&quot;') + '"';
         const isFav = getFavTools().has(t.name);
-        const favBtn = '<button class="dir-tool-fav' + (isFav ? ' faved' : '') + '" type="button" onclick="event.stopPropagation();toggleFavTool(\'' + nameEsc + '\',this)" title="' + (isFav ? '已收藏' : '收藏') + '" aria-label="' + (isFav ? '取消收藏 ' : '收藏 ') + t.name.replace(/"/g,'&quot;') + '">' + (isFav ? '❤' : '♡') + '</button>';
+        const favBtn = '<button class="dir-tool-fav' + (isFav ? ' faved' : '') + '" type="button" data-tool-name="' + t.name.replace(/"/g,'&quot;') + '" onclick="event.stopPropagation();toggleFavTool(\'' + nameEsc + '\',this)" title="' + (isFav ? '已收藏' : '收藏') + '" aria-label="' + (isFav ? '取消收藏 ' : '收藏 ') + t.name.replace(/"/g,'&quot;') + '">' + (isFav ? '❤' : '♡') + '</button>';
         const cmpBtn = '<button class="dir-tool-cmp" type="button" onclick="event.stopPropagation();toggleCmpSelect(\'' + nameEsc + '\',this)" title="加入对比" aria-label="加入对比 ' + t.name.replace(/"/g,'&quot;') + '">+</button>';
-        const visitBtn = t.url ? '<a class="dir-tool-visit" href="' + urlEsc + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" aria-label="打开 ' + t.name.replace(/"/g,'&quot;') + ' 官网">官网</a>' : '';
+        const askBtn = '<button class="dir-tool-detail" type="button" onclick="event.stopPropagation();jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\')" aria-label="问 AI 怎么使用 ' + t.name.replace(/"/g,'&quot;') + '">问 AI 怎么用</button>';
+        const visitBtn = t.url ? '<a class="dir-tool-visit" href="' + urlEsc + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();trackOfficialClick(\'' + nameEsc + '\')" aria-label="打开 ' + t.name.replace(/"/g,'&quot;') + ' 官网">官网</a>' : '';
         const detailBtn = '<a class="dir-tool-detail" href="' + detailUrl + '" onclick="event.stopPropagation()" aria-label="查看 ' + t.name.replace(/"/g,'&quot;') + ' 详情">详情</a>';
-        const actionsHtml = '<div class="dir-tool-actions">' + visitBtn + detailBtn + '</div>';
-        return '<div class="dir-tool-card"' + dataAttrs + ' role="button" tabindex="0" aria-label="询问 ' + t.name.replace(/"/g,'&quot;') + '" onclick="jumpToChat(\'' + qEsc + '\')" onkeydown="runOnKeyboardActivate(event,function(){jumpToChat(\'' + qEsc + '\')})">' +
+        const actionsHtml = '<div class="dir-tool-actions">' + askBtn + visitBtn + detailBtn + '</div>';
+        return '<div class="dir-tool-card"' + dataAttrs + ' role="button" tabindex="0" aria-label="询问 ' + t.name.replace(/"/g,'&quot;') + '" onclick="jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\')" onkeydown="runOnKeyboardActivate(event,function(){jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\')})">' +
           newBadge + cmpBtn +
           '<div class="dir-tool-icon"' + iconStyle + '>' + catIcon + '</div>' +
           '<div class="dir-tool-body">' +
@@ -3142,7 +3272,14 @@
         '<span class="dir-banner-icon">✦</span>' +
         '<span class="dir-banner-title">AI 工具导航</span>' +
         '<span class="dir-banner-sep">·</span>' +
-        '<span class="dir-banner-sub">收录 ' + totalTools + '+ 精选工具，' + CATS.length + ' 大分类，点击卡片即可向 AI 提问</span>' +
+        '<span class="dir-banner-sub">收录 ' + totalTools + '+ 精选工具，' + CATS.length + ' 大分类，搜索工具或让 AI 直接帮你选</span>' +
+        '</div>';
+
+      const aiEntry =
+        '<div class="home-ai-entry">' +
+        '<div><div class="home-ai-title">不知道该用哪个 AI 工具？</div>' +
+        '<div class="home-ai-desc">说出任务、预算和使用地区，AI 会给你推荐工具，并支持收藏、问用法、直达官网。</div></div>' +
+        '<button class="home-ai-cta" type="button" onclick="openQuiz()">让 AI 帮我选工具</button>' +
         '</div>';
 
       const taskPanel =
@@ -3185,6 +3322,7 @@
         '</div>';
 
       board.innerHTML = banner +
+        aiEntry +
         taskPanel +
         hotSearchBar +
         sceneBar +
@@ -3302,8 +3440,12 @@
         '<div class="td-field"><span class="td-field-label">适合做什么</span><div class="td-field-main">' + escapeHtml(t.desc) + '</div></div>' +
         '<div class="td-field"><span class="td-field-label">推荐提问</span><div class="td-field-main mono">' + escapeHtml(t.q || (t.name + '怎么用')) + '</div></div>';
       const visitBtn = document.getElementById('tdModalVisit');
-      if (t.url) { visitBtn.href = t.url; visitBtn.style.display = ''; } else { visitBtn.style.display = 'none'; }
-      document.getElementById('tdModalAsk').onclick = function() { closeTdModal(); jumpToChat(t.q); };
+      if (t.url) {
+        visitBtn.href = t.url;
+        visitBtn.onclick = function() { trackOfficialClick(t.name); };
+        visitBtn.style.display = '';
+      } else { visitBtn.style.display = 'none'; }
+      document.getElementById('tdModalAsk').onclick = function() { closeTdModal(); jumpToToolChat(t.name, t.q); };
       // Related tools from same category
       const relatedEl = document.getElementById('tdModalRelated');
       if (relatedEl) {
@@ -3339,11 +3481,33 @@
       try { return new Set(JSON.parse(localStorage.getItem('fav_tools')||'[]')); } catch(e) { return new Set(); }
     }
     function saveFavTools(s) { localStorage.setItem('fav_tools', JSON.stringify([...s])); }
-    function toggleFavTool(name, btn) {
+    async function toggleFavTool(name, btn) {
       const favs = getFavTools();
-      if (favs.has(name)) { favs.delete(name); btn.classList.remove('faved'); btn.title = '收藏'; btn.textContent = '♡'; }
-      else { favs.add(name); btn.classList.add('faved'); btn.title = '已收藏'; btn.textContent = '❤'; showToast('已收藏 ' + name); }
+      const nextEnabled = !favs.has(name);
+      if (nextEnabled) {
+        favs.add(name);
+        showToast('已收藏 ' + name);
+      } else {
+        favs.delete(name);
+      }
       saveFavTools(favs);
+      updateFavButtons();
+      if (btn && !btn.classList.contains('dir-tool-fav')) btn.textContent = nextEnabled ? '已收藏' : '收藏';
+      if (accountState.user) {
+        try {
+          const res = await saveServerFavorite(name, nextEnabled);
+          if (!res.ok) throw new Error('favorite sync failed');
+          if (nextEnabled) accountState.serverFavs.add(name);
+          else accountState.serverFavs.delete(name);
+        } catch(e) {
+          if (nextEnabled) favs.delete(name);
+          else favs.add(name);
+          saveFavTools(favs);
+          updateFavButtons();
+          if (btn && !btn.classList.contains('dir-tool-fav')) btn.textContent = nextEnabled ? '收藏' : '已收藏';
+          showToast('收藏同步失败，请稍后重试', 'error');
+        }
+      }
     }
 
     // ── Card compare select ────────────────────────────────────
@@ -3426,7 +3590,8 @@
     try { initWelcomeBoard(); } catch(e) { console.error('initWelcomeBoard', e); }
     try { renderHotSearches(); } catch(e) {}
     try { updateLoginBtn(); } catch(e) {}
-    setTimeout(() => { try { checkAnnouncement(); } catch(e) {} }, 800);
+    try { initAccountState(); } catch(e) { console.error('initAccountState', e); }
+    // 保留更新日志函数，不再首次访问自动弹出。
     // Handle ?tool= direct link
     const _urlTool = new URLSearchParams(location.search).get('tool');
     if (_urlTool) setTimeout(function() { try { openTdModal(_urlTool); } catch(e) {} }, 400);

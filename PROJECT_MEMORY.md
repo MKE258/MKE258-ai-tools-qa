@@ -37,8 +37,12 @@ npx wrangler deploy
 - Cloudflare Worker
 - Wrangler
 - Workers AI binding: `AI`
+- D1 binding: `DB`
 - Secret: `DEEPSEEK_API_KEY`
 - Secret: `SERPER_API_KEY`
+- Secret: `GITHUB_CLIENT_ID`
+- Secret: `GITHUB_CLIENT_SECRET`
+- Secret: `ADMIN_TOKEN`
 
 Do not commit secret values.
 
@@ -48,14 +52,19 @@ Do not commit secret values.
 - `/image`: image generation endpoint.
 - `/hot`: hot news endpoint.
 - `/health`: health check endpoint.
+- `/api/auth/me`, `/api/auth/github/login`, `/api/auth/github/callback`, `/api/auth/logout`: account/session endpoints.
+- `/api/favorites`: server-side favorites endpoint.
+- `/api/recommend`: tool recommendation endpoint.
+- `/api/events`: click/question analytics event endpoint.
+- `/api/admin/stats`: read-only analytics endpoint protected by `ADMIN_TOKEN`.
 
 Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, and `/hot`.
 
 ## Current Production State
 
-- Current deployed version: `8acf718e-ab0e-4cab-82e9-0388321abe60`
-- Verified rollback version: `140e229d-d034-4304-923b-aa9c609bdcef`
-- Previous deployed version: `140e229d-d034-4304-923b-aa9c609bdcef`
+- Current deployed version: `758f7ecb-c486-4dfc-9f97-a1e3cf3c8bcb`
+- Verified rollback version: `8acf718e-ab0e-4cab-82e9-0388321abe60`
+- Previous deployed version: `8acf718e-ab0e-4cab-82e9-0388321abe60`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -101,3 +110,5 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - The previous issue was caused by replacing the Worker with a static-only version. Avoid that pattern.
 - Future optimization should be incremental and preserve old behavior by default.
 - The admin page intentionally exports JSON instead of writing production data directly. Add authentication plus KV/D1 before enabling live writes.
+- Account sessions store only SHA-256 session hashes in D1; never persist raw session tokens.
+- Event writes are restricted to a fixed whitelist to keep analytics data clean.

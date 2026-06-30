@@ -32,6 +32,22 @@ const checks = [
     includes: "问题不能为空"
   },
   {
+    path: "/api/recommend",
+    init: { method: "POST", body: JSON.stringify({ goal: "写文章", budget: "免费" }), headers: { "content-type": "application/json" } },
+    status: 200,
+    type: "application/json",
+    includes: '"items"'
+  },
+  { path: "/api/auth/me", status: 200, type: "application/json", includes: '"user":null' },
+  {
+    path: "/api/events",
+    init: { method: "POST", body: JSON.stringify({ type: "bad_event" }), headers: { "content-type": "application/json" } },
+    status: 400,
+    type: "application/json",
+    includes: "不支持的事件类型"
+  },
+  { path: "/api/admin/stats", status: 500, type: "application/json", includes: "DB binding 未配置" },
+  {
     path: "/image",
     init: { method: "POST", body: JSON.stringify({ prompt: "" }), headers: { "content-type": "application/json" } },
     status: 400,
