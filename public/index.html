@@ -1974,8 +1974,16 @@
     function apiFetch(path, options) {
       return fetch(path, Object.assign({ credentials: 'same-origin' }, options || {}));
     }
+    function getVisitorId() {
+      let id = localStorage.getItem('ait_visitor_id');
+      if (!id) {
+        id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+        localStorage.setItem('ait_visitor_id', id);
+      }
+      return id;
+    }
     function eventPayload(type, data) {
-      return Object.assign({ type: type }, data || {});
+      return Object.assign({ type: type, visitorId: getVisitorId() }, data || {});
     }
     function trackEvent(type, data) {
       apiFetch('/api/events', {
@@ -2895,7 +2903,7 @@
         const res = await apiFetch('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ goal: uses, budget: budget, platform: region, tags: quizAnswers.use || [] })
+          body: JSON.stringify({ goal: uses, budget: budget, platform: region, tags: quizAnswers.use || [], visitorId: getVisitorId() })
         });
         if (!res.ok) throw new Error('recommend failed');
         const data = await res.json();

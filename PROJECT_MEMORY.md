@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `e07857b3-e8da-4a91-a4ca-5706a7093d07`
-- Verified rollback version: `ca418c7f-9094-4295-b090-0d0392f4b9a1`
-- Previous deployed version: `ca418c7f-9094-4295-b090-0d0392f4b9a1`
+- Current deployed version: `45744611-5356-43a3-9894-1d8d6c0fc1ce`
+- Verified rollback version: `e07857b3-e8da-4a91-a4ca-5706a7093d07`
+- Previous deployed version: `e07857b3-e8da-4a91-a4ca-5706a7093d07`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -112,3 +112,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - The admin page intentionally exports JSON instead of writing production data directly. Add authentication plus KV/D1 before enabling live writes.
 - Account sessions store only SHA-256 session hashes in D1; never persist raw session tokens.
 - Event writes are restricted to a fixed whitelist to keep analytics data clean.
+- Anonymous analytics attribution uses a browser-local `ait_visitor_id`; logged-in users continue to be attributed by `user_id`.

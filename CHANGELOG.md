@@ -32,3 +32,4 @@
 - Expanded `/api/admin/stats` and added a protected read-only analytics dashboard tab to `/admin`.
 - Added `tool_click` tracking for direct tool-card activation and surfaced tool-card click rankings in the admin dashboard.
 - Added an event-count conversion funnel to the admin analytics dashboard.
+- Added browser visitor IDs and a unique user/visitor conversion funnel to the admin analytics dashboard.

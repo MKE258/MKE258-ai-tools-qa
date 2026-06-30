@@ -135,6 +135,7 @@
     <div class="stat-grid" id="statGrid"></div>
     <div class="dash-grid">
       <section class="dash-card wide"><h2>转化漏斗</h2><div class="funnel" id="funnelList"></div></section>
+      <section class="dash-card wide"><h2>唯一用户/访客漏斗</h2><div class="funnel" id="uniqueFunnelList"></div></section>
       <section class="dash-card"><h2>事件类型</h2><div class="rank-list" id="eventTypeList"></div></section>
       <section class="dash-card"><h2>热门搜索词</h2><div class="rank-list" id="searchTermList"></div></section>
       <section class="dash-card"><h2>最多被收藏工具</h2><div class="rank-list" id="favoriteToolList"></div></section>
@@ -343,14 +344,15 @@
       renderRankList("toolClickList", stats?.toolClicks, item => item.name || item.slug);
       renderRankList("askToolList", stats?.askTools, item => item.name || item.slug);
       renderRankList("officialClickList", stats?.officialClicks, item => item.name || item.slug);
-      renderFunnel(stats?.funnel);
+      renderFunnel("funnelList", stats?.funnel, "按事件数粗略观察，不代表独立用户归因。");
+      renderFunnel("uniqueFunnelList", stats?.uniqueFunnel, "已登录用户按 user_id 去重，未登录访客按浏览器 visitorId 去重；上线前的匿名历史事件不计入。");
       renderRecentEvents(stats?.recentEvents);
     }
 
-    function renderFunnel(items) {
+    function renderFunnel(id, items, footnote) {
       const list = items || [];
       const max = Math.max(...list.map(item => Number(item.count || 0)), 1);
-      $("funnelList").innerHTML = list.length ? list.map((item) => {
+      $(id).innerHTML = list.length ? list.map((item) => {
         const count = Number(item.count || 0);
         const previous = Number(item.previous || 0);
         const width = Math.max(2, Math.round(count / max * 100));
@@ -364,7 +366,7 @@
             <div class="funnel-rate">${rate}</div>
           </div>
         `;
-      }).join("") + `<div class="funnel-note">按事件数粗略观察，不代表独立用户归因。</div>` : `<div class="empty">暂无数据</div>`;
+      }).join("") + `<div class="funnel-note">${escapeHtml(footnote || "")}</div>` : `<div class="empty">暂无数据</div>`;
     }
 
     function renderRankList(id, items, labelFn) {
