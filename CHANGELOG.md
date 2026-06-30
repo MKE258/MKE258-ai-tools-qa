@@ -19,3 +19,13 @@
 - Added `npm run validate:html`, removed the captured Cloudflare Insights beacon, and wired HTML checks into `npm run check`.
 - Added `npm run smoke:worker` and wired it into `npm run check` to verify built Worker routes before deployment.
 - Added `npm run deploy:dry` to combine local gates and Wrangler dry-run before any real deployment.
+
+## Unreleased
+
+- Added D1 schema for real users, sessions, server-side favorites, recommendation sessions, and click/question events.
+- Added GitHub OAuth account endpoints, server-side favorites API, recommendation API, and analytics event API.
+- Added `/ask` question event logging when D1 is configured.
+- Added local and remote D1 migration scripts.
+- Hardened backend APIs with hashed sessions, event type allowlist, basic D1 rate limiting, input trimming, and a protected read-only stats endpoint.
+- Connected homepage conversion flow to backend APIs: real login entry, server-side tool favorites, recommendation results, and tool/search/official-click analytics events.
+- Removed the first-visit changelog popup and added primary plus mobile "let AI choose a tool" entry points.

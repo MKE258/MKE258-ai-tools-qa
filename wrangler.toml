@@ -4,3 +4,8 @@ compatibility_date = "2024-01-01"
 
 [ai]
 binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ai-tools-qa"
+database_id = "100f35cc-b660-436a-bcd6-129517797c28"
