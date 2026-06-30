@@ -138,6 +138,7 @@
         </select>
       </label>
       <button class="primary" id="loadStatsBtn" type="button">加载数据</button>
+      <button id="exportStatsCsvBtn" type="button" disabled>导出 CSV</button>
       <button id="clearStatsTokenBtn" type="button">清除 token</button>
       <div class="token-note">Token 只保存在当前浏览器 sessionStorage，不写入工具数据 JSON。</div>
     </div>
@@ -325,6 +326,7 @@
         if (!res.ok) throw new Error(res.status === 401 ? "Token 不正确" : "加载失败：" + res.status);
         statsData = await res.json();
         renderStatsDashboard(statsData);
+        $("exportStatsCsvBtn").disabled = false;
       } catch (error) {
         alert(error.message);
       } finally {
@@ -338,6 +340,7 @@
       $("adminToken").value = "";
       statsData = null;
       renderStatsDashboard(null);
+      $("exportStatsCsvBtn").disabled = true;
     }
 
     function renderStatsDashboard(stats) {
@@ -395,6 +398,55 @@
       $("recentEventList").innerHTML = list.length ? list.map((item, index) => `
         <div class="rank-row"><span>${index + 1}</span><span class="rank-name">${escapeHtml(item.type || "")}${item.name ? " · " + escapeHtml(item.name) : ""}</span><span class="rank-count">${escapeHtml(item.created_at || "")}</span></div>
       `).join("") : `<div class="empty">暂无数据</div>`;
+    }
+
+    function csvCell(value) {
+      const text = String(value ?? "");
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function pushCsvSection(rows, title, headers, items, mapItem) {
+      rows.push([title]);
+      rows.push(headers);
+      (items || []).forEach((item, index) => rows.push(mapItem(item, index)));
+      rows.push([]);
+    }
+
+    function exportStatsCsv() {
+      if (!statsData) return alert("请先加载数据");
+      const totals = statsData.totals || {};
+      const range = statsData.range || {};
+      const rows = [
+        ["AI Tools Guide 数据看板"],
+        ["范围", range.label || "", "开始时间", range.since || "全部"],
+        ["导出时间", new Date().toISOString()],
+        [],
+        ["总览"],
+        ["指标", "数量"],
+        ["用户数", totals.users || 0],
+        ["收藏数", totals.favorites || 0],
+        ["推荐提交", totals.recommendations || 0],
+        ["事件数", totals.events || 0],
+        []
+      ];
+      const rank = (item, index) => [index + 1, item.name || item.keyword || item.type || item.slug || "", item.slug || "", item.count || 0];
+      pushCsvSection(rows, "事件数漏斗", ["阶段", "数量", "上一步转化率", "说明"], statsData.funnel, item => [item.label, item.count || 0, item.previous ? Math.round(Number(item.count || 0) / Number(item.previous || 1) * 100) + "%" : "基准", item.note || ""]);
+      pushCsvSection(rows, "唯一用户/访客漏斗", ["阶段", "数量", "上一步转化率", "说明"], statsData.uniqueFunnel, item => [item.label, item.count || 0, item.previous ? Math.round(Number(item.count || 0) / Number(item.previous || 1) * 100) + "%" : "基准", item.note || ""]);
+      pushCsvSection(rows, "事件类型", ["排名", "类型", "slug", "数量"], statsData.eventTypes, rank);
+      pushCsvSection(rows, "热门搜索词", ["排名", "关键词", "slug", "数量"], statsData.searchTerms, rank);
+      pushCsvSection(rows, "最多被收藏工具", ["排名", "工具", "slug", "数量"], statsData.favoriteTools, rank);
+      pushCsvSection(rows, "工具卡点击排行", ["排名", "工具", "slug", "数量"], statsData.toolClicks, rank);
+      pushCsvSection(rows, "最多被问 AI 的工具", ["排名", "工具", "slug", "数量"], statsData.askTools, rank);
+      pushCsvSection(rows, "官网点击排行", ["排名", "工具", "slug", "数量"], statsData.officialClicks, rank);
+      pushCsvSection(rows, "最近事件", ["排名", "类型", "工具", "时间"], statsData.recentEvents, (item, index) => [index + 1, item.type || "", item.name || item.slug || "", item.created_at || ""]);
+      const csv = "\ufeff" + rows.map(row => row.map(csvCell).join(",")).join("\r\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "aitoolsguide-stats-" + (range.key || "range") + ".csv";
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     function openTool(index) {
@@ -510,6 +562,7 @@
     $("exportBtn").onclick = exportJson;
     $("importBtn").onclick = () => $("fileInput").click();
     $("loadStatsBtn").onclick = loadStats;
+    $("exportStatsCsvBtn").onclick = exportStatsCsv;
     $("clearStatsTokenBtn").onclick = clearStatsToken;
     $("statsRange").onchange = () => {
       if ($("adminToken").value.trim()) loadStats();

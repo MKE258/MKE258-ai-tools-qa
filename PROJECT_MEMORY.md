@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `7584c464-f507-477a-898f-89ebaa0a72ad`
-- Verified rollback version: `45744611-5356-43a3-9894-1d8d6c0fc1ce`
-- Previous deployed version: `45744611-5356-43a3-9894-1d8d6c0fc1ce`
+- Current deployed version: `01f9b651-25d2-4329-8b5b-658843fa53ef`
+- Verified rollback version: `7584c464-f507-477a-898f-89ebaa0a72ad`
+- Previous deployed version: `7584c464-f507-477a-898f-89ebaa0a72ad`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -114,3 +114,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Event writes are restricted to a fixed whitelist to keep analytics data clean.
 - Anonymous analytics attribution uses a browser-local `ait_visitor_id`; logged-in users continue to be attributed by `user_id`.
 - Admin stats support `?range=today|7d|30d|all`; the dashboard defaults to `7d`.
+- Admin dashboard CSV export is client-side only and uses the already loaded stats payload.
