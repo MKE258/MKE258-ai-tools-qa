@@ -34,12 +34,21 @@
     .stat-value { margin-top:5px; font-size:28px; font-weight:800; }
     .dash-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
     .dash-card { background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    .dash-card.wide { grid-column:1 / -1; }
     .dash-card h2 { margin:0; padding:14px; border-bottom:1px solid var(--line); font-size:16px; }
     .rank-list { display:grid; gap:0; }
     .rank-row { display:grid; grid-template-columns:34px 1fr auto; gap:10px; padding:10px 14px; border-bottom:1px solid var(--line); align-items:center; }
     .rank-row:last-child { border-bottom:none; }
     .rank-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .rank-count { color:var(--accent); font-weight:800; }
+    .funnel { padding:14px; display:grid; gap:12px; }
+    .funnel-row { display:grid; grid-template-columns:130px 1fr 84px 84px; gap:12px; align-items:center; }
+    .funnel-label { font-weight:700; }
+    .funnel-note { color:var(--muted); font-size:12px; margin-top:3px; }
+    .funnel-bar { height:12px; border-radius:999px; background:#eef2f7; overflow:hidden; }
+    .funnel-fill { height:100%; border-radius:999px; background:var(--accent); min-width:2px; }
+    .funnel-value { font-weight:800; text-align:right; }
+    .funnel-rate { color:var(--muted); text-align:right; font-size:12px; }
     .token-note { color:var(--muted); font-size:12px; line-height:1.5; }
     aside, section { background:var(--panel); border:1px solid var(--line); border-radius:10px; }
     aside { align-self:start; position:sticky; top:82px; padding:12px; }
@@ -69,7 +78,7 @@
     .full { grid-column:1 / -1; }
     .modal-actions { padding:14px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:8px; }
     .notice { margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6; }
-    @media (max-width:800px) { .bar { align-items:flex-start; flex-direction:column; padding:12px 0; } .top-actions { justify-content:flex-start; } main { grid-template-columns:1fr; } aside { position:static; } .panel-head { align-items:flex-start; flex-direction:column; } .panel-tools,.tool-search { width:100%; } .modal-body { grid-template-columns:1fr; } .stat-grid,.dash-grid { grid-template-columns:1fr; } .auth-panel { align-items:stretch; } }
+    @media (max-width:800px) { .bar { align-items:flex-start; flex-direction:column; padding:12px 0; } .top-actions { justify-content:flex-start; } main { grid-template-columns:1fr; } aside { position:static; } .panel-head { align-items:flex-start; flex-direction:column; } .panel-tools,.tool-search { width:100%; } .modal-body { grid-template-columns:1fr; } .stat-grid,.dash-grid { grid-template-columns:1fr; } .auth-panel { align-items:stretch; } .funnel-row { grid-template-columns:1fr; gap:6px; } .funnel-value,.funnel-rate { text-align:left; } }
   </style>
 </head>
 <body>
@@ -125,6 +134,7 @@
     </div>
     <div class="stat-grid" id="statGrid"></div>
     <div class="dash-grid">
+      <section class="dash-card wide"><h2>转化漏斗</h2><div class="funnel" id="funnelList"></div></section>
       <section class="dash-card"><h2>事件类型</h2><div class="rank-list" id="eventTypeList"></div></section>
       <section class="dash-card"><h2>热门搜索词</h2><div class="rank-list" id="searchTermList"></div></section>
       <section class="dash-card"><h2>最多被收藏工具</h2><div class="rank-list" id="favoriteToolList"></div></section>
@@ -333,7 +343,28 @@
       renderRankList("toolClickList", stats?.toolClicks, item => item.name || item.slug);
       renderRankList("askToolList", stats?.askTools, item => item.name || item.slug);
       renderRankList("officialClickList", stats?.officialClicks, item => item.name || item.slug);
+      renderFunnel(stats?.funnel);
       renderRecentEvents(stats?.recentEvents);
+    }
+
+    function renderFunnel(items) {
+      const list = items || [];
+      const max = Math.max(...list.map(item => Number(item.count || 0)), 1);
+      $("funnelList").innerHTML = list.length ? list.map((item) => {
+        const count = Number(item.count || 0);
+        const previous = Number(item.previous || 0);
+        const width = Math.max(2, Math.round(count / max * 100));
+        const rate = previous > 0 ? Math.round(count / previous * 100) + "%" : "基准";
+        const note = item.note ? `<div class="funnel-note">${escapeHtml(item.note)}</div>` : "";
+        return `
+          <div class="funnel-row">
+            <div><div class="funnel-label">${escapeHtml(item.label)}</div>${note}</div>
+            <div class="funnel-bar" aria-label="${escapeHtml(item.label)} ${count}"><div class="funnel-fill" style="width:${width}%"></div></div>
+            <div class="funnel-value">${count}</div>
+            <div class="funnel-rate">${rate}</div>
+          </div>
+        `;
+      }).join("") + `<div class="funnel-note">按事件数粗略观察，不代表独立用户归因。</div>` : `<div class="empty">暂无数据</div>`;
     }
 
     function renderRankList(id, items, labelFn) {
