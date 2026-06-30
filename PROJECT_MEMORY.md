@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `01f9b651-25d2-4329-8b5b-658843fa53ef`
-- Verified rollback version: `7584c464-f507-477a-898f-89ebaa0a72ad`
-- Previous deployed version: `7584c464-f507-477a-898f-89ebaa0a72ad`
+- Current deployed version: `92b0fd65-2930-4dd1-9739-41e414cfebfb`
+- Verified rollback version: `01f9b651-25d2-4329-8b5b-658843fa53ef`
+- Previous deployed version: `01f9b651-25d2-4329-8b5b-658843fa53ef`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -115,3 +115,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Anonymous analytics attribution uses a browser-local `ait_visitor_id`; logged-in users continue to be attributed by `user_id`.
 - Admin stats support `?range=today|7d|30d|all`; the dashboard defaults to `7d`.
 - Admin dashboard CSV export is client-side only and uses the already loaded stats payload.
+- AI recommendation result actions use `source=recommendation` in analytics payloads and are surfaced in admin stats.
