@@ -668,31 +668,40 @@ async function handleAdminStats(request, env) {
     return Response.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders() });
   }
 
+  const range = adminStatsRange(new URL(request.url));
+  const eventWhere = range.since ? " WHERE created_at >= ?" : "";
+  const eventAnd = range.since ? " AND created_at >= ?" : "";
+  const favoriteWhere = range.since ? " WHERE created_at >= ?" : "";
+  const recommendationWhere = range.since ? " WHERE created_at >= ?" : "";
+  const userWhere = range.since ? " WHERE created_at >= ?" : "";
+  const bind = (statement, params = []) => params.length ? statement.bind(...params) : statement;
+
   const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recentEvents] = await Promise.all([
-    env.DB.prepare(
-      "SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE tool_slug IS NOT NULL GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"
-    ).all(),
-    env.DB.prepare("SELECT type, COUNT(*) AS count FROM events GROUP BY type ORDER BY count DESC").all(),
-    env.DB.prepare(
-      "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM favorites) AS favorites, (SELECT COUNT(*) FROM recommendation_sessions) AS recommendations, (SELECT COUNT(*) FROM events) AS events"
-    ).first(),
-    env.DB.prepare(
-      "SELECT (SELECT COUNT(*) FROM events WHERE type = 'search') AS searches, (SELECT COUNT(*) FROM recommendation_sessions) AS recommendations, (SELECT COUNT(*) FROM events WHERE type = 'tool_click') AS tool_clicks, (SELECT COUNT(*) FROM events WHERE type = 'ask_tool') AS ask_tools, (SELECT COUNT(*) FROM events WHERE type = 'favorite_add') AS favorite_adds, (SELECT COUNT(*) FROM events WHERE type = 'official_click') AS official_clicks"
-    ).first(),
-    env.DB.prepare(
-      "SELECT (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type IN ('search', 'recommend') AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS intent, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'tool_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS tool_clicks, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'ask_tool' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS ask_tools, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'favorite_add' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS favorite_adds, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'official_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS official_clicks"
-    ).first(),
-    env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM favorites GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20").all(),
-    env.DB.prepare(
-      "SELECT json_extract(payload_json, '$.keyword') AS keyword, COUNT(*) AS count FROM events WHERE type = 'search' AND json_extract(payload_json, '$.keyword') IS NOT NULL GROUP BY keyword ORDER BY count DESC LIMIT 20"
-    ).all(),
-    env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'tool_click' AND tool_slug IS NOT NULL GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20").all(),
-    env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'ask_tool' AND tool_slug IS NOT NULL GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20").all(),
-    env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'official_click' AND tool_slug IS NOT NULL GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20").all(),
-    env.DB.prepare("SELECT type, tool_slug AS slug, tool_name AS name, created_at FROM events ORDER BY created_at DESC LIMIT 30").all()
+    bind(env.DB.prepare(
+      "SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"
+    ), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT type, COUNT(*) AS count FROM events" + eventWhere + " GROUP BY type ORDER BY count DESC"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare(
+      "SELECT (SELECT COUNT(*) FROM users" + userWhere + ") AS users, (SELECT COUNT(*) FROM favorites" + favoriteWhere + ") AS favorites, (SELECT COUNT(*) FROM recommendation_sessions" + recommendationWhere + ") AS recommendations, (SELECT COUNT(*) FROM events" + eventWhere + ") AS events"
+    ), range.since ? [range.since, range.since, range.since, range.since] : []).first(),
+    bind(env.DB.prepare(
+      "SELECT (SELECT COUNT(*) FROM events WHERE type = 'search'" + eventAnd + ") AS searches, (SELECT COUNT(*) FROM recommendation_sessions" + recommendationWhere + ") AS recommendations, (SELECT COUNT(*) FROM events WHERE type = 'tool_click'" + eventAnd + ") AS tool_clicks, (SELECT COUNT(*) FROM events WHERE type = 'ask_tool'" + eventAnd + ") AS ask_tools, (SELECT COUNT(*) FROM events WHERE type = 'favorite_add'" + eventAnd + ") AS favorite_adds, (SELECT COUNT(*) FROM events WHERE type = 'official_click'" + eventAnd + ") AS official_clicks"
+    ), range.since ? [range.since, range.since, range.since, range.since, range.since, range.since] : []).first(),
+    bind(env.DB.prepare(
+      "SELECT (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type IN ('search', 'recommend') AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS intent, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'tool_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS tool_clicks, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'ask_tool' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS ask_tools, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'favorite_add' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS favorite_adds, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'official_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS official_clicks"
+    ), range.since ? [range.since, range.since, range.since, range.since, range.since] : []).first(),
+    bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM favorites" + (range.since ? " WHERE created_at >= ?" : "") + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare(
+      "SELECT json_extract(payload_json, '$.keyword') AS keyword, COUNT(*) AS count FROM events WHERE type = 'search' AND json_extract(payload_json, '$.keyword') IS NOT NULL" + eventAnd + " GROUP BY keyword ORDER BY count DESC LIMIT 20"
+    ), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'tool_click' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'ask_tool' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'official_click' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT type, tool_slug AS slug, tool_name AS name, created_at FROM events" + eventWhere + " ORDER BY created_at DESC LIMIT 30"), range.since ? [range.since] : []).all()
   ]);
 
   return Response.json({
+    range,
     totals: totals || { users: 0, favorites: 0, recommendations: 0, events: 0 },
     funnel: buildFunnel(funnel || {}),
     uniqueFunnel: buildUniqueFunnel(uniqueFunnel || {}),
@@ -705,6 +714,24 @@ async function handleAdminStats(request, env) {
     officialClicks: officialClicks.results || [],
     recentEvents: recentEvents.results || []
   }, { headers: corsHeaders() });
+}
+
+function adminStatsRange(url) {
+  const key = url.searchParams.get("range") || "7d";
+  const now = Date.now();
+  const ranges = {
+    today: { label: "最近 24 小时", days: 1 },
+    "7d": { label: "最近 7 天", days: 7 },
+    "30d": { label: "最近 30 天", days: 30 },
+    all: { label: "全部时间", days: 0 }
+  };
+  const selected = ranges[key] ? key : "7d";
+  const config = ranges[selected];
+  return {
+    key: selected,
+    label: config.label,
+    since: config.days ? new Date(now - config.days * 24 * 60 * 60 * 1000).toISOString() : null
+  };
 }
 
 function buildFunnel(row) {
