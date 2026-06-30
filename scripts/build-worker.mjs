@@ -581,6 +581,7 @@ async function handleRecommend(request, env) {
     budget: limitText(body.budget, 80),
     platform: limitText(body.platform, 80),
     input: limitText(body.input, 600),
+    visitorId: limitText(body.visitorId, 120),
     tags: Array.isArray(body.tags) ? body.tags.slice(0, 12).map((tag) => limitText(tag, 60)).filter(Boolean) : []
   };
   const text = [
@@ -632,7 +633,7 @@ async function handleRecommend(request, env) {
     await env.DB.prepare("INSERT INTO recommendation_sessions (id, user_id, input_json, result_json) VALUES (?, ?, ?, ?)")
       .bind(id, user?.id || null, JSON.stringify(input), JSON.stringify(result).slice(0, 8000))
       .run();
-    await recordEvent(env, user?.id || null, "recommend", { recommendation_id: id, input });
+    await recordEvent(env, user?.id || null, "recommend", { recommendation_id: id, visitorId: input.visitorId, input });
     result.id = id;
   }
 
@@ -667,7 +668,7 @@ async function handleAdminStats(request, env) {
     return Response.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders() });
   }
 
-  const [topTools, eventTypes, totals, funnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recentEvents] = await Promise.all([
+  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recentEvents] = await Promise.all([
     env.DB.prepare(
       "SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE tool_slug IS NOT NULL GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"
     ).all(),
@@ -677,6 +678,9 @@ async function handleAdminStats(request, env) {
     ).first(),
     env.DB.prepare(
       "SELECT (SELECT COUNT(*) FROM events WHERE type = 'search') AS searches, (SELECT COUNT(*) FROM recommendation_sessions) AS recommendations, (SELECT COUNT(*) FROM events WHERE type = 'tool_click') AS tool_clicks, (SELECT COUNT(*) FROM events WHERE type = 'ask_tool') AS ask_tools, (SELECT COUNT(*) FROM events WHERE type = 'favorite_add') AS favorite_adds, (SELECT COUNT(*) FROM events WHERE type = 'official_click') AS official_clicks"
+    ).first(),
+    env.DB.prepare(
+      "SELECT (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type IN ('search', 'recommend') AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS intent, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'tool_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS tool_clicks, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'ask_tool' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS ask_tools, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'favorite_add' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS favorite_adds, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'official_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL) AS official_clicks"
     ).first(),
     env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM favorites GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20").all(),
     env.DB.prepare(
@@ -691,6 +695,7 @@ async function handleAdminStats(request, env) {
   return Response.json({
     totals: totals || { users: 0, favorites: 0, recommendations: 0, events: 0 },
     funnel: buildFunnel(funnel || {}),
+    uniqueFunnel: buildUniqueFunnel(uniqueFunnel || {}),
     topTools: topTools.results || [],
     eventTypes: eventTypes.results || [],
     favoriteTools: favoriteTools.results || [],
@@ -712,6 +717,21 @@ function buildFunnel(row) {
   const officialClicks = Number(row.official_clicks || 0);
   return [
     { key: "intent", label: "需求表达", count: intent, note: "搜索 + AI 选工具提交" },
+    { key: "tool_click", label: "工具卡点击", count: toolClicks, previous: intent },
+    { key: "ask_tool", label: "问 AI 怎么用", count: askTools, previous: toolClicks },
+    { key: "favorite_add", label: "加入收藏", count: favoriteAdds, previous: toolClicks },
+    { key: "official_click", label: "点击官网", count: officialClicks, previous: toolClicks }
+  ];
+}
+
+function buildUniqueFunnel(row) {
+  const intent = Number(row.intent || 0);
+  const toolClicks = Number(row.tool_clicks || 0);
+  const askTools = Number(row.ask_tools || 0);
+  const favoriteAdds = Number(row.favorite_adds || 0);
+  const officialClicks = Number(row.official_clicks || 0);
+  return [
+    { key: "intent", label: "需求表达", count: intent, note: "搜索或 AI 选工具，按 user_id / visitorId 去重" },
     { key: "tool_click", label: "工具卡点击", count: toolClicks, previous: intent },
     { key: "ask_tool", label: "问 AI 怎么用", count: askTools, previous: toolClicks },
     { key: "favorite_add", label: "加入收藏", count: favoriteAdds, previous: toolClicks },
