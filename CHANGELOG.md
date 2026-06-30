@@ -35,3 +35,4 @@
 - Added browser visitor IDs and a unique user/visitor conversion funnel to the admin analytics dashboard.
 - Added date-range filtering to the admin analytics dashboard and stats API.
 - Added CSV export for the loaded admin analytics dashboard data.
+- Added recommendation-source attribution for AI recommendation result actions.
