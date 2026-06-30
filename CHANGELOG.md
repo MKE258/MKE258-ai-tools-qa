@@ -33,3 +33,4 @@
 - Added `tool_click` tracking for direct tool-card activation and surfaced tool-card click rankings in the admin dashboard.
 - Added an event-count conversion funnel to the admin analytics dashboard.
 - Added browser visitor IDs and a unique user/visitor conversion funnel to the admin analytics dashboard.
+- Added date-range filtering to the admin analytics dashboard and stats API.

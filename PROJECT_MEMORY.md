@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `45744611-5356-43a3-9894-1d8d6c0fc1ce`
-- Verified rollback version: `e07857b3-e8da-4a91-a4ca-5706a7093d07`
-- Previous deployed version: `e07857b3-e8da-4a91-a4ca-5706a7093d07`
+- Current deployed version: `7584c464-f507-477a-898f-89ebaa0a72ad`
+- Verified rollback version: `45744611-5356-43a3-9894-1d8d6c0fc1ce`
+- Previous deployed version: `45744611-5356-43a3-9894-1d8d6c0fc1ce`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -113,3 +113,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Account sessions store only SHA-256 session hashes in D1; never persist raw session tokens.
 - Event writes are restricted to a fixed whitelist to keep analytics data clean.
 - Anonymous analytics attribution uses a browser-local `ait_visitor_id`; logged-in users continue to be attributed by `user_id`.
+- Admin stats support `?range=today|7d|30d|all`; the dashboard defaults to `7d`.

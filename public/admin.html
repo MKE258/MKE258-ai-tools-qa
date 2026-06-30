@@ -28,6 +28,7 @@
     .dashboard[hidden] { display:none; }
     .auth-panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
     .auth-panel label { min-width:min(420px,100%); flex:1; }
+    .auth-panel .range-label { min-width:170px; flex:0 0 170px; }
     .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
     .stat-card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
     .stat-label { color:var(--muted); font-size:12px; }
@@ -128,11 +129,20 @@
       <label>ADMIN_TOKEN
         <input id="adminToken" type="password" autocomplete="off" placeholder="输入 Cloudflare ADMIN_TOKEN">
       </label>
+      <label class="range-label">时间范围
+        <select id="statsRange">
+          <option value="today">最近 24 小时</option>
+          <option value="7d" selected>最近 7 天</option>
+          <option value="30d">最近 30 天</option>
+          <option value="all">全部时间</option>
+        </select>
+      </label>
       <button class="primary" id="loadStatsBtn" type="button">加载数据</button>
       <button id="clearStatsTokenBtn" type="button">清除 token</button>
       <div class="token-note">Token 只保存在当前浏览器 sessionStorage，不写入工具数据 JSON。</div>
     </div>
     <div class="stat-grid" id="statGrid"></div>
+    <div class="token-note" id="statsMeta"></div>
     <div class="dash-grid">
       <section class="dash-card wide"><h2>转化漏斗</h2><div class="funnel" id="funnelList"></div></section>
       <section class="dash-card wide"><h2>唯一用户/访客漏斗</h2><div class="funnel" id="uniqueFunnelList"></div></section>
@@ -298,17 +308,20 @@
       $("dashboardTab").setAttribute("aria-selected", String(isDashboard));
       if (isDashboard && !statsData) {
         $("adminToken").value = sessionStorage.getItem("admin_stats_token") || "";
+        $("statsRange").value = sessionStorage.getItem("admin_stats_range") || "7d";
       }
     }
 
     async function loadStats() {
       const token = $("adminToken").value.trim();
       if (!token) return alert("请输入 ADMIN_TOKEN");
+      const range = $("statsRange").value || "7d";
       sessionStorage.setItem("admin_stats_token", token);
+      sessionStorage.setItem("admin_stats_range", range);
       $("loadStatsBtn").disabled = true;
       $("loadStatsBtn").textContent = "加载中...";
       try {
-        const res = await fetch("/api/admin/stats", { headers: { Authorization: "Bearer " + token }, cache: "no-store" });
+        const res = await fetch("/api/admin/stats?range=" + encodeURIComponent(range), { headers: { Authorization: "Bearer " + token }, cache: "no-store" });
         if (!res.ok) throw new Error(res.status === 401 ? "Token 不正确" : "加载失败：" + res.status);
         statsData = await res.json();
         renderStatsDashboard(statsData);
@@ -338,6 +351,7 @@
       $("statGrid").innerHTML = statItems.map(([label, value]) => `
         <div class="stat-card"><div class="stat-label">${label}</div><div class="stat-value">${Number(value || 0)}</div></div>
       `).join("");
+      $("statsMeta").textContent = stats?.range ? `当前范围：${stats.range.label}${stats.range.since ? "，从 " + stats.range.since : ""}` : "";
       renderRankList("eventTypeList", stats?.eventTypes, item => item.type);
       renderRankList("searchTermList", stats?.searchTerms, item => item.keyword);
       renderRankList("favoriteToolList", stats?.favoriteTools, item => item.name || item.slug);
@@ -497,6 +511,9 @@
     $("importBtn").onclick = () => $("fileInput").click();
     $("loadStatsBtn").onclick = loadStats;
     $("clearStatsTokenBtn").onclick = clearStatsToken;
+    $("statsRange").onchange = () => {
+      if ($("adminToken").value.trim()) loadStats();
+    };
     $("fileInput").onchange = async (event) => {
       const file = event.target.files[0];
       if (!file) return;
