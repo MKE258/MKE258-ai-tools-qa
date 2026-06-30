@@ -667,20 +667,32 @@ async function handleAdminStats(request, env) {
     return Response.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders() });
   }
 
-  const [topTools, eventTypes, totals] = await Promise.all([
+  const [topTools, eventTypes, totals, favoriteTools, searchTerms, askTools, officialClicks, recentEvents] = await Promise.all([
     env.DB.prepare(
       "SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE tool_slug IS NOT NULL GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"
     ).all(),
     env.DB.prepare("SELECT type, COUNT(*) AS count FROM events GROUP BY type ORDER BY count DESC").all(),
     env.DB.prepare(
       "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM favorites) AS favorites, (SELECT COUNT(*) FROM recommendation_sessions) AS recommendations, (SELECT COUNT(*) FROM events) AS events"
-    ).first()
+    ).first(),
+    env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM favorites GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20").all(),
+    env.DB.prepare(
+      "SELECT json_extract(payload_json, '$.keyword') AS keyword, COUNT(*) AS count FROM events WHERE type = 'search' AND json_extract(payload_json, '$.keyword') IS NOT NULL GROUP BY keyword ORDER BY count DESC LIMIT 20"
+    ).all(),
+    env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'ask_tool' AND tool_slug IS NOT NULL GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20").all(),
+    env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'official_click' AND tool_slug IS NOT NULL GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20").all(),
+    env.DB.prepare("SELECT type, tool_slug AS slug, tool_name AS name, created_at FROM events ORDER BY created_at DESC LIMIT 30").all()
   ]);
 
   return Response.json({
     totals: totals || { users: 0, favorites: 0, recommendations: 0, events: 0 },
     topTools: topTools.results || [],
-    eventTypes: eventTypes.results || []
+    eventTypes: eventTypes.results || [],
+    favoriteTools: favoriteTools.results || [],
+    searchTerms: searchTerms.results || [],
+    askTools: askTools.results || [],
+    officialClicks: officialClicks.results || [],
+    recentEvents: recentEvents.results || []
   }, { headers: corsHeaders() });
 }
 

@@ -18,8 +18,29 @@
     button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
     button.danger { color:var(--danger); }
     .top-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .tabs { width:min(1280px,calc(100% - 28px)); margin:12px auto 0; display:flex; gap:8px; }
+    .tab { border-color:var(--line); background:#fff; }
+    .tab.active { background:var(--accent); border-color:var(--accent); color:#fff; }
     .sr-only { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     main { width:min(1280px,calc(100% - 28px)); margin:18px auto 40px; display:grid; grid-template-columns:260px 1fr; gap:16px; }
+    main[hidden] { display:none; }
+    .dashboard { width:min(1280px,calc(100% - 28px)); margin:18px auto 40px; display:grid; gap:16px; }
+    .dashboard[hidden] { display:none; }
+    .auth-panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+    .auth-panel label { min-width:min(420px,100%); flex:1; }
+    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .stat-card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+    .stat-label { color:var(--muted); font-size:12px; }
+    .stat-value { margin-top:5px; font-size:28px; font-weight:800; }
+    .dash-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+    .dash-card { background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    .dash-card h2 { margin:0; padding:14px; border-bottom:1px solid var(--line); font-size:16px; }
+    .rank-list { display:grid; gap:0; }
+    .rank-row { display:grid; grid-template-columns:34px 1fr auto; gap:10px; padding:10px 14px; border-bottom:1px solid var(--line); align-items:center; }
+    .rank-row:last-child { border-bottom:none; }
+    .rank-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .rank-count { color:var(--accent); font-weight:800; }
+    .token-note { color:var(--muted); font-size:12px; line-height:1.5; }
     aside, section { background:var(--panel); border:1px solid var(--line); border-radius:10px; }
     aside { align-self:start; position:sticky; top:82px; padding:12px; }
     .cat { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; text-align:left; }
@@ -48,7 +69,7 @@
     .full { grid-column:1 / -1; }
     .modal-actions { padding:14px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:8px; }
     .notice { margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6; }
-    @media (max-width:800px) { .bar { align-items:flex-start; flex-direction:column; padding:12px 0; } .top-actions { justify-content:flex-start; } main { grid-template-columns:1fr; } aside { position:static; } .panel-head { align-items:flex-start; flex-direction:column; } .panel-tools,.tool-search { width:100%; } .modal-body { grid-template-columns:1fr; } }
+    @media (max-width:800px) { .bar { align-items:flex-start; flex-direction:column; padding:12px 0; } .top-actions { justify-content:flex-start; } main { grid-template-columns:1fr; } aside { position:static; } .panel-head { align-items:flex-start; flex-direction:column; } .panel-tools,.tool-search { width:100%; } .modal-body { grid-template-columns:1fr; } .stat-grid,.dash-grid { grid-template-columns:1fr; } .auth-panel { align-items:stretch; } }
   </style>
 </head>
 <body>
@@ -64,9 +85,13 @@
         <button class="primary" id="exportBtn" type="button">导出 JSON</button>
       </div>
     </div>
+    <div class="tabs" role="tablist" aria-label="后台视图">
+      <button class="tab active" id="toolsTab" type="button" role="tab" aria-selected="true" onclick="switchAdminView('tools')">工具数据</button>
+      <button class="tab" id="dashboardTab" type="button" role="tab" aria-selected="false" onclick="switchAdminView('dashboard')">数据看板</button>
+    </div>
   </header>
 
-  <main>
+  <main id="toolsView">
     <aside>
       <p class="notice">安全策略：后台不直接写线上数据，避免未授权修改。修改后导出 `tools.json`，覆盖仓库里的 `data/tools.json`，再运行同步和发布。</p>
       <button class="primary" id="addCategoryBtn" type="button" style="width:100%;margin-bottom:10px">新增分类</button>
@@ -88,6 +113,26 @@
       <div class="tools" id="toolList"></div>
     </section>
   </main>
+
+  <div class="dashboard" id="dashboardView" hidden>
+    <div class="auth-panel">
+      <label>ADMIN_TOKEN
+        <input id="adminToken" type="password" autocomplete="off" placeholder="输入 Cloudflare ADMIN_TOKEN">
+      </label>
+      <button class="primary" id="loadStatsBtn" type="button">加载数据</button>
+      <button id="clearStatsTokenBtn" type="button">清除 token</button>
+      <div class="token-note">Token 只保存在当前浏览器 sessionStorage，不写入工具数据 JSON。</div>
+    </div>
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="dash-grid">
+      <section class="dash-card"><h2>事件类型</h2><div class="rank-list" id="eventTypeList"></div></section>
+      <section class="dash-card"><h2>热门搜索词</h2><div class="rank-list" id="searchTermList"></div></section>
+      <section class="dash-card"><h2>最多被收藏工具</h2><div class="rank-list" id="favoriteToolList"></div></section>
+      <section class="dash-card"><h2>最多被问 AI 的工具</h2><div class="rank-list" id="askToolList"></div></section>
+      <section class="dash-card"><h2>官网点击排行</h2><div class="rank-list" id="officialClickList"></div></section>
+      <section class="dash-card"><h2>最近事件</h2><div class="rank-list" id="recentEventList"></div></section>
+    </div>
+  </div>
 
   <input type="file" id="fileInput" accept="application/json" hidden>
 
@@ -133,6 +178,7 @@
     let editingTool = null;
     let editingCategory = null;
     let toolSearch = "";
+    let statsData = null;
 
     const $ = (id) => document.getElementById(id);
     const splitList = (value) => value.split(",").map(x => x.trim()).filter(Boolean);
@@ -228,6 +274,78 @@
       const shown = result.issues.slice(0, forceOpen ? result.issues.length : 5);
       const more = result.issues.length > shown.length ? `<div>还有 ${result.issues.length - shown.length} 项，点击“校验数据”查看。</div>` : "";
       box.innerHTML = `<strong>发现 ${result.issues.length} 个维护项</strong><ul>${shown.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>${more}`;
+    }
+
+    function switchAdminView(view) {
+      const isDashboard = view === "dashboard";
+      $("toolsView").hidden = isDashboard;
+      $("dashboardView").hidden = !isDashboard;
+      $("toolsTab").classList.toggle("active", !isDashboard);
+      $("dashboardTab").classList.toggle("active", isDashboard);
+      $("toolsTab").setAttribute("aria-selected", String(!isDashboard));
+      $("dashboardTab").setAttribute("aria-selected", String(isDashboard));
+      if (isDashboard && !statsData) {
+        $("adminToken").value = sessionStorage.getItem("admin_stats_token") || "";
+      }
+    }
+
+    async function loadStats() {
+      const token = $("adminToken").value.trim();
+      if (!token) return alert("请输入 ADMIN_TOKEN");
+      sessionStorage.setItem("admin_stats_token", token);
+      $("loadStatsBtn").disabled = true;
+      $("loadStatsBtn").textContent = "加载中...";
+      try {
+        const res = await fetch("/api/admin/stats", { headers: { Authorization: "Bearer " + token }, cache: "no-store" });
+        if (!res.ok) throw new Error(res.status === 401 ? "Token 不正确" : "加载失败：" + res.status);
+        statsData = await res.json();
+        renderStatsDashboard(statsData);
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        $("loadStatsBtn").disabled = false;
+        $("loadStatsBtn").textContent = "加载数据";
+      }
+    }
+
+    function clearStatsToken() {
+      sessionStorage.removeItem("admin_stats_token");
+      $("adminToken").value = "";
+      statsData = null;
+      renderStatsDashboard(null);
+    }
+
+    function renderStatsDashboard(stats) {
+      const totals = stats?.totals || {};
+      const statItems = [
+        ["用户数", totals.users || 0],
+        ["收藏数", totals.favorites || 0],
+        ["推荐提交", totals.recommendations || 0],
+        ["事件数", totals.events || 0]
+      ];
+      $("statGrid").innerHTML = statItems.map(([label, value]) => `
+        <div class="stat-card"><div class="stat-label">${label}</div><div class="stat-value">${Number(value || 0)}</div></div>
+      `).join("");
+      renderRankList("eventTypeList", stats?.eventTypes, item => item.type);
+      renderRankList("searchTermList", stats?.searchTerms, item => item.keyword);
+      renderRankList("favoriteToolList", stats?.favoriteTools, item => item.name || item.slug);
+      renderRankList("askToolList", stats?.askTools, item => item.name || item.slug);
+      renderRankList("officialClickList", stats?.officialClicks, item => item.name || item.slug);
+      renderRecentEvents(stats?.recentEvents);
+    }
+
+    function renderRankList(id, items, labelFn) {
+      const list = items || [];
+      $(id).innerHTML = list.length ? list.map((item, index) => `
+        <div class="rank-row"><span>${index + 1}</span><span class="rank-name">${escapeHtml(labelFn(item) || "(空)")}</span><span class="rank-count">${Number(item.count || 0)}</span></div>
+      `).join("") : `<div class="empty">暂无数据</div>`;
+    }
+
+    function renderRecentEvents(items) {
+      const list = items || [];
+      $("recentEventList").innerHTML = list.length ? list.map((item, index) => `
+        <div class="rank-row"><span>${index + 1}</span><span class="rank-name">${escapeHtml(item.type || "")}${item.name ? " · " + escapeHtml(item.name) : ""}</span><span class="rank-count">${escapeHtml(item.created_at || "")}</span></div>
+      `).join("") : `<div class="empty">暂无数据</div>`;
     }
 
     function openTool(index) {
@@ -342,6 +460,8 @@
     $("deleteCategoryBtn").onclick = deleteCategory;
     $("exportBtn").onclick = exportJson;
     $("importBtn").onclick = () => $("fileInput").click();
+    $("loadStatsBtn").onclick = loadStats;
+    $("clearStatsTokenBtn").onclick = clearStatsToken;
     $("fileInput").onchange = async (event) => {
       const file = event.target.files[0];
       if (!file) return;

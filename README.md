@@ -56,7 +56,8 @@ Invoke-WebRequest https://tools.aitoolsguide.top/hot?tab=kr36
 
 - 数据文件：`data/tools.json`
 - 后台页面：`/admin`
-- 后台目前是安全的离线编辑模式：可导入、编辑、导出 JSON，不直接写线上数据。
+- 后台工具数据维护是安全的离线编辑模式：可导入、编辑、导出 JSON，不直接写线上数据。
+- 后台数据看板是只读模式：输入 `ADMIN_TOKEN` 后读取 `/api/admin/stats`，token 仅保存到当前浏览器 `sessionStorage`。
 
 维护流程：
 
@@ -103,6 +104,7 @@ npm run db:migrate:remote
 - `/api/events` 只接受预设事件类型：`tool_click`、`official_click`、`ask_tool`、`question`、`recommend`、`favorite_add`、`favorite_remove`、`quiz_open`、`search`。
 - `/ask`、收藏、推荐和事件上报都有 D1 简单窗口限流。
 - `/api/admin/stats` 需要 `Authorization: Bearer <ADMIN_TOKEN>`。
+- `/api/admin/stats` 返回 totals、事件类型、热门搜索词、收藏排行、问 AI 排行、官网点击排行和最近事件。
 
 首页接入：
 
