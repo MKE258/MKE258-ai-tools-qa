@@ -2478,6 +2478,10 @@
     function jumpToToolChat(name, q) {
       jumpToChat(q, { toolName: name });
     }
+    function openToolFromCard(name, q) {
+      trackEvent('tool_click', { toolName: name, toolSlug: toolSlug(name) });
+      jumpToToolChat(name, q);
+    }
     function trackOfficialClick(name) {
       trackEvent('official_click', { toolName: name, toolSlug: toolSlug(name) });
     }
@@ -3238,7 +3242,7 @@
         const visitBtn = t.url ? '<a class="dir-tool-visit" href="' + urlEsc + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();trackOfficialClick(\'' + nameEsc + '\')" aria-label="打开 ' + t.name.replace(/"/g,'&quot;') + ' 官网">官网</a>' : '';
         const detailBtn = '<a class="dir-tool-detail" href="' + detailUrl + '" onclick="event.stopPropagation()" aria-label="查看 ' + t.name.replace(/"/g,'&quot;') + ' 详情">详情</a>';
         const actionsHtml = '<div class="dir-tool-actions">' + askBtn + visitBtn + detailBtn + '</div>';
-        return '<div class="dir-tool-card"' + dataAttrs + ' role="button" tabindex="0" aria-label="询问 ' + t.name.replace(/"/g,'&quot;') + '" onclick="jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\')" onkeydown="runOnKeyboardActivate(event,function(){jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\')})">' +
+        return '<div class="dir-tool-card"' + dataAttrs + ' role="button" tabindex="0" aria-label="询问 ' + t.name.replace(/"/g,'&quot;') + '" onclick="openToolFromCard(\'' + nameEsc + '\',\'' + qEsc + '\')" onkeydown="runOnKeyboardActivate(event,function(){openToolFromCard(\'' + nameEsc + '\',\'' + qEsc + '\')})">' +
           newBadge + cmpBtn +
           '<div class="dir-tool-icon"' + iconStyle + '>' + catIcon + '</div>' +
           '<div class="dir-tool-body">' +

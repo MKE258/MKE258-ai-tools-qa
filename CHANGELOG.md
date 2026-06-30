@@ -30,3 +30,4 @@
 - Connected homepage conversion flow to backend APIs: real login entry, server-side tool favorites, recommendation results, and tool/search/official-click analytics events.
 - Removed the first-visit changelog popup and added primary plus mobile "let AI choose a tool" entry points.
 - Expanded `/api/admin/stats` and added a protected read-only analytics dashboard tab to `/admin`.
+- Added `tool_click` tracking for direct tool-card activation and surfaced tool-card click rankings in the admin dashboard.

@@ -128,6 +128,7 @@
       <section class="dash-card"><h2>事件类型</h2><div class="rank-list" id="eventTypeList"></div></section>
       <section class="dash-card"><h2>热门搜索词</h2><div class="rank-list" id="searchTermList"></div></section>
       <section class="dash-card"><h2>最多被收藏工具</h2><div class="rank-list" id="favoriteToolList"></div></section>
+      <section class="dash-card"><h2>工具卡点击排行</h2><div class="rank-list" id="toolClickList"></div></section>
       <section class="dash-card"><h2>最多被问 AI 的工具</h2><div class="rank-list" id="askToolList"></div></section>
       <section class="dash-card"><h2>官网点击排行</h2><div class="rank-list" id="officialClickList"></div></section>
       <section class="dash-card"><h2>最近事件</h2><div class="rank-list" id="recentEventList"></div></section>
@@ -329,6 +330,7 @@
       renderRankList("eventTypeList", stats?.eventTypes, item => item.type);
       renderRankList("searchTermList", stats?.searchTerms, item => item.keyword);
       renderRankList("favoriteToolList", stats?.favoriteTools, item => item.name || item.slug);
+      renderRankList("toolClickList", stats?.toolClicks, item => item.name || item.slug);
       renderRankList("askToolList", stats?.askTools, item => item.name || item.slug);
       renderRankList("officialClickList", stats?.officialClicks, item => item.name || item.slug);
       renderRecentEvents(stats?.recentEvents);
