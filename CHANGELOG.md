@@ -44,3 +44,4 @@
 - Redesigned the homepage first screen into a clearer AI tool decision workbench and tightened the tool detail page visual hierarchy.
 - Added protected admin detail-page content quality scoring with low-score tool rankings and CSV export.
 - Completed metadata quality fixes for the 9 previously low-scoring tool detail pages.
+- Upgraded 10 high-priority usable tool pages to excellent metadata quality: Claude, ChatGPT, DeepSeek, 通义千问, 讯飞星火, Suno, Manus, Notion AI, Perplexity, and WPS AI.
