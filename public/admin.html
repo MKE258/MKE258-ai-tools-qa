@@ -42,6 +42,11 @@
     .rank-row:last-child { border-bottom:none; }
     .rank-name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .rank-count { color:var(--accent); font-weight:800; }
+    .quality-summary { padding:14px; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; border-bottom:1px solid var(--line); }
+    .quality-pill { border:1px solid var(--line); border-radius:10px; padding:10px; background:#fafafa; }
+    .quality-pill b { display:block; font-size:18px; }
+    .quality-pill span { display:block; color:var(--muted); font-size:12px; margin-top:2px; }
+    .quality-missing { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .funnel { padding:14px; display:grid; gap:12px; }
     .funnel-row { display:grid; grid-template-columns:130px 1fr 84px 84px; gap:12px; align-items:center; }
     .funnel-label { font-weight:700; }
@@ -79,7 +84,7 @@
     .full { grid-column:1 / -1; }
     .modal-actions { padding:14px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:8px; }
     .notice { margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6; }
-    @media (max-width:800px) { .bar { align-items:flex-start; flex-direction:column; padding:12px 0; } .top-actions { justify-content:flex-start; } main { grid-template-columns:1fr; } aside { position:static; } .panel-head { align-items:flex-start; flex-direction:column; } .panel-tools,.tool-search { width:100%; } .modal-body { grid-template-columns:1fr; } .stat-grid,.dash-grid { grid-template-columns:1fr; } .auth-panel { align-items:stretch; } .funnel-row { grid-template-columns:1fr; gap:6px; } .funnel-value,.funnel-rate { text-align:left; } }
+    @media (max-width:800px) { .bar { align-items:flex-start; flex-direction:column; padding:12px 0; } .top-actions { justify-content:flex-start; } main { grid-template-columns:1fr; } aside { position:static; } .panel-head { align-items:flex-start; flex-direction:column; } .panel-tools,.tool-search { width:100%; } .modal-body { grid-template-columns:1fr; } .stat-grid,.dash-grid { grid-template-columns:1fr; } .auth-panel { align-items:stretch; } .funnel-row { grid-template-columns:1fr; gap:6px; } .funnel-value,.funnel-rate { text-align:left; } .quality-summary { grid-template-columns:repeat(2,1fr); } }
   </style>
 </head>
 <body>
@@ -147,6 +152,7 @@
     <div class="dash-grid">
       <section class="dash-card wide"><h2>转化漏斗</h2><div class="funnel" id="funnelList"></div></section>
       <section class="dash-card wide"><h2>唯一用户/访客漏斗</h2><div class="funnel" id="uniqueFunnelList"></div></section>
+      <section class="dash-card wide"><h2>详情页内容质量</h2><div id="toolQualityBox"></div></section>
       <section class="dash-card"><h2>事件类型</h2><div class="rank-list" id="eventTypeList"></div></section>
       <section class="dash-card"><h2>热门搜索词</h2><div class="rank-list" id="searchTermList"></div></section>
       <section class="dash-card"><h2>最多被收藏工具</h2><div class="rank-list" id="favoriteToolList"></div></section>
@@ -375,6 +381,7 @@
       renderRecommendationCtr(stats?.recommendationCtr);
       renderFunnel("funnelList", stats?.funnel, "按事件数粗略观察，不代表独立用户归因。");
       renderFunnel("uniqueFunnelList", stats?.uniqueFunnel, "已登录用户按 user_id 去重，未登录访客按浏览器 visitorId 去重；上线前的匿名历史事件不计入。");
+      renderToolQuality(stats?.toolQuality);
       renderRecentEvents(stats?.recentEvents);
     }
 
@@ -427,6 +434,23 @@
       }).join("") : `<div class="empty">暂无数据</div>`;
     }
 
+    function renderToolQuality(report) {
+      const summary = report?.summary || {};
+      const items = report?.items || [];
+      const summaryHtml = `
+        <div class="quality-summary">
+          <div class="quality-pill"><b>${Number(summary.total || 0)}</b><span>全部工具</span></div>
+          <div class="quality-pill"><b>${Number(summary.excellent || 0)}</b><span>优秀</span></div>
+          <div class="quality-pill"><b>${Number(summary.good || 0)}</b><span>可用</span></div>
+          <div class="quality-pill"><b>${Number(summary.needsWork || 0)}</b><span>需补充</span></div>
+        </div>`;
+      const rows = items.length ? items.map((item, index) => {
+        const missing = (item.missing || []).length ? (item.missing || []).join("、") : "字段完整";
+        return `<div class="rank-row"><span>${index + 1}</span><span class="rank-name">${escapeHtml(item.name || item.slug || "(空)")}<div class="quality-missing">${escapeHtml(item.category || "")} · ${escapeHtml(missing)}</div></span><span class="rank-count">${Number(item.score || 0)}分</span></div>`;
+      }).join("") : `<div class="empty">暂无数据</div>`;
+      $("toolQualityBox").innerHTML = summaryHtml + `<div class="rank-list">${rows}</div>`;
+    }
+
     function renderRecentEvents(items) {
       const list = items || [];
       $("recentEventList").innerHTML = list.length ? list.map((item, index) => `
@@ -466,6 +490,7 @@
       const rank = (item, index) => [index + 1, item.name || item.keyword || item.type || item.slug || "", item.slug || "", item.count || 0];
       pushCsvSection(rows, "事件数漏斗", ["阶段", "数量", "上一步转化率", "说明"], statsData.funnel, item => [item.label, item.count || 0, item.previous ? Math.round(Number(item.count || 0) / Number(item.previous || 1) * 100) + "%" : "基准", item.note || ""]);
       pushCsvSection(rows, "唯一用户/访客漏斗", ["阶段", "数量", "上一步转化率", "说明"], statsData.uniqueFunnel, item => [item.label, item.count || 0, item.previous ? Math.round(Number(item.count || 0) / Number(item.previous || 1) * 100) + "%" : "基准", item.note || ""]);
+      pushCsvSection(rows, "详情页内容质量", ["排名", "工具", "slug", "分类", "分数", "状态", "缺项"], statsData.toolQuality?.items, (item, index) => [index + 1, item.name || item.slug || "", item.slug || "", item.category || "", item.score || 0, item.status || "", (item.missing || []).join("、") || "字段完整"]);
       pushCsvSection(rows, "事件类型", ["排名", "类型", "slug", "数量"], statsData.eventTypes, rank);
       pushCsvSection(rows, "热门搜索词", ["排名", "关键词", "slug", "数量"], statsData.searchTerms, rank);
       pushCsvSection(rows, "最多被收藏工具", ["排名", "工具", "slug", "数量"], statsData.favoriteTools, rank);

@@ -160,6 +160,43 @@ function toolAccessStatus(tool) {
   return "视地区和账号而定";
 }
 
+function buildToolQualityReport() {
+  const rows = allTools().map(({ category, tool }) => {
+    const tags = tool.tags || [];
+    const filters = tool.filters || [];
+    const checks = [
+      { ok: Boolean(tool.name), label: "缺工具名称" },
+      { ok: String(tool.desc || "").trim().length >= 32, label: "描述少于 32 字" },
+      { ok: String(tool.q || "").trim().length >= 10, label: "提问语句太短" },
+      { ok: String(tool.url || "").startsWith("http://") || String(tool.url || "").startsWith("https://"), label: "缺有效官网链接" },
+      { ok: Boolean(tool.price), label: "缺价格信息" },
+      { ok: String(tool.audience || "").trim().length >= 4, label: "适合人群太泛" },
+      { ok: tags.length >= 2, label: "标签少于 2 个" },
+      { ok: filters.length >= 2, label: "筛选条件少于 2 个" }
+    ];
+    const passed = checks.filter((item) => item.ok).length;
+    const score = Math.round(passed / checks.length * 100);
+    const missing = checks.filter((item) => !item.ok).map((item) => item.label);
+    return {
+      slug: toolSlug(tool.name),
+      name: tool.name,
+      category: category.name,
+      score,
+      status: score >= 90 ? "优秀" : score >= 75 ? "可用" : "需补充",
+      missing
+    };
+  }).sort((a, b) => a.score - b.score || a.name.localeCompare(b.name, "zh-CN"));
+  return {
+    summary: {
+      total: rows.length,
+      excellent: rows.filter((item) => item.score >= 90).length,
+      good: rows.filter((item) => item.score >= 75 && item.score < 90).length,
+      needsWork: rows.filter((item) => item.score < 75).length
+    },
+    items: rows.slice(0, 30)
+  };
+}
+
 function toolFitList(tool, category) {
   const items = [];
   if (tool.audience) items.push("适合" + tool.audience);
@@ -769,6 +806,7 @@ async function handleAdminStats(request, env) {
       askRate: Number(item.views || 0) ? Number(item.asks || 0) / Number(item.views || 0) : 0,
       officialRate: Number(item.views || 0) ? Number(item.official_clicks || 0) / Number(item.views || 0) : 0
     })),
+    toolQuality: buildToolQualityReport(),
     recentEvents: recentEvents.results || []
   }, { headers: corsHeaders() });
 }

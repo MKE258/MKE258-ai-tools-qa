@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `9b2d277b-9cbe-4d53-b993-016392875f68`
-- Verified rollback version: `6be1890a-7675-4e48-ba42-9dd2c3e541bf`
-- Previous deployed version: `6be1890a-7675-4e48-ba42-9dd2c3e541bf`
+- Current deployed version: `1ff54ac0-6be3-420b-8d92-ccf29e51fa58`
+- Verified rollback version: `e43d490a-c1f5-4763-93b4-5c12dfc5d5b4`
+- Previous deployed version: `e43d490a-c1f5-4763-93b4-5c12dfc5d5b4`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -122,3 +122,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Admin stats separately surface `source=tool_detail` ask-tool and official-click rankings so detail-page SEO conversion can be monitored.
 - Tool detail page views use `tool_detail_view`; admin stats combine detail views, detail ask clicks, and detail official clicks into detail-page conversion-rate rankings.
 - Homepage first screen now uses a visible decision-workbench hero with AI selection, task filtering, search, and proof chips; tool detail pages use the same light decision-page visual language.
+- Admin stats include detail-page content quality scoring based on description length, direct question quality, valid URL, price, audience, tags, and filters; the dashboard ranks weakest tools first and CSV export includes missing fields.
