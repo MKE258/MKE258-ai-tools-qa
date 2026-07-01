@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `1ff54ac0-6be3-420b-8d92-ccf29e51fa58`
-- Verified rollback version: `e43d490a-c1f5-4763-93b4-5c12dfc5d5b4`
-- Previous deployed version: `e43d490a-c1f5-4763-93b4-5c12dfc5d5b4`
+- Current deployed version: `663669eb-f40e-4a15-9081-5924b31eecc2`
+- Verified rollback version: `1ff54ac0-6be3-420b-8d92-ccf29e51fa58`
+- Previous deployed version: `1ff54ac0-6be3-420b-8d92-ccf29e51fa58`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -123,3 +123,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Tool detail page views use `tool_detail_view`; admin stats combine detail views, detail ask clicks, and detail official clicks into detail-page conversion-rate rankings.
 - Homepage first screen now uses a visible decision-workbench hero with AI selection, task filtering, search, and proof chips; tool detail pages use the same light decision-page visual language.
 - Admin stats include detail-page content quality scoring based on description length, direct question quality, valid URL, price, audience, tags, and filters; the dashboard ranks weakest tools first and CSV export includes missing fields.
+- The first quality pass fixed the 9 low-scoring tool pages: Grok, 文心一言, Midjourney, Flux, Adobe Firefly, Claude Code, Zapier AI, Beautiful.ai, and AutoGPT. Current local quality distribution is 12 excellent, 43 usable, 0 needs-work.
