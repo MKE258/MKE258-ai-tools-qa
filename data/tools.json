@@ -73,17 +73,18 @@
         {
           "name": "Grok",
           "q": "Grok和ChatGPT有什么区别",
-          "desc": "X平台出品，实时联网，风格直接，适合追踪时事话题",
+          "desc": "X平台出品，实时联网和社交热点追踪强，回答风格直接，适合做时事观察和观点素材整理",
           "tags": [
             "媒体人",
             "内容创作者"
           ],
           "filters": [
-            "免费"
+            "免费",
+            "适合职场"
           ],
           "url": "https://grok.com",
           "price": "免费+付费",
-          "audience": "媒体人"
+          "audience": "媒体人和内容创作者"
         },
         {
           "name": "Kimi",
@@ -122,8 +123,8 @@
         },
         {
           "name": "文心一言",
-          "q": "文心一言适合做什么",
-          "desc": "百度出品，中文写作和本土内容生成场景表现稳定",
+          "q": "文心一言适合做什么，和豆包通义怎么选",
+          "desc": "百度出品，中文写作、本土知识问答和办公内容生成表现稳定，适合国内账号体系和中文场景",
           "tags": [
             "职场人",
             "学生"
@@ -135,7 +136,7 @@
           ],
           "url": "https://yiyan.baidu.com",
           "price": "免费",
-          "audience": "职场人"
+          "audience": "国内职场人和学生"
         },
         {
           "name": "通义千问",
@@ -214,32 +215,34 @@
         {
           "name": "Midjourney",
           "q": "Midjourney提示词怎么写",
-          "desc": "商业级AI画图工具，风格多样，图片质量业界顶尖",
+          "desc": "商业级AI画图工具，风格控制和成片质感强，适合海报、概念图、视觉探索等创意工作",
           "tags": [
             "设计师",
             "内容创作者"
           ],
           "filters": [
-            "适合职场"
+            "适合职场",
+            "设计师"
           ],
           "url": "https://midjourney.com",
           "price": "付费",
-          "audience": "设计师"
+          "audience": "设计师和内容创作者"
         },
         {
           "name": "Flux",
           "q": "Flux和Midjourney有什么区别",
-          "desc": "开源免费，真实感人像出色，支持本地部署",
+          "desc": "开源图像生成模型，真实感人像和文字渲染表现突出，支持本地部署和二次开发工作流",
           "tags": [
             "开发者",
             "摄影师"
           ],
           "filters": [
-            "免费"
+            "免费",
+            "开发者"
           ],
           "url": "https://blackforestlabs.ai",
           "price": "免费",
-          "audience": "开发者"
+          "audience": "开发者和视觉创作者"
         },
         {
           "name": "Stable Diffusion",
@@ -259,17 +262,18 @@
         {
           "name": "Adobe Firefly",
           "q": "Adobe Firefly有哪些AI功能",
-          "desc": "商用安全的AI创意工具，深度整合Photoshop，设计师首选",
+          "desc": "Adobe出品的商用安全AI创意工具，深度整合Photoshop和设计流程，适合品牌素材生产",
           "tags": [
             "设计师",
             "摄影师"
           ],
           "filters": [
-            "适合职场"
+            "适合职场",
+            "设计师"
           ],
           "url": "https://firefly.adobe.com",
           "price": "免费+付费",
-          "audience": "设计师"
+          "audience": "设计师和品牌团队"
         },
         {
           "name": "Canva AI",
@@ -559,12 +563,14 @@
         {
           "name": "Claude Code",
           "q": "Claude Code和Cursor有什么区别",
-          "desc": "命令行AI编程工具，擅长整个项目级别的重构和自动化",
+          "desc": "命令行AI编程工具，擅长读懂整个项目、执行重构、修复测试和自动化开发任务",
           "tags": [
-            "高级开发者"
+            "高级开发者",
+            "工程团队"
           ],
           "filters": [
-            "适合职场"
+            "适合职场",
+            "开发者"
           ],
           "url": "https://claude.ai/code",
           "price": "付费",
@@ -657,17 +663,18 @@
         {
           "name": "Zapier AI",
           "q": "Zapier AI怎么自动化日常工作流",
-          "desc": "用自然语言描述需求即可创建自动化流程，无需写代码",
+          "desc": "用自然语言描述需求即可创建跨应用自动化流程，适合把表单、邮件、CRM和通知串起来",
           "tags": [
             "运营",
             "非技术用户"
           ],
           "filters": [
-            "适合职场"
+            "适合职场",
+            "非技术用户"
           ],
           "url": "https://zapier.com",
           "price": "免费+付费",
-          "audience": "运营"
+          "audience": "运营和非技术用户"
         },
         {
           "name": "Make.com",
@@ -830,17 +837,18 @@
         {
           "name": "Beautiful.ai",
           "q": "Beautiful.ai怎么做品牌演示文稿",
-          "desc": "智能对齐排版，品牌一致性强，适合商务演示",
+          "desc": "智能演示文稿工具，自动对齐排版并保持品牌一致性，适合销售方案、融资路演和商务汇报",
           "tags": [
             "设计师",
             "销售"
           ],
           "filters": [
-            "适合职场"
+            "适合职场",
+            "设计师"
           ],
           "url": "https://beautiful.ai",
           "price": "付费",
-          "audience": "设计师"
+          "audience": "销售和品牌团队"
         }
       ]
     },
@@ -900,17 +908,18 @@
         {
           "name": "AutoGPT",
           "q": "AutoGPT是什么，怎么用",
-          "desc": "最早的开源 AI Agent 框架，自主规划任务，社区生态丰富",
+          "desc": "早期开源AI Agent框架，支持目标拆解、自主规划和工具调用，适合研究Agent工作流原型",
           "tags": [
             "开发者",
             "AI爱好者"
           ],
           "filters": [
-            "免费"
+            "免费",
+            "开发者"
           ],
           "url": "https://agpt.co",
           "price": "免费",
-          "audience": "开发者"
+          "audience": "开发者和AI研究者"
         },
         {
           "name": "Manus",
