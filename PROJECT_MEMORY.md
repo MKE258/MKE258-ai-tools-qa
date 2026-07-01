@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `6be1890a-7675-4e48-ba42-9dd2c3e541bf`
-- Verified rollback version: `523f486b-2c62-4231-a75e-d4da44a2db31`
-- Previous deployed version: `523f486b-2c62-4231-a75e-d4da44a2db31`
+- Current deployed version: `9b2d277b-9cbe-4d53-b993-016392875f68`
+- Verified rollback version: `6be1890a-7675-4e48-ba42-9dd2c3e541bf`
+- Previous deployed version: `6be1890a-7675-4e48-ba42-9dd2c3e541bf`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -121,3 +121,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Tool detail pages are conversion decision pages with quick fit information, fit/mismatch guidance, trial steps, related tools, and `source=tool_detail` analytics for ask/official-click CTAs.
 - Admin stats separately surface `source=tool_detail` ask-tool and official-click rankings so detail-page SEO conversion can be monitored.
 - Tool detail page views use `tool_detail_view`; admin stats combine detail views, detail ask clicks, and detail official clicks into detail-page conversion-rate rankings.
+- Homepage first screen now uses a visible decision-workbench hero with AI selection, task filtering, search, and proof chips; tool detail pages use the same light decision-page visual language.
