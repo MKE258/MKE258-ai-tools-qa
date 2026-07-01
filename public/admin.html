@@ -153,6 +153,8 @@
       <section class="dash-card"><h2>工具卡点击排行</h2><div class="rank-list" id="toolClickList"></div></section>
       <section class="dash-card"><h2>最多被问 AI 的工具</h2><div class="rank-list" id="askToolList"></div></section>
       <section class="dash-card"><h2>官网点击排行</h2><div class="rank-list" id="officialClickList"></div></section>
+      <section class="dash-card"><h2>详情页问 AI 排行</h2><div class="rank-list" id="detailAskToolList"></div></section>
+      <section class="dash-card"><h2>详情页官网点击排行</h2><div class="rank-list" id="detailOfficialClickList"></div></section>
       <section class="dash-card"><h2>AI 推荐后续动作</h2><div class="rank-list" id="recommendationActionList"></div></section>
       <section class="dash-card"><h2>AI 推荐工具排行</h2><div class="rank-list" id="recommendationToolList"></div></section>
       <section class="dash-card"><h2>AI 推荐点击率</h2><div class="rank-list" id="recommendationCtrList"></div></section>
@@ -364,6 +366,8 @@
       renderRankList("toolClickList", stats?.toolClicks, item => item.name || item.slug);
       renderRankList("askToolList", stats?.askTools, item => item.name || item.slug);
       renderRankList("officialClickList", stats?.officialClicks, item => item.name || item.slug);
+      renderRankList("detailAskToolList", stats?.detailAskTools, item => item.name || item.slug);
+      renderRankList("detailOfficialClickList", stats?.detailOfficialClicks, item => item.name || item.slug);
       renderRankList("recommendationActionList", stats?.recommendationActions, item => item.type);
       renderRankList("recommendationToolList", stats?.recommendationTools, item => item.name || item.slug);
       renderRecommendationCtr(stats?.recommendationCtr);
@@ -454,6 +458,8 @@
       pushCsvSection(rows, "工具卡点击排行", ["排名", "工具", "slug", "数量"], statsData.toolClicks, rank);
       pushCsvSection(rows, "最多被问 AI 的工具", ["排名", "工具", "slug", "数量"], statsData.askTools, rank);
       pushCsvSection(rows, "官网点击排行", ["排名", "工具", "slug", "数量"], statsData.officialClicks, rank);
+      pushCsvSection(rows, "详情页问 AI 排行", ["排名", "工具", "slug", "数量"], statsData.detailAskTools, rank);
+      pushCsvSection(rows, "详情页官网点击排行", ["排名", "工具", "slug", "数量"], statsData.detailOfficialClicks, rank);
       pushCsvSection(rows, "AI 推荐后续动作", ["排名", "动作", "slug", "数量"], statsData.recommendationActions, rank);
       pushCsvSection(rows, "AI 推荐工具排行", ["排名", "工具", "slug", "数量"], statsData.recommendationTools, rank);
       pushCsvSection(rows, "AI 推荐点击率", ["排名", "工具", "slug", "曝光", "动作", "点击率"], statsData.recommendationCtr, (item, index) => [index + 1, item.name || item.slug || "", item.slug || "", item.impressions || 0, item.actions || 0, item.impressions ? Math.round(Number(item.actions || 0) / Number(item.impressions || 1) * 100) + "%" : "0%"]);
