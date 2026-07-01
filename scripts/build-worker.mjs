@@ -8,7 +8,7 @@ const worker = `const HTML = ${JSON.stringify(html)};
 const ADMIN_HTML = ${JSON.stringify(adminHtml)};
 const TOOLS_JSON = ${JSON.stringify(toolsJson)};
 const TOOLS_DATA = JSON.parse(TOOLS_JSON);
-const ALLOWED_EVENT_TYPES = new Set(["tool_click", "official_click", "ask_tool", "question", "recommend", "favorite_add", "favorite_remove", "quiz_open", "search", "recommendation_impression", "tool_detail_view"]);
+const ALLOWED_EVENT_TYPES = new Set(["tool_click", "official_click", "ask_tool", "question", "recommend", "favorite_add", "favorite_remove", "quiz_open", "search", "recommendation_impression", "tool_detail_view", "hero_variant_view", "home_cta_click"]);
 
 export default {
   async fetch(request, env) {
@@ -91,6 +91,10 @@ export default {
       });
     }
 
+    if (url.pathname.startsWith("/topics/")) {
+      return handleTopicPage(url);
+    }
+
     if (url.pathname.startsWith("/tools/")) {
       return handleToolDetail(url);
     }
@@ -147,11 +151,85 @@ function findToolBySlug(slug) {
   );
 }
 
+const TOPICS = [
+  {
+    slug: "free-ai-tools",
+    title: "免费 AI 工具推荐",
+    description: "优先整理可免费开始试用的 AI 工具，适合学生、新手和低预算用户。",
+    keywords: ["免费"],
+    audience: "学生、新手、低预算用户",
+    prompt: "我想找免费 AI 工具，请按写作、画图、视频、办公和编程场景推荐。"
+  },
+  {
+    slug: "china-accessible-ai-tools",
+    title: "国内可用 AI 工具推荐",
+    description: "筛选更适合中国大陆用户访问和上手的 AI 工具，减少注册和访问试错。",
+    keywords: ["国内直连"],
+    audience: "中国大陆用户、职场团队",
+    prompt: "我在中国大陆使用，请推荐国内可用、上手稳定的 AI 工具。"
+  },
+  {
+    slug: "ai-writing-tools",
+    title: "AI 写作和 PPT 工具推荐",
+    description: "面向文章、营销文案、汇报材料和演示文稿的 AI 工具清单。",
+    keywords: ["写作", "PPT", "文案", "演示", "办公"],
+    audience: "内容创作者、运营、职场人",
+    prompt: "我想写文章、做 PPT 或写营销文案，请推荐合适的 AI 工具。"
+  },
+  {
+    slug: "ai-video-tools",
+    title: "AI 视频工具推荐",
+    description: "整理图生视频、文生视频、短视频剪辑和数字人相关 AI 工具。",
+    keywords: ["视频", "剪辑", "数字人"],
+    audience: "短视频创作者、营销团队、设计师",
+    prompt: "我想做 AI 视频、短视频剪辑或数字人，请推荐合适工具。"
+  },
+  {
+    slug: "chatgpt-alternatives",
+    title: "ChatGPT 替代工具推荐",
+    description: "从对话、长文档、联网搜索和国内访问角度对比 ChatGPT 替代选择。",
+    keywords: ["对话", "搜索", "长文档", "国内直连"],
+    audience: "需要多模型备选的 AI 用户",
+    prompt: "我想找 ChatGPT 替代品，请按中文能力、联网搜索、长文档和访问方式推荐。"
+  }
+];
+
+function findTopic(slug) {
+  const normalized = String(slug || "").toLowerCase();
+  return TOPICS.find((topic) => topic.slug === normalized);
+}
+
 function toolSlug(name) {
   const ascii = String(name || "").toLowerCase().trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   return ascii || encodeURIComponent(name);
+}
+
+function topicTools(topic) {
+  const terms = topic.keywords.map((item) => String(item).toLowerCase());
+  const matched = allTools()
+    .map(({ category, tool }) => {
+      const haystack = [category.name, tool.name, tool.desc, tool.q, tool.price, tool.audience, ...(tool.tags || []), ...(tool.filters || [])].join(" ").toLowerCase();
+      const score = terms.reduce((sum, term) => sum + (haystack.includes(term) ? 1 : 0), 0);
+      return { category, tool, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.tool.name.localeCompare(b.tool.name, "zh-CN"));
+  return matched.length ? matched.slice(0, 18) : allTools().slice(0, 12);
+}
+
+function handleTopicPage(url) {
+  const slug = decodeURIComponent(url.pathname.replace(/^\\/topics\\//, "").replace(/\\/$/, ""));
+  const topic = findTopic(slug);
+  if (!topic) return new Response("Not found", { status: 404 });
+  return new Response(renderTopicPage(topic, url), {
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "public, max-age=600",
+      "x-ai-tools-version": "source-2026-05-27"
+    }
+  });
 }
 
 function toolAccessStatus(tool) {
@@ -289,11 +367,57 @@ function renderToolPage(found, url) {
     '</body></html>';
 }
 
+function renderTopicPage(topic, url) {
+  const items = topicTools(topic);
+  const canonical = url.origin + "/topics/" + topic.slug;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: topic.title,
+    description: topic.description,
+    url: canonical
+  };
+  const cards = items.map(({ category, tool }) => {
+    const askHref = "/?tool=" + encodeURIComponent(tool.name) + "&q=" + encodeURIComponent(tool.q || (tool.name + " 怎么用"));
+    return '<article class="tool-card">' +
+      '<div class="tool-meta">' + escapeHtml(category.icon + " " + category.name) + '</div>' +
+      '<h2><a href="/tools/' + toolSlug(tool.name) + '">' + escapeHtml(tool.name) + '</a></h2>' +
+      '<p>' + escapeHtml(tool.desc || "") + '</p>' +
+      '<div class="chips">' +
+      (tool.price ? '<span>' + escapeHtml(tool.price) + '</span>' : '') +
+      (tool.audience ? '<span>适合' + escapeHtml(tool.audience) + '</span>' : '') +
+      (tool.filters || []).slice(0, 2).map((tag) => '<span>' + escapeHtml(tag) + '</span>').join('') +
+      '</div>' +
+      '<div class="actions"><a class="primary" href="' + escapeHtml(askHref) + '">问 AI 怎么用</a><a href="/tools/' + toolSlug(tool.name) + '">看详情</a></div>' +
+      '</article>';
+  }).join('');
+  const topicLinks = TOPICS.filter((item) => item.slug !== topic.slug)
+    .map((item) => '<a href="/topics/' + item.slug + '">' + escapeHtml(item.title) + '</a>').join('');
+
+  return '<!doctype html><html lang="zh-CN"><head>' +
+    '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<title>' + escapeHtml(topic.title) + ' - AI工具教程助手</title>' +
+    '<meta name="description" content="' + escapeHtml(topic.description) + '">' +
+    '<link rel="canonical" href="' + escapeHtml(canonical) + '">' +
+    '<script type="application/ld+json">' + JSON.stringify(jsonLd).replace(/</g, "\\\\u003c") + '</script>' +
+    '<style>' +
+    ':root{--bg:#f6f7f9;--panel:#fff;--text:#172033;--muted:#667085;--line:#d8dde7;--accent:#c96a2a;--accent-strong:#a84f16;--accent-bg:rgba(201,106,42,.09);--shadow:0 18px 48px rgba(15,23,42,.08)}' +
+    '*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#fff 0,#f8fafc 300px),var(--bg);color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.7}a{color:inherit;text-decoration:none}a:focus-visible{outline:3px solid rgba(37,99,235,.35);outline-offset:3px}main{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:24px 0 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.back,.top a{min-height:44px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;display:inline-flex;align-items:center;font-weight:800}.hero{border:1px solid var(--line);border-radius:16px;background:linear-gradient(135deg,#fff 0,#f8fafc 58%,#fff7ed 100%);padding:30px;margin-bottom:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}.hero:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--accent),#0f766e,#2563eb)}.kicker{display:inline-flex;color:var(--accent);font-weight:850;background:var(--accent-bg);border:1px solid rgba(201,106,42,.18);border-radius:999px;padding:5px 10px;font-size:13px}.hero h1{font-size:42px;line-height:1.14;margin:12px 0 10px}.hero p{font-size:17px;color:var(--muted);max-width:760px}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.btn{min-height:44px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;font-weight:800}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.primary:hover{background:var(--accent-strong)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.tool-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:230px}.tool-card:hover{border-color:var(--accent);box-shadow:0 12px 28px rgba(15,23,42,.08)}.tool-meta{color:var(--accent);font-size:13px;font-weight:850}.tool-card h2{font-size:18px;line-height:1.3;margin:0}.tool-card p{margin:0;color:var(--muted);font-size:14px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}.chips span{border:1px solid var(--line);background:#f8fafc;border-radius:999px;color:#475467;font-size:12px;padding:4px 8px}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions a{min-height:40px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-weight:800;font-size:13px}.actions .primary{background:var(--accent);border-color:var(--accent);color:#fff}.related{margin-top:18px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:16px}.related h2{font-size:18px;margin:0 0 10px}.related-links{display:flex;flex-wrap:wrap;gap:8px}.related-links a{border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:var(--muted)}@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}.hero h1{font-size:32px}}@media(max-width:620px){main{width:min(100% - 28px,680px)}.grid{grid-template-columns:1fr}.top{align-items:stretch;flex-direction:column}.back,.top a{justify-content:center}.hero{padding:22px}.hero h1{font-size:28px}.tool-card{min-height:0}}' +
+    '</style></head><body><main>' +
+    '<div class="top"><a class="back" href="/">返回首页</a><a href="/sitemap.xml">站点地图</a></div>' +
+    '<section class="hero"><div class="kicker">AI 工具专题</div><h1>' + escapeHtml(topic.title) + '</h1><p>' + escapeHtml(topic.description) + '</p>' +
+    '<div class="hero-actions"><a class="btn primary" href="/?q=' + encodeURIComponent(topic.prompt) + '">让 AI 按我的场景推荐</a><a class="btn" href="/">回到工具导航</a></div></section>' +
+    '<section class="grid">' + cards + '</section>' +
+    '<section class="related"><h2>继续浏览专题</h2><div class="related-links">' + topicLinks + '</div></section>' +
+    '</main></body></html>';
+}
+
 function renderSitemap(url) {
   const now = new Date().toISOString();
   const urls = [
     url.origin + "/",
     url.origin + "/admin",
+    ...TOPICS.map((topic) => url.origin + "/topics/" + topic.slug),
     ...allTools().map(({ tool }) => url.origin + "/tools/" + toolSlug(tool.name))
   ];
   return '<?xml version="1.0" encoding="UTF-8"?>' +
@@ -659,6 +783,7 @@ async function handleRecommend(request, env) {
     budget: limitText(body.budget, 80),
     platform: limitText(body.platform, 80),
     input: limitText(body.input, 600),
+    variant: limitText(body.variant, 80),
     visitorId: limitText(body.visitorId, 120),
     tags: Array.isArray(body.tags) ? body.tags.slice(0, 12).map((tag) => limitText(tag, 60)).filter(Boolean) : []
   };
@@ -689,7 +814,11 @@ async function handleRecommend(request, env) {
       url: item.tool.url,
       price: item.tool.price,
       audience: item.tool.audience,
-      reason: buildRecommendReason(text, item.tool)
+      reason: buildRecommendReason(text, item.tool),
+      bestFor: buildRecommendBestFor(text, item.tool, item.category),
+      caution: buildRecommendCaution(text, item.tool),
+      nextStep: buildRecommendNextStep(item.tool),
+      match: Math.min(99, Math.max(62, Math.round(item.score * 11 + 58)))
     }));
 
   const fallback = scored.length ? scored : allTools().slice(0, 6).map(({ category, tool }) => ({
@@ -701,7 +830,11 @@ async function handleRecommend(request, env) {
     url: tool.url,
     price: tool.price,
     audience: tool.audience,
-    reason: "通用能力强，适合作为默认入门工具"
+    reason: "通用能力强，适合作为默认入门工具",
+    bestFor: buildRecommendBestFor(text, tool, category.name),
+    caution: buildRecommendCaution(text, tool),
+    nextStep: buildRecommendNextStep(tool),
+    match: 68
   }));
 
   const user = await getCurrentUser(request, env);
@@ -711,7 +844,7 @@ async function handleRecommend(request, env) {
     await env.DB.prepare("INSERT INTO recommendation_sessions (id, user_id, input_json, result_json) VALUES (?, ?, ?, ?)")
       .bind(id, user?.id || null, JSON.stringify(input), JSON.stringify(result).slice(0, 8000))
       .run();
-    await recordEvent(env, user?.id || null, "recommend", { recommendation_id: id, visitorId: input.visitorId, input });
+    await recordEvent(env, user?.id || null, "recommend", { recommendation_id: id, visitorId: input.visitorId, variant: input.variant, input });
     result.id = id;
   }
 
@@ -754,7 +887,7 @@ async function handleAdminStats(request, env) {
   const userWhere = range.since ? " WHERE created_at >= ?" : "";
   const bind = (statement, params = []) => params.length ? statement.bind(...params) : statement;
 
-  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recommendationActions, recommendationTools, recommendationCtr, detailAskTools, detailOfficialClicks, detailConversion, recentEvents] = await Promise.all([
+  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recommendationActions, recommendationTools, recommendationCtr, detailAskTools, detailOfficialClicks, detailConversion, homeCtaActions, heroVariantStats, recentEvents] = await Promise.all([
     bind(env.DB.prepare(
       "SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"
     ), range.since ? [range.since] : []).all(),
@@ -763,10 +896,10 @@ async function handleAdminStats(request, env) {
       "SELECT (SELECT COUNT(*) FROM users" + userWhere + ") AS users, (SELECT COUNT(*) FROM favorites" + favoriteWhere + ") AS favorites, (SELECT COUNT(*) FROM recommendation_sessions" + recommendationWhere + ") AS recommendations, (SELECT COUNT(*) FROM events" + eventWhere + ") AS events"
     ), range.since ? [range.since, range.since, range.since, range.since] : []).first(),
     bind(env.DB.prepare(
-      "SELECT (SELECT COUNT(*) FROM events WHERE type = 'search'" + eventAnd + ") AS searches, (SELECT COUNT(*) FROM recommendation_sessions" + recommendationWhere + ") AS recommendations, (SELECT COUNT(*) FROM events WHERE type = 'tool_click'" + eventAnd + ") AS tool_clicks, (SELECT COUNT(*) FROM events WHERE type = 'ask_tool'" + eventAnd + ") AS ask_tools, (SELECT COUNT(*) FROM events WHERE type = 'favorite_add'" + eventAnd + ") AS favorite_adds, (SELECT COUNT(*) FROM events WHERE type = 'official_click'" + eventAnd + ") AS official_clicks"
-    ), range.since ? [range.since, range.since, range.since, range.since, range.since, range.since] : []).first(),
+      "SELECT (SELECT COUNT(*) FROM events WHERE type = 'search'" + eventAnd + ") AS searches, (SELECT COUNT(*) FROM events WHERE type = 'quiz_open'" + eventAnd + ") AS quiz_opens, (SELECT COUNT(*) FROM recommendation_sessions" + recommendationWhere + ") AS recommendations, (SELECT COUNT(*) FROM events WHERE type = 'tool_click'" + eventAnd + ") AS tool_clicks, (SELECT COUNT(*) FROM events WHERE type = 'ask_tool'" + eventAnd + ") AS ask_tools, (SELECT COUNT(*) FROM events WHERE type = 'favorite_add'" + eventAnd + ") AS favorite_adds, (SELECT COUNT(*) FROM events WHERE type = 'official_click'" + eventAnd + ") AS official_clicks"
+    ), range.since ? [range.since, range.since, range.since, range.since, range.since, range.since, range.since] : []).first(),
     bind(env.DB.prepare(
-      "SELECT (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type IN ('search', 'recommend') AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS intent, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'tool_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS tool_clicks, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'ask_tool' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS ask_tools, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'favorite_add' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS favorite_adds, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'official_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS official_clicks"
+      "SELECT (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type IN ('search', 'quiz_open', 'recommend') AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS intent, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'tool_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS tool_clicks, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'ask_tool' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS ask_tools, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'favorite_add' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS favorite_adds, (SELECT COUNT(DISTINCT COALESCE(user_id, json_extract(payload_json, '$.visitorId'))) FROM events WHERE type = 'official_click' AND COALESCE(user_id, json_extract(payload_json, '$.visitorId')) IS NOT NULL" + eventAnd + ") AS official_clicks"
     ), range.since ? [range.since, range.since, range.since, range.since, range.since] : []).first(),
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM favorites" + (range.since ? " WHERE created_at >= ?" : "") + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare(
@@ -781,6 +914,8 @@ async function handleAdminStats(request, env) {
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'ask_tool' AND json_extract(payload_json, '$.source') = 'tool_detail' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'official_click' AND json_extract(payload_json, '$.source') = 'tool_detail' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, SUM(CASE WHEN type = 'tool_detail_view' THEN 1 ELSE 0 END) AS views, SUM(CASE WHEN type = 'ask_tool' THEN 1 ELSE 0 END) AS asks, SUM(CASE WHEN type = 'official_click' THEN 1 ELSE 0 END) AS official_clicks FROM events WHERE tool_slug IS NOT NULL AND json_extract(payload_json, '$.source') = 'tool_detail' AND type IN ('tool_detail_view', 'ask_tool', 'official_click')" + eventAnd + " GROUP BY tool_slug, tool_name HAVING views > 0 ORDER BY (asks + official_clicks) * 1.0 / views DESC, asks + official_clicks DESC, views DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT COALESCE(json_extract(payload_json, '$.target'), 'unknown') AS target, COALESCE(json_extract(payload_json, '$.variant'), 'unknown') AS variant, COUNT(*) AS count FROM events WHERE type = 'home_cta_click'" + eventAnd + " GROUP BY target, variant ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT COALESCE(json_extract(payload_json, '$.variant'), 'unknown') AS variant, SUM(CASE WHEN type = 'hero_variant_view' THEN 1 ELSE 0 END) AS views, SUM(CASE WHEN type = 'home_cta_click' THEN 1 ELSE 0 END) AS cta_clicks, SUM(CASE WHEN type = 'recommend' THEN 1 ELSE 0 END) AS recommendations FROM events WHERE type IN ('hero_variant_view', 'home_cta_click', 'recommend')" + eventAnd + " GROUP BY variant ORDER BY views DESC, cta_clicks DESC"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT type, tool_slug AS slug, tool_name AS name, created_at FROM events" + eventWhere + " ORDER BY created_at DESC LIMIT 30"), range.since ? [range.since] : []).all()
   ]);
 
@@ -805,6 +940,12 @@ async function handleAdminStats(request, env) {
       ...item,
       askRate: Number(item.views || 0) ? Number(item.asks || 0) / Number(item.views || 0) : 0,
       officialRate: Number(item.views || 0) ? Number(item.official_clicks || 0) / Number(item.views || 0) : 0
+    })),
+    homeCtaActions: homeCtaActions.results || [],
+    heroVariantStats: (heroVariantStats.results || []).map((item) => ({
+      ...item,
+      ctaRate: Number(item.views || 0) ? Number(item.cta_clicks || 0) / Number(item.views || 0) : 0,
+      recommendRate: Number(item.views || 0) ? Number(item.recommendations || 0) / Number(item.views || 0) : 0
     })),
     toolQuality: buildToolQualityReport(),
     recentEvents: recentEvents.results || []
@@ -831,14 +972,16 @@ function adminStatsRange(url) {
 
 function buildFunnel(row) {
   const searches = Number(row.searches || 0);
+  const quizOpens = Number(row.quiz_opens || 0);
   const recommendations = Number(row.recommendations || 0);
-  const intent = searches + recommendations;
+  const intent = searches + quizOpens + recommendations;
   const toolClicks = Number(row.tool_clicks || 0);
   const askTools = Number(row.ask_tools || 0);
   const favoriteAdds = Number(row.favorite_adds || 0);
   const officialClicks = Number(row.official_clicks || 0);
   return [
-    { key: "intent", label: "需求表达", count: intent, note: "搜索 + AI 选工具提交" },
+    { key: "intent", label: "需求表达", count: intent, note: "搜索 + 打开 AI 选工具 + 推荐提交" },
+    { key: "recommend", label: "AI 推荐提交", count: recommendations, previous: quizOpens || intent },
     { key: "tool_click", label: "工具卡点击", count: toolClicks, previous: intent },
     { key: "ask_tool", label: "问 AI 怎么用", count: askTools, previous: toolClicks },
     { key: "favorite_add", label: "加入收藏", count: favoriteAdds, previous: toolClicks },
@@ -880,6 +1023,27 @@ function buildRecommendReason(text, tool) {
   if (/免费|新手|学生/.test(text) && /免费/.test(tool.price || "")) return "有免费入口，适合低成本试用";
   if (tool.audience) return "适合" + tool.audience + "，和你的需求匹配";
   return "和你的使用场景匹配度较高";
+}
+
+function buildRecommendBestFor(text, tool, categoryName) {
+  if (/写作|文案|ppt|演示/.test(text)) return "适合先完成内容草稿、结构梳理和可交付稿件";
+  if (/视频|剪辑|数字人/.test(text)) return "适合先做样片、分镜或短视频素材验证";
+  if (/编程|代码|开发/.test(text)) return "适合在真实项目里做代码理解、补全和重构";
+  if (/搜索|资料|调研/.test(text)) return "适合先做资料检索、来源确认和结论整理";
+  if (tool.audience) return "适合" + tool.audience + "的高频任务";
+  return "适合" + categoryName + "相关的入门和日常任务";
+}
+
+function buildRecommendCaution(text, tool) {
+  if (/国内|中国大陆|直连/.test(text) && !(tool.filters || []).includes("国内直连")) return "如果必须国内直连，注册或访问前先确认官网可用性";
+  if (/免费|学生|低预算/.test(text) && !String(tool.price || "").includes("免费")) return "预算敏感时先确认试用额度和付费门槛";
+  if ((tool.tags || []).includes("开发者") && /新手|小白|不会代码/.test(text)) return "功能强但可能需要一点配置或技术理解";
+  return "价格、额度和模型能力会变化，正式使用前以官网为准";
+}
+
+function buildRecommendNextStep(tool) {
+  const q = tool.q || (tool.name + " 怎么用，适合哪些场景？");
+  return "先问：" + q;
 }
 
 async function getCurrentUser(request, env) {

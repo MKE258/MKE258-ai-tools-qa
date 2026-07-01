@@ -257,6 +257,9 @@
     .quiz-result-head { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:6px; }
     .quiz-result-name { font-weight:850; color:var(--text); }
     .quiz-result-reason { color:var(--text2); font-size:12px; line-height:1.55; margin-top:4px; }
+    .quiz-result-match { border:1px solid var(--accent-glow); background:var(--accent-bg); color:var(--accent); border-radius:999px; padding:3px 8px; font-size:11px; font-weight:850; white-space:nowrap; }
+    .quiz-result-detail { display:grid; gap:6px; margin-top:9px; color:var(--text2); font-size:12px; line-height:1.5; }
+    .quiz-result-detail span { display:block; border:1px solid var(--border); background:var(--bg2); border-radius:var(--r); padding:7px 9px; }
     .quiz-result-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
     .quiz-result-actions button,.quiz-result-actions a { border:1px solid var(--border); background:var(--bg2); color:var(--text2); border-radius:var(--r); padding:7px 10px; font-size:12px; cursor:pointer; text-decoration:none; font-family:inherit; }
     .quiz-result-actions .primary { background:var(--accent); border-color:var(--accent); color:#fff; }
@@ -727,7 +730,7 @@
   </div>
   <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
   <button class="menu-btn" type="button" aria-label="打开分类栏" onclick="toggleSidebar()">☰</button>
-  <button class="mobile-ai-entry" type="button" onclick="openQuiz()" aria-label="让 AI 帮我选工具">让 AI 帮我选工具</button>
+  <button class="mobile-ai-entry" type="button" onclick="openQuiz('mobile_sticky')" aria-label="让 AI 帮我选工具">让 AI 帮我选工具</button>
   <div class="cat-modal" id="catModal">
     <div class="cat-modal-bg" onclick="closeModal()"></div>
     <div class="cat-modal-box">
@@ -922,7 +925,7 @@
         <button class="send" id="sendBtn" type="button" onclick="sendMessage()">发送</button>
       </div>
       <div class="toolbar">
-        <button class="quiz-add-btn" type="button" onclick="openQuiz()">✨ 帮我选工具</button>
+        <button class="quiz-add-btn" type="button" onclick="openQuiz('chat_quick')">✨ 帮我选工具</button>
         <button class="quiz-add-btn" type="button" onclick="openImageGen()" id="imgGenBtn">🎨 生成图片</button>
         <button class="export-btn" type="button" onclick="exportChat()">📥 导出对话</button>
         <button class="clear-btn" type="button" onclick="clearHistory()">🗑 清空对话</button>
@@ -2055,6 +2058,43 @@
         body: JSON.stringify(eventPayload(type, data))
       }).catch(function() {});
     }
+    const HERO_COPY_VARIANTS = {
+      direct: {
+        key: 'direct',
+        title: '不知道用哪个 AI 工具？让 AI 直接帮你选',
+        desc: '说出任务、预算和访问要求，先拿到 3 个明确推荐，再决定问用法、看详情还是去官网。',
+        primary: '让 AI 直接推荐',
+        secondary: '先按任务筛选'
+      },
+      workbench: {
+        key: 'workbench',
+        title: '说出你的任务，直接找到最适合的 AI 工具',
+        desc: '不用在工具列表里硬翻。输入场景、预算和访问要求，先让 AI 给出推荐，再看详情、问用法、点官网。',
+        primary: '让 AI 帮我选工具',
+        secondary: '按任务快速筛选'
+      }
+    };
+    function getHeroCopy() {
+      try {
+        let key = localStorage.getItem('ait_hero_variant');
+        if (!HERO_COPY_VARIANTS[key]) {
+          key = Math.random() < 0.5 ? 'direct' : 'workbench';
+          localStorage.setItem('ait_hero_variant', key);
+        }
+        return HERO_COPY_VARIANTS[key];
+      } catch(e) {
+        return HERO_COPY_VARIANTS.direct;
+      }
+    }
+    function trackHeroVariantView() {
+      const variant = getHeroCopy().key;
+      try {
+        const sessionKey = 'ait_hero_variant_view_' + variant;
+        if (sessionStorage.getItem(sessionKey)) return;
+        sessionStorage.setItem(sessionKey, '1');
+      } catch(e) {}
+      trackEvent('hero_variant_view', { variant: variant });
+    }
     async function initAccountState() {
       try {
         const res = await apiFetch('/api/auth/me');
@@ -2951,8 +2991,11 @@
     ];
     const quizAnswers = {};
 
-    function openQuiz() {
-      trackEvent('quiz_open');
+    function openQuiz(source) {
+      const heroCopy = getHeroCopy();
+      const entrySource = source || 'unknown';
+      trackEvent('quiz_open', { source: entrySource, variant: heroCopy.key });
+      if (source) trackEvent('home_cta_click', { target: entrySource, variant: heroCopy.key });
       QUIZ_DATA.forEach(d => { quizAnswers[d.key] = d.multi ? [] : ''; });
       let html = '';
       QUIZ_DATA.forEach((d, qi) => {
@@ -2996,7 +3039,7 @@
         const res = await apiFetch('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ goal: uses, budget: budget, platform: region, tags: quizAnswers.use || [], visitorId: getVisitorId() })
+          body: JSON.stringify({ goal: uses, budget: budget, platform: region, tags: quizAnswers.use || [], visitorId: getVisitorId(), variant: getHeroCopy().key })
         });
         if (!res.ok) throw new Error('recommend failed');
         const data = await res.json();
@@ -3015,7 +3058,7 @@
         ask(fallbackQuestion);
         return;
       }
-      const visibleItems = items.slice(0, 5);
+      const visibleItems = items.slice(0, 3);
       const recEsc = String(recommendationId || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       box.innerHTML += '<div class="quiz-results">' + visibleItems.map(function(item) {
         const name = item.name || '';
@@ -3023,11 +3066,20 @@
         const q = found?.t?.q || (name + '怎么用');
         const url = item.url || found?.t?.url || '';
         const reason = item.reason || item.desc || '和你的需求匹配';
+        const bestFor = item.bestFor || item.audience || '适合你的当前任务';
+        const caution = item.caution || '正式使用前以官网价格和额度为准';
+        const nextStep = item.nextStep || ('先问：' + q);
+        const match = Number(item.match || 0);
         const nameEsc = name.replace(/'/g,"\\'");
         const qEsc = q.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
         const favText = getFavTools().has(name) ? '已收藏' : '收藏';
         return '<div class="quiz-result-card">' +
-          '<div class="quiz-result-head"><div><div class="quiz-result-name">' + escapeHtml(name) + '</div><div class="quiz-result-reason">' + escapeHtml(reason) + '</div></div><span class="td-badge">' + escapeHtml(item.category || 'AI 工具') + '</span></div>' +
+          '<div class="quiz-result-head"><div><div class="quiz-result-name">' + escapeHtml(name) + '</div><div class="quiz-result-reason">' + escapeHtml(reason) + '</div></div><span class="quiz-result-match">' + (match ? match + '% 匹配' : escapeHtml(item.category || 'AI 工具')) + '</span></div>' +
+          '<div class="quiz-result-detail">' +
+          '<span><strong>适合：</strong>' + escapeHtml(bestFor) + '</span>' +
+          '<span><strong>注意：</strong>' + escapeHtml(caution) + '</span>' +
+          '<span><strong>下一步：</strong>' + escapeHtml(nextStep) + '</span>' +
+          '</div>' +
           '<div class="quiz-result-actions">' +
           '<button class="primary" type="button" onclick="closeQuiz();jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\',\'recommendation\',\'' + recEsc + '\')">问 AI 怎么用</button>' +
           (url ? '<a href="' + url.replace(/"/g,'&quot;') + '" target="_blank" rel="noopener noreferrer" onclick="trackOfficialClick(\'' + nameEsc + '\',\'recommendation\',\'' + recEsc + '\')">去官网</a>' : '') +
@@ -3391,15 +3443,16 @@
       }).join('');
 
       const totalTools = CATS.reduce(function(s, c) { return s + c.tools.length; }, 0);
+      const heroCopy = getHeroCopy();
       const hero =
         '<section class="home-hero" aria-labelledby="homeHeroTitle">' +
         '<div>' +
         '<div class="home-hero-kicker">AI TOOL DECISION WORKBENCH</div>' +
-        '<h1 class="home-hero-title" id="homeHeroTitle">说出你的任务，直接找到最适合的 AI 工具</h1>' +
-        '<div class="home-hero-desc">不用在工具列表里硬翻。输入场景、预算和访问要求，先让 AI 给出推荐，再看详情、问用法、点官网。</div>' +
+        '<h1 class="home-hero-title" id="homeHeroTitle">' + escapeHtml(heroCopy.title) + '</h1>' +
+        '<div class="home-hero-desc">' + escapeHtml(heroCopy.desc) + '</div>' +
         '<div class="home-hero-actions">' +
-        '<button class="home-hero-primary" type="button" onclick="openQuiz()">让 AI 帮我选工具</button>' +
-        '<button class="home-hero-secondary" type="button" onclick="selectTaskGuide(&quot;写作/PPT&quot;)">按任务快速筛选</button>' +
+        '<button class="home-hero-primary" type="button" onclick="openQuiz(&quot;hero_primary&quot;)">' + escapeHtml(heroCopy.primary) + '</button>' +
+        '<button class="home-hero-secondary" type="button" onclick="trackEvent(&quot;home_cta_click&quot;,{target:&quot;hero_task_filter&quot;,variant:getHeroCopy().key});selectTaskGuide(&quot;写作/PPT&quot;)">' + escapeHtml(heroCopy.secondary) + '</button>' +
         '</div>' +
         '<div class="home-hero-search">' +
         '<label class="sr-only" for="homeHeroSearch">搜索 AI 工具</label>' +
@@ -3479,6 +3532,7 @@
         hotNewsSection;
 
       board.dataset.built = '1';
+      trackHeroVariantView();
       setTimeout(initScrollSpy, 100);
       setTimeout(function() { loadHotNews('kr36'); }, 50);
     }
