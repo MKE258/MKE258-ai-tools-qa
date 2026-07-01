@@ -36,3 +36,4 @@
 - Added date-range filtering to the admin analytics dashboard and stats API.
 - Added CSV export for the loaded admin analytics dashboard data.
 - Added recommendation-source attribution for AI recommendation result actions.
+- Added recommendation-source tool rankings to the admin analytics dashboard.
