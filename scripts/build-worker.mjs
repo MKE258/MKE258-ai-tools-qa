@@ -677,7 +677,7 @@ async function handleAdminStats(request, env) {
   const userWhere = range.since ? " WHERE created_at >= ?" : "";
   const bind = (statement, params = []) => params.length ? statement.bind(...params) : statement;
 
-  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recommendationActions, recentEvents] = await Promise.all([
+  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recommendationActions, recommendationTools, recentEvents] = await Promise.all([
     bind(env.DB.prepare(
       "SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"
     ), range.since ? [range.since] : []).all(),
@@ -699,6 +699,7 @@ async function handleAdminStats(request, env) {
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'ask_tool' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'official_click' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT type, COUNT(*) AS count FROM events WHERE json_extract(payload_json, '$.source') = 'recommendation' AND type IN ('ask_tool', 'official_click', 'favorite_add')" + eventAnd + " GROUP BY type ORDER BY count DESC"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE json_extract(payload_json, '$.source') = 'recommendation' AND type IN ('ask_tool', 'official_click', 'favorite_add') AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT type, tool_slug AS slug, tool_name AS name, created_at FROM events" + eventWhere + " ORDER BY created_at DESC LIMIT 30"), range.since ? [range.since] : []).all()
   ]);
 
@@ -715,6 +716,7 @@ async function handleAdminStats(request, env) {
     askTools: askTools.results || [],
     officialClicks: officialClicks.results || [],
     recommendationActions: recommendationActions.results || [],
+    recommendationTools: recommendationTools.results || [],
     recentEvents: recentEvents.results || []
   }, { headers: corsHeaders() });
 }
