@@ -152,6 +152,7 @@
     <div class="dash-grid">
       <section class="dash-card wide"><h2>转化漏斗</h2><div class="funnel" id="funnelList"></div></section>
       <section class="dash-card wide"><h2>唯一用户/访客漏斗</h2><div class="funnel" id="uniqueFunnelList"></div></section>
+      <section class="dash-card wide"><h2>首屏文案实验</h2><div class="rank-list" id="heroVariantList"></div></section>
       <section class="dash-card wide"><h2>详情页内容质量</h2><div id="toolQualityBox"></div></section>
       <section class="dash-card"><h2>事件类型</h2><div class="rank-list" id="eventTypeList"></div></section>
       <section class="dash-card"><h2>热门搜索词</h2><div class="rank-list" id="searchTermList"></div></section>
@@ -165,6 +166,7 @@
       <section class="dash-card"><h2>AI 推荐后续动作</h2><div class="rank-list" id="recommendationActionList"></div></section>
       <section class="dash-card"><h2>AI 推荐工具排行</h2><div class="rank-list" id="recommendationToolList"></div></section>
       <section class="dash-card"><h2>AI 推荐点击率</h2><div class="rank-list" id="recommendationCtrList"></div></section>
+      <section class="dash-card"><h2>首页入口点击</h2><div class="rank-list" id="homeCtaList"></div></section>
       <section class="dash-card"><h2>最近事件</h2><div class="rank-list" id="recentEventList"></div></section>
     </div>
   </div>
@@ -379,6 +381,8 @@
       renderRankList("recommendationActionList", stats?.recommendationActions, item => item.type);
       renderRankList("recommendationToolList", stats?.recommendationTools, item => item.name || item.slug);
       renderRecommendationCtr(stats?.recommendationCtr);
+      renderHeroVariants(stats?.heroVariantStats);
+      renderHomeCta(stats?.homeCtaActions);
       renderFunnel("funnelList", stats?.funnel, "按事件数粗略观察，不代表独立用户归因。");
       renderFunnel("uniqueFunnelList", stats?.uniqueFunnel, "已登录用户按 user_id 去重，未登录访客按浏览器 visitorId 去重；上线前的匿名历史事件不计入。");
       renderToolQuality(stats?.toolQuality);
@@ -419,6 +423,26 @@
         const actions = Number(item.actions || 0);
         const rate = impressions ? Math.round(actions / impressions * 100) + "%" : "0%";
         return `<div class="rank-row"><span>${index + 1}</span><span class="rank-name">${escapeHtml(item.name || item.slug || "(空)")}</span><span class="rank-count">${actions}/${impressions} · ${rate}</span></div>`;
+      }).join("") : `<div class="empty">暂无数据</div>`;
+    }
+
+    function renderHeroVariants(items) {
+      const list = items || [];
+      $("heroVariantList").innerHTML = list.length ? list.map((item, index) => {
+        const views = Number(item.views || 0);
+        const ctaClicks = Number(item.cta_clicks || 0);
+        const recommendations = Number(item.recommendations || 0);
+        const ctaRate = views ? Math.round(ctaClicks / views * 100) + "%" : "0%";
+        const recommendRate = views ? Math.round(recommendations / views * 100) + "%" : "0%";
+        return `<div class="rank-row"><span>${index + 1}</span><span class="rank-name">${escapeHtml(item.variant || "unknown")}<div class="quality-missing">CTA ${ctaClicks}/${views} · ${ctaRate}，推荐 ${recommendations}/${views} · ${recommendRate}</div></span><span class="rank-count">${ctaRate}</span></div>`;
+      }).join("") : `<div class="empty">暂无数据</div>`;
+    }
+
+    function renderHomeCta(items) {
+      const list = items || [];
+      $("homeCtaList").innerHTML = list.length ? list.map((item, index) => {
+        const label = (item.target || "unknown") + " · " + (item.variant || "unknown");
+        return `<div class="rank-row"><span>${index + 1}</span><span class="rank-name">${escapeHtml(label)}</span><span class="rank-count">${Number(item.count || 0)}</span></div>`;
       }).join("") : `<div class="empty">暂无数据</div>`;
     }
 
@@ -509,6 +533,13 @@
       pushCsvSection(rows, "AI 推荐后续动作", ["排名", "动作", "slug", "数量"], statsData.recommendationActions, rank);
       pushCsvSection(rows, "AI 推荐工具排行", ["排名", "工具", "slug", "数量"], statsData.recommendationTools, rank);
       pushCsvSection(rows, "AI 推荐点击率", ["排名", "工具", "slug", "曝光", "动作", "点击率"], statsData.recommendationCtr, (item, index) => [index + 1, item.name || item.slug || "", item.slug || "", item.impressions || 0, item.actions || 0, item.impressions ? Math.round(Number(item.actions || 0) / Number(item.impressions || 1) * 100) + "%" : "0%"]);
+      pushCsvSection(rows, "首屏文案实验", ["排名", "变体", "曝光", "CTA点击", "推荐提交", "CTA率", "推荐率"], statsData.heroVariantStats, (item, index) => {
+        const views = Number(item.views || 0);
+        const ctaClicks = Number(item.cta_clicks || 0);
+        const recommendations = Number(item.recommendations || 0);
+        return [index + 1, item.variant || "", views, ctaClicks, recommendations, views ? Math.round(ctaClicks / views * 100) + "%" : "0%", views ? Math.round(recommendations / views * 100) + "%" : "0%"];
+      });
+      pushCsvSection(rows, "首页入口点击", ["排名", "入口", "变体", "数量"], statsData.homeCtaActions, (item, index) => [index + 1, item.target || "", item.variant || "", item.count || 0]);
       pushCsvSection(rows, "最近事件", ["排名", "类型", "工具", "时间"], statsData.recentEvents, (item, index) => [index + 1, item.type || "", item.name || item.slug || "", item.created_at || ""]);
       const csv = "\ufeff" + rows.map(row => row.map(csvCell).join(",")).join("\r\n");
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });

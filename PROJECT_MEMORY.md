@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `505b39ec-0029-46b3-831a-75aacda2900f`
-- Verified rollback version: `c36f4d23-4a54-4eaa-81de-75acc0ba0733`
-- Previous deployed version: `c36f4d23-4a54-4eaa-81de-75acc0ba0733`
+- Current deployed version: `ee7bee24-679d-45c0-bc9b-33bf64704a5c`
+- Verified rollback version: `505b39ec-0029-46b3-831a-75aacda2900f`
+- Previous deployed version: `505b39ec-0029-46b3-831a-75aacda2900f`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -94,6 +94,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Improved homepage and admin accessibility with visible focus states, clearer labels, keyboard-operable cards, and larger mobile touch targets.
 - Refined the homepage visual system into a clearer tool-workbench style and improved the tool detail modal information hierarchy.
 - Redesigned homepage tool discovery cards with decision pills, explicit "问 AI 怎么用" actions, collapsible category sections, and lower mobile default card density.
+- Added homepage CTA and hero-copy experiment analytics, strengthened AI recommendation result cards, and published SEO topic pages under `/topics/:slug`.
 
 ## Safety Rules
 
@@ -124,6 +125,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Tool detail page views use `tool_detail_view`; admin stats combine detail views, detail ask clicks, and detail official clicks into detail-page conversion-rate rankings.
 - Homepage first screen now uses a visible decision-workbench hero with AI selection, task filtering, search, and proof chips; tool detail pages use the same light decision-page visual language.
 - Homepage tool cards now operate as conversion decision cards: each card surfaces audience/price/filter context, keeps "问 AI 怎么用" as the primary action, and collapses long categories on mobile to reduce browsing fatigue.
+- Homepage hero copy has two localStorage-stable variants (`direct`, `workbench`); events `hero_variant_view` and `home_cta_click` feed admin stats and CSV export.
+- AI recommendation results now return three primary recommendations with match, best-for, caution, and next-step fields; recommendation events include the hero variant when available.
+- SEO topic pages currently live at `/topics/free-ai-tools`, `/topics/china-accessible-ai-tools`, `/topics/ai-writing-tools`, `/topics/ai-video-tools`, and `/topics/chatgpt-alternatives`; all are included in `/sitemap.xml`.
 - Admin stats include detail-page content quality scoring based on description length, direct question quality, valid URL, price, audience, tags, and filters; the dashboard ranks weakest tools first and CSV export includes missing fields.
 - The first quality pass fixed the 9 low-scoring tool pages: Grok, 文心一言, Midjourney, Flux, Adobe Firefly, Claude Code, Zapier AI, Beautiful.ai, and AutoGPT.
 - The first usable-to-excellent pass upgraded 10 high-priority tools: Claude, ChatGPT, DeepSeek, 通义千问, 讯飞星火, Suno, Manus, Notion AI, Perplexity, and WPS AI. Current local quality distribution is 22 excellent, 33 usable, 0 needs-work.
