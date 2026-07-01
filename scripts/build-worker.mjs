@@ -154,6 +154,31 @@ function toolSlug(name) {
   return ascii || encodeURIComponent(name);
 }
 
+function toolAccessStatus(tool) {
+  const filters = tool.filters || [];
+  if (filters.includes("国内直连")) return "国内直连";
+  return "视地区和账号而定";
+}
+
+function toolFitList(tool, category) {
+  const items = [];
+  if (tool.audience) items.push("适合" + tool.audience);
+  if (tool.price) items.push("预算接受" + tool.price + "的用户");
+  if ((tool.filters || []).includes("国内直连")) items.push("需要国内直连访问的人");
+  if ((tool.tags || []).length) items.push("关注" + tool.tags.slice(0, 2).join("、") + "场景的人");
+  if (!items.length) items.push("正在寻找" + category.name + "工具的人");
+  return items.slice(0, 4);
+}
+
+function toolMismatchList(tool) {
+  const items = [];
+  if (!String(tool.price || "").includes("免费")) items.push("只想长期免费使用的人，建议先看同类免费工具");
+  if (!(tool.filters || []).includes("国内直连")) items.push("必须稳定国内直连访问的人，需要先确认官网可用性");
+  if ((tool.tags || []).includes("开发者")) items.push("完全不想接触配置或技术概念的新手，可能需要更简单的替代工具");
+  if (!items.length) items.push("需求和" + (tool.audience || "目标用户") + "差异很大的人，建议先对比同类工具");
+  return items.slice(0, 3);
+}
+
 function renderToolPage(found, url) {
   const { category, tool } = found;
   const related = category.tools
@@ -162,6 +187,15 @@ function renderToolPage(found, url) {
   const canonical = url.origin + "/tools/" + toolSlug(tool.name);
   const title = tool.name + " 使用指南 - AI工具教程助手";
   const description = tool.desc || (tool.name + " 工具介绍、适合人群、价格和替代工具。");
+  const askQuestion = tool.q || (tool.name + " 怎么用，适合哪些场景？");
+  const askHref = "/?tool=" + encodeURIComponent(tool.name) + "&q=" + encodeURIComponent(askQuestion);
+  const officialUrl = tool.url || "/";
+  const accessStatus = toolAccessStatus(tool);
+  const fitList = toolFitList(tool, category);
+  const mismatchList = toolMismatchList(tool);
+  const allChips = (tool.tags || []).concat(tool.filters || []);
+  const escapedName = escapeHtml(tool.name);
+  const escapedSlug = escapeHtml(toolSlug(tool.name));
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -183,34 +217,39 @@ function renderToolPage(found, url) {
     '<link rel="canonical" href="' + escapeHtml(canonical) + '">' +
     '<script type="application/ld+json">' + JSON.stringify(jsonLd).replace(/</g, "\\\\u003c") + '</script>' +
     '<style>' +
-    ':root{--bg:#f6f7f9;--panel:#fff;--text:#172033;--muted:#667085;--line:#d8dde7;--accent:#c96a2a}' +
-    '*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.7}' +
-    'main{width:min(980px,calc(100% - 28px));margin:0 auto;padding:28px 0 42px}' +
-    'a{color:inherit;text-decoration:none}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}' +
-    '.back,.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 12px}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}' +
-    '.hero,.section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:14px}' +
-    'h1{margin:0 0 8px;font-size:34px;line-height:1.2}.cat{color:var(--accent);font-weight:700}.desc{color:var(--muted);font-size:16px}' +
-    '.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.meta{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fafafa}.meta b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}' +
-    '.chips{display:flex;flex-wrap:wrap;gap:7px}.chip{background:#eef2f7;border-radius:999px;padding:5px 9px;color:#475467;font-size:13px}' +
-    '.related{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.card{border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px}.card p{margin:4px 0 0;color:var(--muted);font-size:13px}' +
-    '@media(max-width:720px){h1{font-size:28px}.grid,.related{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}' +
+    ':root{--bg:#f6f7f9;--panel:#fff;--text:#172033;--muted:#667085;--line:#d8dde7;--soft:#f1f5f9;--accent:#c96a2a;--accent2:#0f766e;--focus:#2563eb}' +
+    '*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#fff 0,#f6f7f9 260px);color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.7}' +
+    'main{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:24px 0 48px}a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible{outline:3px solid rgba(37,99,235,.35);outline-offset:3px}' +
+    '.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}.back,.btn{min-height:44px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px 14px;display:inline-flex;align-items:center;justify-content:center;font-weight:700}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.secondary{background:#fff;color:var(--accent)}' +
+    '.hero{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px;margin-bottom:16px;display:grid;grid-template-columns:1fr 320px;gap:24px}.eyebrow{color:var(--accent);font-weight:800;margin-bottom:8px}.hero h1{margin:0 0 10px;font-size:38px;line-height:1.18;letter-spacing:0}.desc{color:var(--muted);font-size:17px;max-width:720px}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.side-panel{border:1px solid var(--line);border-radius:12px;background:#fafafa;padding:16px}.side-panel h2{font-size:18px;margin:0 0 10px}.quick-list{display:grid;gap:8px}.quick-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #e6eaf1;padding:8px 0}.quick-row:last-child{border-bottom:0}.quick-row b{color:var(--muted);font-size:13px}.quick-row span{text-align:right;font-weight:700}' +
+    '.layout{display:grid;grid-template-columns:1fr 320px;gap:16px}.section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:14px}.section h2{margin:0 0 12px;font-size:22px;line-height:1.3}.section p{margin:0;color:var(--muted)}.decision-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.decision-box{border:1px solid var(--line);border-radius:10px;background:#fff;padding:14px}.decision-box strong{display:block;margin-bottom:8px}.decision-box ul,.steps{margin:0;padding-left:20px;color:#475467}.decision-box li,.steps li{margin:5px 0}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.chip{background:#eef2f7;border-radius:999px;padding:6px 10px;color:#475467;font-size:13px}.sticky{position:sticky;top:16px}.related{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{border:1px solid var(--line);border-radius:10px;background:#fff;padding:13px;min-height:96px}.card:hover{border-color:var(--accent);box-shadow:0 10px 24px rgba(15,23,42,.08)}.card p{margin:4px 0 0;color:var(--muted);font-size:13px}.note{font-size:13px;color:var(--muted);margin-top:12px}' +
+    '@media(max-width:860px){main{width:min(100% - 28px,680px)}.hero,.layout{grid-template-columns:1fr}.hero{padding:22px}.hero h1{font-size:30px}.decision-grid,.related{grid-template-columns:1fr}.top{align-items:stretch;flex-direction:column}.top .btn,.top .back{width:100%}.sticky{position:static}}' +
     '</style></head><body><main>' +
-    '<div class="top"><a class="back" href="/">← 返回工具导航</a><a class="btn primary" href="' + escapeHtml(tool.url || "/") + '" target="_blank" rel="noopener noreferrer">去官网</a></div>' +
-    '<section class="hero"><div class="cat">' + escapeHtml(category.icon + " " + category.name) + '</div>' +
-    '<h1>' + escapeHtml(tool.name) + '</h1><div class="desc">' + escapeHtml(description) + '</div>' +
-    '<div class="grid">' +
-    '<div class="meta"><b>价格</b>' + escapeHtml(tool.price || "查看官网") + '</div>' +
-    '<div class="meta"><b>适合人群</b>' + escapeHtml(tool.audience || "通用用户") + '</div>' +
-    '<div class="meta"><b>访问状态</b>' + escapeHtml((tool.filters || []).includes("国内直连") ? "国内直连" : "视地区而定") + '</div>' +
+    '<div class="top"><a class="back" href="/">返回工具导航</a><a class="btn secondary" href="/?tool=' + encodeURIComponent(tool.name) + '">在首页查看</a></div>' +
+    '<section class="hero"><div><div class="eyebrow">' + escapeHtml(category.icon + " " + category.name) + '</div>' +
+    '<h1>' + escapedName + '</h1><div class="desc">' + escapeHtml(description) + '</div>' +
+    '<div class="hero-actions"><a class="btn primary" href="' + escapeHtml(askHref) + '" onclick="trackDetailEvent(\\'ask_tool\\')">问 AI 怎么用</a><a class="btn secondary" href="' + escapeHtml(officialUrl) + '" target="_blank" rel="noopener noreferrer" onclick="trackDetailEvent(\\'official_click\\')">去官网</a></div></div>' +
+    '<aside class="side-panel" aria-label="工具关键信息"><h2>快速判断</h2><div class="quick-list">' +
+    '<div class="quick-row"><b>价格</b><span>' + escapeHtml(tool.price || "查看官网") + '</span></div>' +
+    '<div class="quick-row"><b>适合人群</b><span>' + escapeHtml(tool.audience || "通用用户") + '</span></div>' +
+    '<div class="quick-row"><b>访问状态</b><span>' + escapeHtml(accessStatus) + '</span></div>' +
+    '</div><div class="note">价格、额度和访问状态变化较快，正式使用前以官网为准。</div></aside></section>' +
+    '<div class="layout"><div>' +
+    '<section class="section"><h2>这个工具适合谁</h2><div class="decision-grid"><div class="decision-box"><strong>更适合</strong><ul>' +
+    fitList.map((item) => '<li>' + escapeHtml(item) + '</li>').join('') +
+    '</ul></div><div class="decision-box"><strong>可能不适合</strong><ul>' +
+    mismatchList.map((item) => '<li>' + escapeHtml(item) + '</li>').join('') +
+    '</ul></div></div><div class="chips">' +
+    allChips.map((tag) => '<span class="chip">' + escapeHtml(tag) + '</span>').join('') +
     '</div></section>' +
-    '<section class="section"><h2>适合用来做什么</h2><p>' + escapeHtml(tool.q || (tool.name + " 怎么用")) + '</p><div class="chips">' +
-    (tool.tags || []).concat(tool.filters || []).map((tag) => '<span class="chip">' + escapeHtml(tag) + '</span>').join('') +
-    '</div></section>' +
-    '<section class="section"><h2>使用建议</h2><p>点击首页工具卡片可以直接向 AI 提问。价格、额度和可访问性变化较快，正式使用前建议以官网信息为准。</p></section>' +
+    '<section class="section"><h2>推荐先这样试</h2><ol class="steps"><li>先用这个问题测试：' + escapeHtml(askQuestion) + '</li><li>如果输出质量合适，再去官网确认价格、额度和账号要求。</li><li>如果不匹配，继续对比下面的同类工具。</li></ol></section>' +
     '<section class="section"><h2>同类工具</h2><div class="related">' +
     related.map((item) => '<a class="card" href="/tools/' + toolSlug(item.name) + '"><strong>' + escapeHtml(item.name) + '</strong><p>' + escapeHtml(item.desc || "") + '</p></a>').join('') +
-    '</div></section>' +
-    '</main></body></html>';
+    '</div></section></div>' +
+    '<aside class="side-panel sticky"><h2>下一步</h2><p>不确定是否适合时，先让 AI 按你的场景解释用法，再决定是否去官网注册。</p><div class="hero-actions"><a class="btn primary" href="' + escapeHtml(askHref) + '" onclick="trackDetailEvent(\\'ask_tool\\')">问 AI 怎么用</a><a class="btn secondary" href="/?tool=' + encodeURIComponent(tool.name) + '">查看首页卡片</a></div></aside></div>' +
+    '</main>' +
+    '<script>function detailVisitorId(){try{var id=localStorage.getItem("ait_visitor_id");if(!id){id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));localStorage.setItem("ait_visitor_id",id)}return id}catch(e){return ""}}function trackDetailEvent(type){try{fetch("/api/events",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:type,visitorId:detailVisitorId(),toolName:"' + escapedName + '",toolSlug:"' + escapedSlug + '",source:"tool_detail"})})}catch(e){}}</script>' +
+    '</body></html>';
 }
 
 function renderSitemap(url) {

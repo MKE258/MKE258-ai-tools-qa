@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `3a9f6013-1047-425a-b395-29ab5b87eb28`
-- Verified rollback version: `63cc6396-fa25-4089-a873-5106d245cf3b`
-- Previous deployed version: `63cc6396-fa25-4089-a873-5106d245cf3b`
+- Current deployed version: `1e6887fe-5b74-41ac-bc1c-42bf9299f424`
+- Verified rollback version: `3a9f6013-1047-425a-b395-29ab5b87eb28`
+- Previous deployed version: `3a9f6013-1047-425a-b395-29ab5b87eb28`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -118,3 +118,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - AI recommendation result actions use `source=recommendation` in analytics payloads and are surfaced in admin stats.
 - Admin stats include recommendation-source action totals and tool rankings for `source=recommendation` events.
 - Recommendation result impressions use `recommendation_impression`; recommendation CTR only includes rows with a non-empty `recommendationId` to avoid mixing older action-only events into CTR.
+- Tool detail pages are conversion decision pages with quick fit information, fit/mismatch guidance, trial steps, related tools, and `source=tool_detail` analytics for ask/official-click CTAs.
