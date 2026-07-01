@@ -42,3 +42,4 @@
 - Added detail-page ask and official-click rankings to the admin analytics dashboard and CSV export.
 - Added tool detail page view tracking and detail-page conversion-rate analytics.
 - Redesigned the homepage first screen into a clearer AI tool decision workbench and tightened the tool detail page visual hierarchy.
+- Added protected admin detail-page content quality scoring with low-score tool rankings and CSV export.
