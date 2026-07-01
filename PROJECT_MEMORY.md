@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `c36f4d23-4a54-4eaa-81de-75acc0ba0733`
-- Verified rollback version: `663546a6-3236-4ae3-b9cd-0d3bbb47c1f9`
-- Previous deployed version: `663546a6-3236-4ae3-b9cd-0d3bbb47c1f9`
+- Current deployed version: `505b39ec-0029-46b3-831a-75aacda2900f`
+- Verified rollback version: `c36f4d23-4a54-4eaa-81de-75acc0ba0733`
+- Previous deployed version: `c36f4d23-4a54-4eaa-81de-75acc0ba0733`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -93,6 +93,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Improved `/admin` offline maintenance with current-category search, data validation summary, safer JSON import errors, and escaped list rendering.
 - Improved homepage and admin accessibility with visible focus states, clearer labels, keyboard-operable cards, and larger mobile touch targets.
 - Refined the homepage visual system into a clearer tool-workbench style and improved the tool detail modal information hierarchy.
+- Redesigned homepage tool discovery cards with decision pills, explicit "问 AI 怎么用" actions, collapsible category sections, and lower mobile default card density.
 
 ## Safety Rules
 
@@ -122,6 +123,7 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Admin stats separately surface `source=tool_detail` ask-tool and official-click rankings so detail-page SEO conversion can be monitored.
 - Tool detail page views use `tool_detail_view`; admin stats combine detail views, detail ask clicks, and detail official clicks into detail-page conversion-rate rankings.
 - Homepage first screen now uses a visible decision-workbench hero with AI selection, task filtering, search, and proof chips; tool detail pages use the same light decision-page visual language.
+- Homepage tool cards now operate as conversion decision cards: each card surfaces audience/price/filter context, keeps "问 AI 怎么用" as the primary action, and collapses long categories on mobile to reduce browsing fatigue.
 - Admin stats include detail-page content quality scoring based on description length, direct question quality, valid URL, price, audience, tags, and filters; the dashboard ranks weakest tools first and CSV export includes missing fields.
 - The first quality pass fixed the 9 low-scoring tool pages: Grok, 文心一言, Midjourney, Flux, Adobe Firefly, Claude Code, Zapier AI, Beautiful.ai, and AutoGPT.
 - The first usable-to-excellent pass upgraded 10 high-priority tools: Claude, ChatGPT, DeepSeek, 通义千问, 讯飞星火, Suno, Manus, Notion AI, Perplexity, and WPS AI. Current local quality distribution is 22 excellent, 33 usable, 0 needs-work.
