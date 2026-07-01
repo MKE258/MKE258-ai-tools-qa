@@ -62,9 +62,9 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 
 ## Current Production State
 
-- Current deployed version: `63cc6396-fa25-4089-a873-5106d245cf3b`
-- Verified rollback version: `92b0fd65-2930-4dd1-9739-41e414cfebfb`
-- Previous deployed version: `92b0fd65-2930-4dd1-9739-41e414cfebfb`
+- Current deployed version: `3a9f6013-1047-425a-b395-29ab5b87eb28`
+- Verified rollback version: `63cc6396-fa25-4089-a873-5106d245cf3b`
+- Previous deployed version: `63cc6396-fa25-4089-a873-5106d245cf3b`
 - Backup commit: `4a2a141`
 
 ## Completed Work
@@ -117,3 +117,4 @@ Any UI optimization must preserve existing frontend calls to `/ask`, `/image`, a
 - Admin dashboard CSV export is client-side only and uses the already loaded stats payload.
 - AI recommendation result actions use `source=recommendation` in analytics payloads and are surfaced in admin stats.
 - Admin stats include recommendation-source action totals and tool rankings for `source=recommendation` events.
+- Recommendation result impressions use `recommendation_impression`; recommendation CTR only includes rows with a non-empty `recommendationId` to avoid mixing older action-only events into CTR.
