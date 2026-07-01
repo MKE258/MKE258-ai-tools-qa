@@ -8,7 +8,7 @@ const worker = `const HTML = ${JSON.stringify(html)};
 const ADMIN_HTML = ${JSON.stringify(adminHtml)};
 const TOOLS_JSON = ${JSON.stringify(toolsJson)};
 const TOOLS_DATA = JSON.parse(TOOLS_JSON);
-const ALLOWED_EVENT_TYPES = new Set(["tool_click", "official_click", "ask_tool", "question", "recommend", "favorite_add", "favorite_remove", "quiz_open", "search", "recommendation_impression"]);
+const ALLOWED_EVENT_TYPES = new Set(["tool_click", "official_click", "ask_tool", "question", "recommend", "favorite_add", "favorite_remove", "quiz_open", "search", "recommendation_impression", "tool_detail_view"]);
 
 export default {
   async fetch(request, env) {
@@ -248,7 +248,7 @@ function renderToolPage(found, url) {
     '</div></section></div>' +
     '<aside class="side-panel sticky"><h2>下一步</h2><p>不确定是否适合时，先让 AI 按你的场景解释用法，再决定是否去官网注册。</p><div class="hero-actions"><a class="btn primary" href="' + escapeHtml(askHref) + '" onclick="trackDetailEvent(\\'ask_tool\\')">问 AI 怎么用</a><a class="btn secondary" href="/?tool=' + encodeURIComponent(tool.name) + '">查看首页卡片</a></div></aside></div>' +
     '</main>' +
-    '<script>function detailVisitorId(){try{var id=localStorage.getItem("ait_visitor_id");if(!id){id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));localStorage.setItem("ait_visitor_id",id)}return id}catch(e){return ""}}function trackDetailEvent(type){try{fetch("/api/events",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:type,visitorId:detailVisitorId(),toolName:"' + escapedName + '",toolSlug:"' + escapedSlug + '",source:"tool_detail"})})}catch(e){}}</script>' +
+    '<script>function detailVisitorId(){try{var id=localStorage.getItem("ait_visitor_id");if(!id){id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));localStorage.setItem("ait_visitor_id",id)}return id}catch(e){return ""}}function trackDetailEvent(type){try{fetch("/api/events",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:type,visitorId:detailVisitorId(),toolName:"' + escapedName + '",toolSlug:"' + escapedSlug + '",source:"tool_detail"})})}catch(e){}}trackDetailEvent("tool_detail_view");</script>' +
     '</body></html>';
 }
 
@@ -717,7 +717,7 @@ async function handleAdminStats(request, env) {
   const userWhere = range.since ? " WHERE created_at >= ?" : "";
   const bind = (statement, params = []) => params.length ? statement.bind(...params) : statement;
 
-  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recommendationActions, recommendationTools, recommendationCtr, detailAskTools, detailOfficialClicks, recentEvents] = await Promise.all([
+  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recommendationActions, recommendationTools, recommendationCtr, detailAskTools, detailOfficialClicks, detailConversion, recentEvents] = await Promise.all([
     bind(env.DB.prepare(
       "SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"
     ), range.since ? [range.since] : []).all(),
@@ -743,6 +743,7 @@ async function handleAdminStats(request, env) {
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, SUM(CASE WHEN type = 'recommendation_impression' THEN 1 ELSE 0 END) AS impressions, SUM(CASE WHEN type IN ('ask_tool', 'official_click', 'favorite_add') THEN 1 ELSE 0 END) AS actions FROM events WHERE tool_slug IS NOT NULL AND json_extract(payload_json, '$.recommendationId') IS NOT NULL AND json_extract(payload_json, '$.recommendationId') != '' AND (type = 'recommendation_impression' OR (json_extract(payload_json, '$.source') = 'recommendation' AND type IN ('ask_tool', 'official_click', 'favorite_add')))" + eventAnd + " GROUP BY tool_slug, tool_name HAVING impressions > 0 ORDER BY actions * 1.0 / impressions DESC, actions DESC, impressions DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'ask_tool' AND json_extract(payload_json, '$.source') = 'tool_detail' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'official_click' AND json_extract(payload_json, '$.source') = 'tool_detail' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, SUM(CASE WHEN type = 'tool_detail_view' THEN 1 ELSE 0 END) AS views, SUM(CASE WHEN type = 'ask_tool' THEN 1 ELSE 0 END) AS asks, SUM(CASE WHEN type = 'official_click' THEN 1 ELSE 0 END) AS official_clicks FROM events WHERE tool_slug IS NOT NULL AND json_extract(payload_json, '$.source') = 'tool_detail' AND type IN ('tool_detail_view', 'ask_tool', 'official_click')" + eventAnd + " GROUP BY tool_slug, tool_name HAVING views > 0 ORDER BY (asks + official_clicks) * 1.0 / views DESC, asks + official_clicks DESC, views DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT type, tool_slug AS slug, tool_name AS name, created_at FROM events" + eventWhere + " ORDER BY created_at DESC LIMIT 30"), range.since ? [range.since] : []).all()
   ]);
 
@@ -763,6 +764,11 @@ async function handleAdminStats(request, env) {
     recommendationCtr: (recommendationCtr.results || []).map((item) => ({ ...item, rate: Number(item.impressions || 0) ? Number(item.actions || 0) / Number(item.impressions || 0) : 0 })),
     detailAskTools: detailAskTools.results || [],
     detailOfficialClicks: detailOfficialClicks.results || [],
+    detailConversion: (detailConversion.results || []).map((item) => ({
+      ...item,
+      askRate: Number(item.views || 0) ? Number(item.asks || 0) / Number(item.views || 0) : 0,
+      officialRate: Number(item.views || 0) ? Number(item.official_clicks || 0) / Number(item.views || 0) : 0
+    })),
     recentEvents: recentEvents.results || []
   }, { headers: corsHeaders() });
 }
