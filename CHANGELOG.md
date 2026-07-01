@@ -39,3 +39,4 @@
 - Added recommendation-source tool rankings to the admin analytics dashboard.
 - Added recommendation result impression tracking and recommendation CTR analytics.
 - Improved tool detail pages into conversion-focused decision pages with clearer CTAs, fit guidance, trial steps, and detail-page analytics.
+- Added detail-page ask and official-click rankings to the admin analytics dashboard and CSV export.

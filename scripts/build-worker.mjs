@@ -717,7 +717,7 @@ async function handleAdminStats(request, env) {
   const userWhere = range.since ? " WHERE created_at >= ?" : "";
   const bind = (statement, params = []) => params.length ? statement.bind(...params) : statement;
 
-  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recommendationActions, recommendationTools, recommendationCtr, recentEvents] = await Promise.all([
+  const [topTools, eventTypes, totals, funnel, uniqueFunnel, favoriteTools, searchTerms, toolClicks, askTools, officialClicks, recommendationActions, recommendationTools, recommendationCtr, detailAskTools, detailOfficialClicks, recentEvents] = await Promise.all([
     bind(env.DB.prepare(
       "SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"
     ), range.since ? [range.since] : []).all(),
@@ -741,6 +741,8 @@ async function handleAdminStats(request, env) {
     bind(env.DB.prepare("SELECT type, COUNT(*) AS count FROM events WHERE json_extract(payload_json, '$.source') = 'recommendation' AND type IN ('ask_tool', 'official_click', 'favorite_add')" + eventAnd + " GROUP BY type ORDER BY count DESC"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE json_extract(payload_json, '$.source') = 'recommendation' AND type IN ('ask_tool', 'official_click', 'favorite_add') AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, SUM(CASE WHEN type = 'recommendation_impression' THEN 1 ELSE 0 END) AS impressions, SUM(CASE WHEN type IN ('ask_tool', 'official_click', 'favorite_add') THEN 1 ELSE 0 END) AS actions FROM events WHERE tool_slug IS NOT NULL AND json_extract(payload_json, '$.recommendationId') IS NOT NULL AND json_extract(payload_json, '$.recommendationId') != '' AND (type = 'recommendation_impression' OR (json_extract(payload_json, '$.source') = 'recommendation' AND type IN ('ask_tool', 'official_click', 'favorite_add')))" + eventAnd + " GROUP BY tool_slug, tool_name HAVING impressions > 0 ORDER BY actions * 1.0 / impressions DESC, actions DESC, impressions DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'ask_tool' AND json_extract(payload_json, '$.source') = 'tool_detail' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
+    bind(env.DB.prepare("SELECT tool_slug AS slug, tool_name AS name, COUNT(*) AS count FROM events WHERE type = 'official_click' AND json_extract(payload_json, '$.source') = 'tool_detail' AND tool_slug IS NOT NULL" + eventAnd + " GROUP BY tool_slug, tool_name ORDER BY count DESC LIMIT 20"), range.since ? [range.since] : []).all(),
     bind(env.DB.prepare("SELECT type, tool_slug AS slug, tool_name AS name, created_at FROM events" + eventWhere + " ORDER BY created_at DESC LIMIT 30"), range.since ? [range.since] : []).all()
   ]);
 
@@ -759,6 +761,8 @@ async function handleAdminStats(request, env) {
     recommendationActions: recommendationActions.results || [],
     recommendationTools: recommendationTools.results || [],
     recommendationCtr: (recommendationCtr.results || []).map((item) => ({ ...item, rate: Number(item.impressions || 0) ? Number(item.actions || 0) / Number(item.impressions || 0) : 0 })),
+    detailAskTools: detailAskTools.results || [],
+    detailOfficialClicks: detailOfficialClicks.results || [],
     recentEvents: recentEvents.results || []
   }, { headers: corsHeaders() });
 }
