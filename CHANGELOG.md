@@ -41,3 +41,4 @@
 - Improved tool detail pages into conversion-focused decision pages with clearer CTAs, fit guidance, trial steps, and detail-page analytics.
 - Added detail-page ask and official-click rankings to the admin analytics dashboard and CSV export.
 - Added tool detail page view tracking and detail-page conversion-rate analytics.
+- Redesigned the homepage first screen into a clearer AI tool decision workbench and tightened the tool detail page visual hierarchy.

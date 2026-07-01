@@ -212,6 +212,28 @@
     .tool-ask:hover { opacity:0.88; transform:none; }
 
     /* ── Directory listing ── */
+    .home-hero { background:linear-gradient(135deg,#fff 0%,#f7faf9 54%,#fff7ed 100%); border:1px solid var(--border); border-radius:var(--rxl); padding:28px; margin-bottom:18px; display:grid; grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr); gap:24px; align-items:stretch; box-shadow:var(--shadow-md); overflow:hidden; position:relative; }
+    .home-hero::before { content:''; position:absolute; left:0; right:0; top:0; height:4px; background:linear-gradient(90deg,var(--accent),#0f766e,#2563eb); }
+    .home-hero-kicker { font-family:'DM Mono',monospace; font-size:11px; color:var(--accent); letter-spacing:0.12em; text-transform:uppercase; font-weight:700; margin-bottom:10px; }
+    .home-hero-title { font-size:34px; line-height:1.16; letter-spacing:0; color:var(--text); font-weight:900; max-width:720px; margin-bottom:12px; }
+    .home-hero-desc { color:var(--text2); font-size:15px; line-height:1.75; max-width:680px; margin-bottom:18px; }
+    .home-hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+    .home-hero-primary,.home-hero-secondary { min-height:46px; border-radius:var(--rl); padding:0 18px; font-family:inherit; font-weight:850; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; transition:all 0.15s; }
+    .home-hero-primary { border:1px solid var(--accent); background:var(--accent); color:#fff; box-shadow:0 12px 28px var(--accent-glow); }
+    .home-hero-primary:hover { background:var(--accent-strong); border-color:var(--accent-strong); }
+    .home-hero-secondary { border:1px solid var(--border); background:var(--bg2); color:var(--text); }
+    .home-hero-secondary:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
+    .home-hero-search { display:flex; max-width:620px; border:1px solid var(--border); border-radius:var(--rl); overflow:hidden; background:var(--bg2); box-shadow:var(--shadow-sm); }
+    .home-hero-search input { flex:1; min-width:0; border:none; background:transparent; color:var(--text); font-size:15px; padding:14px 16px; font-family:inherit; outline:none; }
+    .home-hero-search button { border:none; border-left:1px solid var(--border); background:#0f766e; color:#fff; padding:0 18px; font-weight:800; font-family:inherit; cursor:pointer; white-space:nowrap; }
+    .home-hero-proof { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; color:var(--text2); font-size:12px; }
+    .home-hero-proof span { border:1px solid var(--border); background:rgba(255,255,255,.72); border-radius:999px; padding:6px 10px; }
+    .home-hero-panel { border:1px solid var(--border); background:rgba(255,255,255,.72); border-radius:var(--rxl); padding:18px; display:flex; flex-direction:column; gap:12px; }
+    .hero-step { display:grid; grid-template-columns:34px 1fr; gap:10px; align-items:start; padding-bottom:12px; border-bottom:1px solid var(--border); }
+    .hero-step:last-child { border-bottom:0; padding-bottom:0; }
+    .hero-step-num { width:34px; height:34px; border-radius:10px; background:var(--accent-bg); color:var(--accent); display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-weight:800; }
+    .hero-step strong { display:block; font-size:14px; color:var(--text); margin-bottom:3px; }
+    .hero-step span { display:block; font-size:12px; color:var(--text2); line-height:1.55; }
     .dir-banner { background:linear-gradient(135deg, var(--bg2), rgba(255,255,255,0.72)); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:var(--rxl); padding:16px 20px; margin-bottom:16px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow-sm); }
     .dir-banner-icon { font-size:18px; flex-shrink:0; width:30px; height:30px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; color:#fff; background:linear-gradient(135deg,var(--accent-strong),var(--accent)); box-shadow:0 8px 20px var(--accent-glow); }
     .dir-banner-title { font-size:15px; font-weight:800; color:var(--text); }
@@ -238,9 +260,10 @@
     .quiz-result-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
     .quiz-result-actions button,.quiz-result-actions a { border:1px solid var(--border); background:var(--bg2); color:var(--text2); border-radius:var(--r); padding:7px 10px; font-size:12px; cursor:pointer; text-decoration:none; font-family:inherit; }
     .quiz-result-actions .primary { background:var(--accent); border-color:var(--accent); color:#fff; }
-    .mobile-ai-entry { display:none; position:fixed; left:14px; right:14px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:650; border:none; background:var(--accent); color:#fff; min-height:48px; border-radius:var(--rl); font-weight:850; box-shadow:0 12px 30px var(--accent-glow); font-family:inherit; }
+    .mobile-ai-entry { display:none; position:fixed; right:14px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:650; border:none; background:var(--accent); color:#fff; min-height:44px; border-radius:999px; padding:0 14px; font-size:13px; font-weight:850; box-shadow:0 12px 30px var(--accent-glow); font-family:inherit; }
     @media (max-width:900px) { .task-grid { grid-template-columns:repeat(2,1fr); } }
-    @media (max-width:600px) { .task-grid { grid-template-columns:1fr; } }
+    @media (max-width:760px) { .home-hero { grid-template-columns:1fr; padding:22px; } .home-hero-title { font-size:28px; } .home-hero-panel { padding:14px; } }
+    @media (max-width:600px) { .task-grid { grid-template-columns:1fr; } .home-hero { padding:18px 18px 86px; margin-bottom:14px; } .home-hero-title { font-size:25px; } .home-hero-desc { font-size:14px; } .home-hero-actions { flex-direction:column; } .home-hero-primary,.home-hero-secondary { width:100%; } .home-hero-search { flex-direction:column; } .home-hero-search button { border-left:0; border-top:1px solid var(--border); min-height:44px; } }
     .dir-section { margin-bottom:30px; }
     .dir-section-title { font-size:16px; font-weight:800; color:var(--text); margin-bottom:13px; display:flex; align-items:center; gap:8px; }
     .dir-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
@@ -3286,19 +3309,35 @@
       }).join('');
 
       const totalTools = CATS.reduce(function(s, c) { return s + c.tools.length; }, 0);
+      const hero =
+        '<section class="home-hero" aria-labelledby="homeHeroTitle">' +
+        '<div>' +
+        '<div class="home-hero-kicker">AI TOOL DECISION WORKBENCH</div>' +
+        '<h1 class="home-hero-title" id="homeHeroTitle">说出你的任务，直接找到最适合的 AI 工具</h1>' +
+        '<div class="home-hero-desc">不用在工具列表里硬翻。输入场景、预算和访问要求，先让 AI 给出推荐，再看详情、问用法、点官网。</div>' +
+        '<div class="home-hero-actions">' +
+        '<button class="home-hero-primary" type="button" onclick="openQuiz()">让 AI 帮我选工具</button>' +
+        '<button class="home-hero-secondary" type="button" onclick="selectTaskGuide(&quot;写作/PPT&quot;)">按任务快速筛选</button>' +
+        '</div>' +
+        '<div class="home-hero-search">' +
+        '<label class="sr-only" for="homeHeroSearch">搜索 AI 工具</label>' +
+        '<input id="homeHeroSearch" placeholder="搜索 ChatGPT、Cursor、剪视频、做 PPT…" oninput="searchTools(this.value)" onkeydown="if(event.key===&quot;Enter&quot;){var v=this.value.trim();if(v){searchTools(v);}}">' +
+        '<button type="button" onclick="var el=document.getElementById(&quot;homeHeroSearch&quot;);searchTools(el ? el.value : &quot;&quot;)">搜索工具</button>' +
+        '</div>' +
+        '<div class="home-hero-proof"><span>' + totalTools + '+ 精选工具</span><span>' + CATS.length + ' 大分类</span><span>支持收藏和对比</span><span>详情页可问 AI 用法</span></div>' +
+        '</div>' +
+        '<div class="home-hero-panel" aria-label="工具选择闭环">' +
+        '<div class="hero-step"><div class="hero-step-num">01</div><div><strong>先描述任务</strong><span>比如做短视频、写方案、写代码、查资料。</span></div></div>' +
+        '<div class="hero-step"><div class="hero-step-num">02</div><div><strong>再筛选条件</strong><span>按免费、国内直连、学生、职场、开发者等场景过滤。</span></div></div>' +
+        '<div class="hero-step"><div class="hero-step-num">03</div><div><strong>最后行动</strong><span>问 AI 怎么用、看详情页、收藏工具或直达官网。</span></div></div>' +
+        '</div>' +
+        '</section>';
       const banner =
         '<div class="dir-banner">' +
         '<span class="dir-banner-icon">✦</span>' +
         '<span class="dir-banner-title">AI 工具导航</span>' +
         '<span class="dir-banner-sep">·</span>' +
         '<span class="dir-banner-sub">收录 ' + totalTools + '+ 精选工具，' + CATS.length + ' 大分类，搜索工具或让 AI 直接帮你选</span>' +
-        '</div>';
-
-      const aiEntry =
-        '<div class="home-ai-entry">' +
-        '<div><div class="home-ai-title">不知道该用哪个 AI 工具？</div>' +
-        '<div class="home-ai-desc">说出任务、预算和使用地区，AI 会给你推荐工具，并支持收藏、问用法、直达官网。</div></div>' +
-        '<button class="home-ai-cta" type="button" onclick="openQuiz()">让 AI 帮我选工具</button>' +
         '</div>';
 
       const taskPanel =
@@ -3340,8 +3379,8 @@
         '<button class="scene-chip" type="button" data-scene="设计师" onclick="filterByScene(this,true)">🎨 设计师</button>' +
         '</div>';
 
-      board.innerHTML = banner +
-        aiEntry +
+      board.innerHTML = hero +
+        banner +
         taskPanel +
         hotSearchBar +
         sceneBar +
