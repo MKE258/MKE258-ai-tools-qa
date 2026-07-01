@@ -2017,12 +2017,12 @@
       accountState.serverFavs = new Set((data.items || []).map(function(item) { return item.name; }).filter(Boolean));
       saveFavTools(accountState.serverFavs);
     }
-    async function saveServerFavorite(name, enabled, source) {
+    async function saveServerFavorite(name, enabled, source, recommendationId) {
       const tool = findTool(name)?.t || { name: name };
       return apiFetch('/api/favorites', {
         method: enabled ? 'POST' : 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toolName: tool.name, toolSlug: toolSlug(tool.name), source: source || '' })
+        body: JSON.stringify({ toolName: tool.name, toolSlug: toolSlug(tool.name), source: source || '', recommendationId: recommendationId || '' })
       });
     }
     function updateFavButtons() {
@@ -2472,7 +2472,7 @@
 
     function jumpToChat(q, meta) {
       if (meta && meta.toolName) {
-        trackEvent('ask_tool', { toolName: meta.toolName, toolSlug: toolSlug(meta.toolName), question: q, source: meta.source || '' });
+        trackEvent('ask_tool', { toolName: meta.toolName, toolSlug: toolSlug(meta.toolName), question: q, source: meta.source || '', recommendationId: meta.recommendationId || '' });
       }
       const chatSec = document.getElementById('chatSection');
       if (chatSec) {
@@ -2483,15 +2483,15 @@
     }
 
     async function ask(text) { document.getElementById("input").value = text; sendMessage(); }
-    function jumpToToolChat(name, q, source) {
-      jumpToChat(q, { toolName: name, source: source || '' });
+    function jumpToToolChat(name, q, source, recommendationId) {
+      jumpToChat(q, { toolName: name, source: source || '', recommendationId: recommendationId || '' });
     }
     function openToolFromCard(name, q) {
       trackEvent('tool_click', { toolName: name, toolSlug: toolSlug(name) });
       jumpToToolChat(name, q);
     }
-    function trackOfficialClick(name, source) {
-      trackEvent('official_click', { toolName: name, toolSlug: toolSlug(name), source: source || '' });
+    function trackOfficialClick(name, source, recommendationId) {
+      trackEvent('official_click', { toolName: name, toolSlug: toolSlug(name), source: source || '', recommendationId: recommendationId || '' });
     }
 
     function setDirectoryStatus(kind, label, count) {
@@ -2907,7 +2907,7 @@
         });
         if (!res.ok) throw new Error('recommend failed');
         const data = await res.json();
-        renderQuizRecommendations(data.items || [], q);
+        renderQuizRecommendations(data.items || [], q, data.id || '');
       } catch(e) {
         closeQuiz();
         ask(q);
@@ -2915,14 +2915,16 @@
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '帮我推荐 →'; }
       }
     }
-    function renderQuizRecommendations(items, fallbackQuestion) {
+    function renderQuizRecommendations(items, fallbackQuestion, recommendationId) {
       const box = document.getElementById('quizBox');
       if (!box || !items.length) {
         closeQuiz();
         ask(fallbackQuestion);
         return;
       }
-      box.innerHTML += '<div class="quiz-results">' + items.slice(0, 5).map(function(item) {
+      const visibleItems = items.slice(0, 5);
+      const recEsc = String(recommendationId || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      box.innerHTML += '<div class="quiz-results">' + visibleItems.map(function(item) {
         const name = item.name || '';
         const found = findTool(name);
         const q = found?.t?.q || (name + '怎么用');
@@ -2934,11 +2936,16 @@
         return '<div class="quiz-result-card">' +
           '<div class="quiz-result-head"><div><div class="quiz-result-name">' + escapeHtml(name) + '</div><div class="quiz-result-reason">' + escapeHtml(reason) + '</div></div><span class="td-badge">' + escapeHtml(item.category || 'AI 工具') + '</span></div>' +
           '<div class="quiz-result-actions">' +
-          '<button class="primary" type="button" onclick="closeQuiz();jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\',\'recommendation\')">问 AI 怎么用</button>' +
-          (url ? '<a href="' + url.replace(/"/g,'&quot;') + '" target="_blank" rel="noopener noreferrer" onclick="trackOfficialClick(\'' + nameEsc + '\',\'recommendation\')">去官网</a>' : '') +
-          '<button type="button" onclick="toggleFavTool(\'' + nameEsc + '\',this,\'recommendation\')">' + favText + '</button>' +
+          '<button class="primary" type="button" onclick="closeQuiz();jumpToToolChat(\'' + nameEsc + '\',\'' + qEsc + '\',\'recommendation\',\'' + recEsc + '\')">问 AI 怎么用</button>' +
+          (url ? '<a href="' + url.replace(/"/g,'&quot;') + '" target="_blank" rel="noopener noreferrer" onclick="trackOfficialClick(\'' + nameEsc + '\',\'recommendation\',\'' + recEsc + '\')">去官网</a>' : '') +
+          '<button type="button" onclick="toggleFavTool(\'' + nameEsc + '\',this,\'recommendation\',\'' + recEsc + '\')">' + favText + '</button>' +
           '</div></div>';
       }).join('') + '</div>';
+      visibleItems.forEach(function(item) {
+        const name = item.name || '';
+        if (!name) return;
+        trackEvent('recommendation_impression', { toolName: name, toolSlug: item.slug || toolSlug(name), source: 'recommendation', recommendationId: recommendationId || '' });
+      });
     }
 
     // ── Prompt 模板库 ──────────────────────────────────────
@@ -3493,7 +3500,7 @@
       try { return new Set(JSON.parse(localStorage.getItem('fav_tools')||'[]')); } catch(e) { return new Set(); }
     }
     function saveFavTools(s) { localStorage.setItem('fav_tools', JSON.stringify([...s])); }
-    async function toggleFavTool(name, btn, source) {
+    async function toggleFavTool(name, btn, source, recommendationId) {
       const favs = getFavTools();
       const nextEnabled = !favs.has(name);
       if (nextEnabled) {
@@ -3507,7 +3514,7 @@
       if (btn && !btn.classList.contains('dir-tool-fav')) btn.textContent = nextEnabled ? '已收藏' : '收藏';
       if (accountState.user) {
         try {
-          const res = await saveServerFavorite(name, nextEnabled, source);
+          const res = await saveServerFavorite(name, nextEnabled, source, recommendationId);
           if (!res.ok) throw new Error('favorite sync failed');
           if (nextEnabled) accountState.serverFavs.add(name);
           else accountState.serverFavs.delete(name);
@@ -3521,7 +3528,7 @@
         }
       } else if (nextEnabled && source) {
         const tool = findTool(name)?.t || { name: name };
-        trackEvent('favorite_add', { toolName: tool.name, toolSlug: toolSlug(tool.name), source: source });
+        trackEvent('favorite_add', { toolName: tool.name, toolSlug: toolSlug(tool.name), source: source, recommendationId: recommendationId || '' });
       }
     }
 

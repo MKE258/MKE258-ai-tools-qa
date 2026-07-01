@@ -37,3 +37,4 @@
 - Added CSV export for the loaded admin analytics dashboard data.
 - Added recommendation-source attribution for AI recommendation result actions.
 - Added recommendation-source tool rankings to the admin analytics dashboard.
+- Added recommendation result impression tracking and recommendation CTR analytics.
